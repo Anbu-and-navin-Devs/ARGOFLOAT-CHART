@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+venv/
+.venv/
+dist/
+build/
+query_history.json
+.env
+*.spec

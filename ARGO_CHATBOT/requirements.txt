@@ -1,0 +1,11 @@
+flask
+flask-cors
+sqlalchemy
+psycopg2-binary
+tkintermapview
+matplotlib
+pandas
+requests
+python-dotenv
+pyautogui
+pillow
