@@ -6,7 +6,6 @@ from flask_cors import CORS
 import re
 from database_utils import LOCATIONS
 
-# --- CONFIGURATION ---
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres:anbu2006@localhost:5432/argo_db")
 app = Flask(__name__)
