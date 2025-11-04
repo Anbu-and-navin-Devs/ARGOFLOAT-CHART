@@ -133,6 +133,24 @@ A quick health check for database freshness is provided by `DATA_GENERATOR/check
 
 ---
 
+## Data Citation
+
+**ARGO Float Data:**
+These data were collected and made freely available by the International Argo Program and the national programs that contribute to it. (https://argo.ucsd.edu, https://www.ocean-ops.org). The Argo Program is part of the Global Ocean Observing System.
+
+**Data Source:**
+- Provider: Ifremer ERDDAP (Official ARGO Global Data Assembly Center)
+- Dataset: ArgoFloats-synthetic-BGC
+- Access: https://erddap.ifremer.fr/erddap/
+- License: Public Domain - Free for all uses including commercial
+- Updates: Near real-time (~24 hour latency)
+
+For detailed information about the data source, see [`DATA_SOURCE_VERIFICATION_REPORT.md`](DATA_SOURCE_VERIFICATION_REPORT.md).
+
+---
+
 ## License
 
 This project is offered under the terms of the MIT License. See [`LICENSE`](LICENSE) for full text.
+
+ARGO data is provided free of charge by the International Argo Program and carries no restrictions on use.
