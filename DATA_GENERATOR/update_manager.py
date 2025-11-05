@@ -1,6 +1,8 @@
 """High-level routines orchestrating data refresh flows."""
 from __future__ import annotations
 
+import logging
+import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Callable, Optional
@@ -10,9 +12,13 @@ from dotenv import load_dotenv
 
 from config import REGION_LABEL
 from csv_archive import append_to_archive
-from data_fetcher import fetch_incremental_dataframe
 from db_loader import load_into_postgres
 from state_manager import load_last_success_timestamp, persist_last_success_timestamp
+from netcdf_fetcher import fetch_netcdf_dataset
+from netcdf_transformer import dataset_to_dataframe
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -53,8 +59,21 @@ def perform_update(
     report(0)
     log(f"🌊 Region: {REGION_LABEL}")
     log(f"📅 Requesting observations from {fetch_start.isoformat()} to {fetch_end.isoformat()} ...")
+    log("🌐 Fetching NetCDF profiles from ERDDAP ...")
 
-    dataframe = fetch_incremental_dataframe(fetch_start, fetch_end)
+    dataset = fetch_netcdf_dataset(fetch_start, fetch_end)
+    try:
+        log("📦 Transforming NetCDF dataset into tabular records ...")
+        dataframe = dataset_to_dataframe(dataset)
+    finally:
+        temp_path = dataset.attrs.pop("_local_temp_path", None)
+        dataset.close()
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+                logger.debug("Removed temporary NetCDF file: %s", temp_path)
+            except OSError as exc:  # pragma: no cover - best effort cleanup
+                logger.warning("Failed to remove temporary NetCDF file %s: %s", temp_path, exc)
     report(40)
     downloaded_rows = len(dataframe)
     if downloaded_rows == 0:

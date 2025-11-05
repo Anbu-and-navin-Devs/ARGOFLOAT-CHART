@@ -33,7 +33,7 @@ Each sub-folder may also contain its own README or configuration files for compo
 - Auxiliary Flask API (`api_server.py`) powering map searches, float profiles, and trajectory retrieval.
 
 ### DATA_GENERATOR
-- Incremental downloader against the `ArgoFloats-synthetic-BGC` dataset using ERDDAP CSV endpoints.
+- Incremental downloader against the `ArgoFloats-synthetic-BGC` dataset using ERDDAP NetCDF endpoints (via `xarray` + `netCDF4`).
 - Duplicate-safe PostgreSQL loader with staging tables and unique key checks on `(float_id, timestamp, pressure)`.
 - Persistent CSV archive of newly inserted rows for offline review.
 - Tkinter GUI (`gui.py`) offering one-click updates, progress feedback, and summary reporting.
@@ -71,17 +71,17 @@ pip install -r requirements.txt
 cd ..\DATA_GENERATOR
 python -m venv .venv
 .venv\Scripts\activate
-pip install -r requirements.txt  # optional list if added later
+pip install -r requirements.txt
 ```
 
-*(The generator currently relies on standard library + pandas/requests; add packages as necessary.)*
+*(The generator now relies on `xarray`/`netCDF4` alongside `pandas` and `sqlalchemy` for NetCDF ingestion.)*
 
 ### 3. Refresh the dataset
 Run the GUI or call `update_manager.perform_update()` to download and load new ARGO observations.
 
 ```powershell
 cd DATA_GENERATOR
-.venv\Scripts\Activate
+.venv\Scripts\activate
 python gui.py
 ```
 
@@ -115,7 +115,7 @@ The assistant will read the latest database range, accept natural-language quest
 
 ## Data Flow Summary
 
-1. **ERDDAP → DATA_GENERATOR** – Fetches CSV windows bounded by the last success timestamp.
+1. **ERDDAP → DATA_GENERATOR** – Fetches NetCDF windows bounded by the last success timestamp.
 2. **DATA_GENERATOR → PostgreSQL (`argo_data`)** – Deduplicated inserts using a staging table.
 3. **PostgreSQL → ARGO_CHATBOT** – Queries via dynamically generated SQL tuned to the user intent.
 4. **ARGO_CHATBOT → User** – Conversational summaries, map visualisation, downloadable artefacts.

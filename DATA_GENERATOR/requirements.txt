@@ -1,0 +1,6 @@
+pandas
+requests
+xarray
+netCDF4
+sqlalchemy
+python-dotenv

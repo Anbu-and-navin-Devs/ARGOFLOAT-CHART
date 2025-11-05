@@ -1,7 +1,8 @@
 """Configuration settings for the data generator."""
 from datetime import datetime, timezone
 
-# ERDDAP dataset identifier for ARGO BGC synthetic profiles.
+# ERDDAP dataset identifier and endpoint for ARGO BGC synthetic profiles.
+ERDDAP_BASE_URL = "https://erddap.ifremer.fr/erddap/tabledap/"
 DATASET_ID = "ArgoFloats-synthetic-BGC"
 
 # Geographic and depth constraints aligned with existing application expectations.
@@ -11,7 +12,7 @@ PRESSURE_RANGE = (0.0, 2000.0)
 REGION_LABEL = "Indian Ocean (50°E-100°E, 20°S-25°N)"
 
 # Baseline date for initial backfill.
-DEFAULT_START_DATE = datetime(2023, 1, 1, tzinfo=timezone.utc)
+DEFAULT_START_DATE = datetime(2020, 1, 1, tzinfo=timezone.utc)
 
 # Paths used by the generator.
 CSV_ARCHIVE_PATH = "full_argo_dataset.csv"
