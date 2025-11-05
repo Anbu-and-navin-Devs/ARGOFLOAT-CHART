@@ -8,9 +8,9 @@ from datetime import datetime, timedelta, timezone
 from typing import Callable, Optional
 
 import pandas as pd
-from dotenv import load_dotenv
 
 from .config import REGION_LABEL
+from .env_utils import load_environment
 from .pipeline.db_loader import load_into_postgres
 from .pipeline.netcdf_fetcher import fetch_netcdf_dataset
 from .pipeline.netcdf_transformer import dataset_to_dataframe
@@ -37,7 +37,7 @@ def perform_update(
     progress_step_callback: Optional[Callable[[int], None]] = None,
 ) -> UpdateResult:
     """Run the end-to-end update pipeline and return a structured summary."""
-    load_dotenv()
+    load_environment()
 
     def log(message: str) -> None:
         if progress_callback:

@@ -8,9 +8,9 @@ import tkinter as tk
 from tkinter import messagebox, scrolledtext, ttk
 from typing import List
 
-from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 
+from .env_utils import load_environment
 from .pipeline.state_manager import load_last_success_timestamp
 from .update_manager import UpdateResult, perform_update
 
@@ -30,7 +30,7 @@ def _format_coord(value: float | None) -> str:
 
 def collect_db_snapshot() -> List[str]:
     """Return aggregate metrics and recent rows from the Postgres target."""
-    load_dotenv()
+    load_environment()
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
         raise RuntimeError("DATABASE_URL not set in environment variables.")
