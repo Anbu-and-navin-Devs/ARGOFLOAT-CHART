@@ -31,14 +31,31 @@ app = Flask(__name__, static_folder=STATIC_DIR)
 CORS(app)  # Enable Cross-Origin Resource Sharing
 
 # --- DATABASE CONNECTION ---
-def create_db_engine():
-    """Create database engine with connection pooling and error handling."""
+_engine = None
+
+def get_db_engine():
+    """Get or create database engine with lazy initialization and reconnection."""
+    global _engine
+    
+    # If we have an engine, test if it's still working
+    if _engine is not None:
+        try:
+            with _engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            return _engine
+        except Exception as e:
+            print(f"Database connection lost, reconnecting... ({e})")
+            _engine = None
+    
+    # Create new engine
     try:
-        # Add connection args for better reliability
-        engine = create_engine(
+        _engine = create_engine(
             DATABASE_URL,
-            pool_pre_ping=True,  # Test connection before using
-            pool_recycle=300,    # Recycle connections every 5 minutes
+            pool_pre_ping=True,
+            pool_size=2,
+            max_overflow=3,
+            pool_recycle=280,
+            pool_timeout=20,
             connect_args={
                 "connect_timeout": 30,
                 "keepalives": 1,
@@ -48,15 +65,17 @@ def create_db_engine():
             }
         )
         # Test the connection
-        with engine.connect() as conn:
+        with _engine.connect() as conn:
             conn.execute(text("SELECT 1"))
-        print("API Server: Successfully connected to the database.")
-        return engine
+        print("Database connected successfully.")
+        return _engine
     except Exception as e:
-        print(f"Error creating database engine: {e}")
+        print(f"Database connection error: {e}")
+        _engine = None
         return None
 
-engine = create_db_engine()
+# Legacy compatibility
+engine = None  # Will be lazy-loaded
 
 # =============================================
 # STATIC FILE ROUTES - Serve Web Application
@@ -89,10 +108,11 @@ def serve_js(path):
 @app.route('/api/status')
 def get_status():
     """Check API and database connection status."""
-    if not engine:
+    db = get_db_engine()
+    if not db:
         return jsonify({"status": "error", "database": "disconnected"}), 500
     try:
-        with engine.connect() as connection:
+        with db.connect() as connection:
             connection.execute(text("SELECT 1"))
         return jsonify({"status": "online", "database": "connected"})
     except Exception as e:
@@ -169,7 +189,8 @@ def get_locations():
 def get_available_periods():
     """Return distinct available years and months present in the dataset.
     Output example: {"periods": {"2023": [1,2,3], "2024": [5,6]}}"""
-    if not engine:
+    db = get_db_engine()
+    if not db:
         return jsonify({"error": "Database connection not available"}), 500
     query = text("""
         SELECT DISTINCT EXTRACT(YEAR FROM "timestamp")::INT AS yr,
@@ -178,7 +199,7 @@ def get_available_periods():
         ORDER BY yr DESC, mo DESC;
     """)
     try:
-        with engine.connect() as connection:
+        with db.connect() as connection:
             rows = connection.execute(query).mappings().all()
         periods = {}
         for r in rows:
@@ -193,7 +214,8 @@ def get_available_periods():
 
 @app.route('/api/nearest_floats', methods=['GET'])
 def get_nearest_floats():
-    if not engine: return jsonify({"error": "Database connection not available"}), 500
+    db = get_db_engine()
+    if not db: return jsonify({"error": "Database connection not available"}), 500
     lat = request.args.get('lat', type=float)
     lon = request.args.get('lon', type=float)
     limit = request.args.get('limit', default=4, type=int)
@@ -222,7 +244,7 @@ def get_nearest_floats():
         FROM ranked_floats WHERE rn = 1 ORDER BY distance_km LIMIT :limit;
     """)
     try:
-        with engine.connect() as connection:
+        with db.connect() as connection:
             result = connection.execute(query, params)
             floats = [dict(row) for row in result.mappings()]
             return jsonify(floats)
@@ -231,7 +253,8 @@ def get_nearest_floats():
 
 @app.route('/api/float_profile/<int:float_id>')
 def get_float_profile(float_id):
-    if not engine: return jsonify({"error": "Database connection not available"}), 500
+    db = get_db_engine()
+    if not db: return jsonify({"error": "Database connection not available"}), 500
     year = request.args.get('year', type=int)
     month = request.args.get('month', type=int)
     time_filter = ""
@@ -246,7 +269,7 @@ def get_float_profile(float_id):
         ) ORDER BY "pressure" ASC;
     """)
     try:
-        with engine.connect() as connection:
+        with db.connect() as connection:
             result = connection.execute(query, params)
             profile_data = [dict(row) for row in result.mappings()]
             if not profile_data: return jsonify({"error": "No data found for this float in selected period"}), 404
@@ -266,7 +289,8 @@ def get_float_trajectory(float_id):
         "num_points": N
     }
     """
-    if not engine: return jsonify({"error": "Database connection not available"}), 500
+    db = get_db_engine()
+    if not db: return jsonify({"error": "Database connection not available"}), 500
     year = request.args.get('year', type=int)
     month = request.args.get('month', type=int)
     time_filter = ""
@@ -279,7 +303,7 @@ def get_float_trajectory(float_id):
         WHERE "float_id" = :fid {time_filter} ORDER BY "timestamp" ASC;
     """)
     try:
-        with engine.connect() as connection:
+        with db.connect() as connection:
             rows = connection.execute(query, params).mappings().all()
             if not rows:
                 return jsonify({"error": "No trajectory data found for this period"}), 404
@@ -299,7 +323,8 @@ def get_float_trajectory(float_id):
 @app.route('/api/statistics')
 def get_statistics():
     """Get overall statistics about the dataset."""
-    if not engine:
+    db = get_db_engine()
+    if not db:
         return jsonify({"error": "Database connection not available"}), 500
     
     query = text("""
@@ -314,7 +339,7 @@ def get_statistics():
     """)
     
     try:
-        with engine.connect() as connection:
+        with db.connect() as connection:
             result = connection.execute(query).mappings().first()
             stats = dict(result)
             # Format timestamps
