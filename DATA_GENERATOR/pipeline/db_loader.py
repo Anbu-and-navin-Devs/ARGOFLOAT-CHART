@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from contextlib import contextmanager
 from typing import Iterator, Tuple
 
@@ -10,7 +11,10 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.inspection import inspect
 
-from ..config import CANONICAL_COLUMNS
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from DATA_GENERATOR.config import CANONICAL_COLUMNS
 
 
 @contextmanager

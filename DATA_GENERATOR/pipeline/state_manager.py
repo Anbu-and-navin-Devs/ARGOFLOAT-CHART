@@ -2,11 +2,16 @@
 from __future__ import annotations
 
 import json
+import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-from ..config import DEFAULT_START_DATE, STATE_FILE_PATH
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from DATA_GENERATOR.config import DEFAULT_START_DATE, STATE_FILE_PATH
 
 
 def _state_file() -> Path:

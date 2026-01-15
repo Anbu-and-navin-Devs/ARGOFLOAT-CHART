@@ -1,10 +1,16 @@
 """Transform NetCDF datasets into cleaned pandas DataFrames."""
 from __future__ import annotations
 
+import os
+import sys
+
 import pandas as pd
 import xarray as xr
 
-from ..config import CANONICAL_COLUMNS
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from DATA_GENERATOR.config import CANONICAL_COLUMNS
 
 
 def dataset_to_dataframe(dataset: xr.Dataset) -> pd.DataFrame:

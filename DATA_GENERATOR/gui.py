@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import math
 import os
+import sys
 import threading
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, ttk
@@ -13,10 +14,13 @@ from typing import List
 
 from sqlalchemy import create_engine, text
 
-from .env_utils import load_environment
-from .pipeline.state_manager import load_last_success_timestamp
-from .update_manager import UpdateResult, perform_update
-from .config import REGION_LABEL
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from DATA_GENERATOR.env_utils import load_environment
+from DATA_GENERATOR.pipeline.state_manager import load_last_success_timestamp
+from DATA_GENERATOR.update_manager import UpdateResult, perform_update
+from DATA_GENERATOR.config import REGION_LABEL
 
 # Color scheme matching the web app
 COLORS = {

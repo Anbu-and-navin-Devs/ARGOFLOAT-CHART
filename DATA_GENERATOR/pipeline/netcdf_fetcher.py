@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import sys
 import tempfile
 from datetime import datetime, timezone
 from typing import Tuple
@@ -9,7 +10,10 @@ from typing import Tuple
 import requests
 import xarray as xr
 
-from ..config import (
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from DATA_GENERATOR.config import (
     DATASET_ID,
     ERDDAP_BASE_URL,
     LATITUDE_RANGE,

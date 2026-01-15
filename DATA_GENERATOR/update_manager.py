@@ -3,18 +3,22 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Callable, Optional
 
 import pandas as pd
 
-from .config import REGION_LABEL
-from .env_utils import load_environment
-from .pipeline.db_loader import load_into_postgres
-from .pipeline.netcdf_fetcher import fetch_netcdf_dataset
-from .pipeline.netcdf_transformer import dataset_to_dataframe
-from .pipeline.state_manager import load_last_success_timestamp, persist_last_success_timestamp
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from DATA_GENERATOR.config import REGION_LABEL
+from DATA_GENERATOR.env_utils import load_environment
+from DATA_GENERATOR.pipeline.db_loader import load_into_postgres
+from DATA_GENERATOR.pipeline.netcdf_fetcher import fetch_netcdf_dataset
+from DATA_GENERATOR.pipeline.netcdf_transformer import dataset_to_dataframe
+from DATA_GENERATOR.pipeline.state_manager import load_last_success_timestamp, persist_last_success_timestamp
 
 
 logger = logging.getLogger(__name__)

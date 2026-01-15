@@ -12,7 +12,8 @@ PRESSURE_RANGE = (0.0, 2000.0)
 REGION_LABEL = "Indian Ocean (50°E-100°E, 20°S-25°N)"
 
 # Baseline date for initial backfill.
-DEFAULT_START_DATE = datetime(2020, 1, 1, tzinfo=timezone.utc)
+# TESTING: Using recent date for quick test. Change back to 2020 for full data.
+DEFAULT_START_DATE = datetime(2025, 12, 1, tzinfo=timezone.utc)  # Just 1.5 months of data
 
 # Paths used by the generator.
 STATE_FILE_PATH = "update_state.json"
