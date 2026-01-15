@@ -394,6 +394,96 @@
             background: var(--success);
             box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
         }
+        
+        /* Clicked Location Styles */
+        .clicked-location {
+            margin-bottom: 16px;
+            padding: 14px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
+            border: 1px solid var(--accent);
+            border-radius: var(--radius);
+        }
+        
+        .location-info {
+            margin-top: 10px;
+        }
+        
+        .location-coords {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .location-ocean {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        /* Enhanced Profile Chart */
+        .profile-chart {
+            height: 220px;
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            border: 1px solid var(--border);
+        }
+        
+        /* Summary Stats */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .summary-stat {
+            padding: 10px;
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        
+        .summary-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .summary-stat-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+        
+        /* Float item selected state */
+        .float-item.selected {
+            border-color: var(--accent);
+            background: var(--bg-active);
+        }
+        
+        /* Back to floats button */
+        .back-to-floats {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+        
+        .back-to-floats:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
     </style>
 </head>
 <body>
@@ -447,6 +537,21 @@
                 <div class="loading-spinner hidden" id="loadingState">
                     <div class="spinner"></div>
                     <div class="loading-text">Searching for floats...</div>
+                </div>
+                
+                <!-- Clicked Location Info -->
+                <div class="clicked-location hidden" id="clickedLocation">
+                    <div class="section-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        Selected Location
+                    </div>
+                    <div class="location-info">
+                        <div class="location-coords" id="locationCoords"></div>
+                        <div class="location-ocean" id="locationOcean"></div>
+                    </div>
                 </div>
                 
                 <!-- Float Data -->
@@ -539,6 +644,19 @@
         let currentFloatData = [];
         let selectedFloatId = null;
         let floatGroups = {};
+        let clickedLat = null;
+        let clickedLng = null;
+        
+        // Ocean detection based on coordinates
+        function detectOcean(lat, lon) {
+            if (lat >= -35 && lat <= 30 && lon >= 30 && lon <= 120) return "Indian Ocean Region";
+            if (lat >= -60 && lat <= 60 && lon >= 100 && lon <= 180) return "Pacific Ocean Region";
+            if (lat >= -60 && lat <= 60 && lon >= -80 && lon <= 0) return "Atlantic Ocean Region";
+            if (lat >= 30 && lat <= 46 && lon >= -6 && lon <= 36) return "Mediterranean Sea";
+            if (lat >= 10 && lat <= 22 && lon >= -88 && lon <= -60) return "Caribbean Sea";
+            if (lat <= -40) return "Southern Ocean";
+            return "Ocean Region";
+        }
         
         // DOM Elements
         const $ = id => document.getElementById(id);
@@ -551,6 +669,9 @@
             panelContent: $('panelContent'),
             emptyState: $('emptyState'),
             loadingState: $('loadingState'),
+            clickedLocation: $('clickedLocation'),
+            locationCoords: $('locationCoords'),
+            locationOcean: $('locationOcean'),
             floatData: $('floatData'),
             nearbyFloats: $('nearbyFloats'),
             floatList: $('floatList'),
@@ -590,8 +711,8 @@
         }
         
         function initEventListeners() {
-            el.viewTrajectoryBtn.addEventListener('click', showTrajectory);
-            el.viewProfileBtn.addEventListener('click', showProfile);
+            el.viewTrajectoryBtn.addEventListener('click', loadFullTrajectory);
+            el.viewProfileBtn.addEventListener('click', loadFullProfile);
             el.exportBtn.addEventListener('click', exportData);
         }
         
@@ -613,46 +734,60 @@
         
         async function onMapClick(e) {
             const { lat, lng } = e.latlng;
+            clickedLat = lat;
+            clickedLng = lng;
             
             // Clear previous markers
             clearMarkers();
             
-            // Add click marker
+            // Add click marker (orange pulsing)
             clickMarker = L.circleMarker([lat, lng], {
-                radius: 12,
+                radius: 14,
                 fillColor: '#f59e0b',
                 fillOpacity: 0.9,
                 color: 'white',
                 weight: 3
             }).addTo(map);
             
+            const oceanName = detectOcean(lat, lng);
+            
             clickMarker.bindPopup(`
-                <div class="popup-title">Searching...</div>
+                <div class="popup-title">📍 Selected Location</div>
                 <div class="popup-info">
-                    Lat: ${lat.toFixed(4)}<br>
-                    Lon: ${lng.toFixed(4)}
+                    <strong>${lat.toFixed(4)}°${lat >= 0 ? 'N' : 'S'}, ${lng.toFixed(4)}°${lng >= 0 ? 'E' : 'W'}</strong><br>
+                    ${oceanName}<br>
+                    <em>Searching for floats...</em>
                 </div>
             `).openPopup();
             
             // Show loading
             showLoading();
             
+            // Show clicked location info immediately
+            el.clickedLocation.classList.remove('hidden');
+            el.locationCoords.textContent = `${lat.toFixed(4)}°${lat >= 0 ? 'N' : 'S'}, ${lng.toFixed(4)}°${lng >= 0 ? 'E' : 'W'}`;
+            el.locationOcean.textContent = `${oceanName} • Searching within 500km radius...`;
+            
             // Query for nearby floats
             try {
-                const question = `Find ARGO floats within 300km of latitude ${lat.toFixed(2)} longitude ${lng.toFixed(2)}`;
+                const question = `Find nearest 10 ARGO floats within 500km of latitude ${lat.toFixed(2)} longitude ${lng.toFixed(2)}`;
                 const params = new URLSearchParams({ question });
                 const res = await fetch(`${API_BASE}/api/query?${params}`);
                 const result = await res.json();
                 
                 currentFloatData = result.data || [];
                 
+                // Update location info
+                const numFloats = Object.keys(floatGroups).length || new Set(currentFloatData.map(d => d.float_id)).size;
+                el.locationOcean.textContent = `${oceanName} • ${numFloats} float(s) found nearby`;
+                
                 // Update click marker popup
                 clickMarker.setPopupContent(`
-                    <div class="popup-title">Location</div>
+                    <div class="popup-title">📍 Selected Location</div>
                     <div class="popup-info">
-                        Lat: ${lat.toFixed(4)}<br>
-                        Lon: ${lng.toFixed(4)}<br>
-                        <strong>${currentFloatData.length} records found</strong>
+                        <strong>${lat.toFixed(4)}°${lat >= 0 ? 'N' : 'S'}, ${lng.toFixed(4)}°${lng >= 0 ? 'E' : 'W'}</strong><br>
+                        ${oceanName}<br>
+                        <strong style="color: #22c55e;">${currentFloatData.length} records from ${numFloats} float(s)</strong>
                     </div>
                 `);
                 
@@ -696,6 +831,8 @@
                 trajectoryMarkers.forEach(m => m.remove());
                 trajectoryMarkers = [];
             }
+            // Reset selected float
+            selectedFloatId = null;
         }
         
         function showLoading() {
@@ -703,24 +840,29 @@
             el.floatData.classList.add('hidden');
             el.loadingState.classList.remove('hidden');
             el.panelActions.classList.add('hidden');
+            el.floatBadge.classList.add('hidden');
+            el.panelTitle.textContent = 'Searching...';
         }
         
         function showEmptyResult() {
             el.loadingState.classList.add('hidden');
             el.floatData.classList.add('hidden');
             el.emptyState.classList.remove('hidden');
+            el.panelTitle.textContent = 'No Results';
             el.emptyState.querySelector('h3').textContent = 'No Floats Found';
-            el.emptyState.querySelector('p').textContent = 'Try clicking on a different location in the ocean. The data covers the Indian Ocean region.';
+            el.emptyState.querySelector('p').textContent = 'No ARGO floats found within 500km of this location. Try clicking on a different area - we have data across all major oceans.';
         }
         
         function showError() {
             el.loadingState.classList.add('hidden');
             el.emptyState.classList.remove('hidden');
-            el.emptyState.querySelector('h3').textContent = 'Error';
-            el.emptyState.querySelector('p').textContent = 'Failed to fetch data. Please try again.';
+            el.panelTitle.textContent = 'Error';
+            el.emptyState.querySelector('h3').textContent = 'Connection Error';
+            el.emptyState.querySelector('p').textContent = 'Failed to fetch data. Please check your connection and try again.';
         }
         
         function displayNearbyFloats(data) {
+            // Hide loading, show data
             el.loadingState.classList.add('hidden');
             el.emptyState.classList.add('hidden');
             el.floatData.classList.remove('hidden');
@@ -728,42 +870,75 @@
             el.floatInfo.classList.add('hidden');
             el.profileSection.classList.add('hidden');
             el.trajectorySection.classList.add('hidden');
+            el.panelActions.classList.add('hidden');
             
             // Group by float_id
-            const floatGroups = {};
+            const localFloatGroups = {};
             data.forEach(d => {
                 const id = d.float_id || 'unknown';
-                if (!floatGroups[id]) floatGroups[id] = [];
-                floatGroups[id].push(d);
+                if (!localFloatGroups[id]) localFloatGroups[id] = [];
+                localFloatGroups[id].push(d);
             });
+            floatGroups = localFloatGroups;
             
-            el.panelTitle.textContent = `${Object.keys(floatGroups).length} Floats Found`;
+            const numFloats = Object.keys(localFloatGroups).length;
+            el.panelTitle.textContent = `${numFloats} Float${numFloats !== 1 ? 's' : ''} Found`;
+            
+            // Calculate summary stats
+            const allTemps = data.filter(d => d.temperature != null).map(d => d.temperature);
+            const avgTemp = allTemps.length > 0 ? (allTemps.reduce((a,b) => a+b, 0) / allTemps.length).toFixed(1) : '--';
+            const allSals = data.filter(d => d.salinity != null).map(d => d.salinity);
+            const avgSal = allSals.length > 0 ? (allSals.reduce((a,b) => a+b, 0) / allSals.length).toFixed(2) : '--';
+            
+            // Create summary stats HTML
+            const summaryHTML = `
+                <div class="summary-stats">
+                    <div class="summary-stat">
+                        <div class="summary-stat-value">${numFloats}</div>
+                        <div class="summary-stat-label">Floats</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-stat-value">${data.length}</div>
+                        <div class="summary-stat-label">Records</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-stat-value">${avgTemp}°</div>
+                        <div class="summary-stat-label">Avg Temp</div>
+                    </div>
+                </div>
+            `;
             
             // Create float list
-            el.floatList.innerHTML = Object.entries(floatGroups).map(([id, points]) => {
+            const floatListHTML = Object.entries(localFloatGroups).map(([id, points]) => {
                 const latest = points[points.length - 1];
-                const avgTemp = points.reduce((a, b) => a + (b.temperature || 0), 0) / points.length;
+                const floatAvgTemp = points.reduce((a, b) => a + (b.temperature || 0), 0) / points.length;
                 return `
                     <div class="float-item" data-float-id="${id}">
                         <div class="float-item-header">
-                            <span class="float-item-id">Float ${id}</span>
+                            <span class="float-item-id">🔵 Float ${id}</span>
                             <span class="float-item-distance">${points.length} records</span>
                         </div>
                         <div class="float-item-details">
-                            Lat: ${latest.latitude?.toFixed(3)} | Lon: ${latest.longitude?.toFixed(3)}
-                            ${avgTemp ? ` | Avg: ${avgTemp.toFixed(1)}°C` : ''}
+                            📍 ${latest.latitude?.toFixed(3)}°, ${latest.longitude?.toFixed(3)}°
+                            ${floatAvgTemp ? ` | 🌡️ ${floatAvgTemp.toFixed(1)}°C` : ''}
                         </div>
                     </div>
                 `;
             }).join('');
             
-            // Add click handlers
+            // Set the float list HTML
+            el.floatList.innerHTML = summaryHTML + floatListHTML;
+            
+            // Add click handlers after HTML is in DOM
             el.floatList.querySelectorAll('.float-item').forEach(item => {
                 item.addEventListener('click', () => {
                     const floatId = item.dataset.floatId;
-                    selectFloat(floatId, floatGroups[floatId]);
+                    selectFloat(floatId, localFloatGroups[floatId]);
                 });
             });
+            
+            // Plot markers on map
+            plotFloatMarkers(data);
         }
         
         function plotFloatMarkers(data) {
@@ -804,6 +979,9 @@
         function selectFloat(floatId, points) {
             selectedFloatId = floatId;
             
+            // Store local points in floatGroups for now
+            floatGroups[floatId] = points;
+            
             // Update UI
             el.floatBadge.textContent = `Float ${floatId}`;
             el.floatBadge.classList.remove('hidden');
@@ -814,44 +992,109 @@
             
             // Show info
             const latest = points[points.length - 1];
+            const avgTemp = points.reduce((a, b) => a + (b.temperature || 0), 0) / points.length;
+            const avgSal = points.filter(p => p.salinity).reduce((a, b) => a + b.salinity, 0) / points.filter(p => p.salinity).length;
+            
             el.infoGrid.innerHTML = `
                 <div class="info-item">
-                    <div class="info-label">Float ID</div>
+                    <div class="info-label">🔵 Float ID</div>
                     <div class="info-value">${floatId}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">Records</div>
+                    <div class="info-label">📊 Records</div>
                     <div class="info-value">${points.length}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">Latitude</div>
-                    <div class="info-value">${latest.latitude?.toFixed(4)}</div>
+                    <div class="info-label">📍 Latitude</div>
+                    <div class="info-value">${latest.latitude?.toFixed(4)}°</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">Longitude</div>
-                    <div class="info-value">${latest.longitude?.toFixed(4)}</div>
+                    <div class="info-label">📍 Longitude</div>
+                    <div class="info-value">${latest.longitude?.toFixed(4)}°</div>
                 </div>
-                ${latest.temperature ? `
+                ${avgTemp ? `
                 <div class="info-item">
-                    <div class="info-label">Temperature</div>
-                    <div class="info-value">${latest.temperature.toFixed(2)}°C</div>
+                    <div class="info-label">🌡️ Avg Temp</div>
+                    <div class="info-value">${avgTemp.toFixed(2)}°C</div>
                 </div>` : ''}
-                ${latest.salinity ? `
+                ${avgSal ? `
                 <div class="info-item">
-                    <div class="info-label">Salinity</div>
-                    <div class="info-value">${latest.salinity.toFixed(2)} PSU</div>
+                    <div class="info-label">🧪 Avg Salinity</div>
+                    <div class="info-value">${avgSal.toFixed(2)} PSU</div>
                 </div>` : ''}
             `;
             
             // Center map on float
             map.setView([latest.latitude, latest.longitude], 7);
+            
+            // Add back to list button
+            addBackButton();
         }
         
-        function showTrajectory() {
-            if (!selectedFloatId || !floatGroups[selectedFloatId]) return;
+        function addBackButton() {
+            // Add back button if not already there
+            if (!document.querySelector('.back-to-floats')) {
+                const backBtn = document.createElement('button');
+                backBtn.className = 'back-to-floats';
+                backBtn.innerHTML = '← Back to Float List';
+                backBtn.onclick = () => {
+                    el.floatInfo.classList.add('hidden');
+                    el.panelActions.classList.add('hidden');
+                    el.nearbyFloats.classList.remove('hidden');
+                    el.floatBadge.classList.add('hidden');
+                    el.panelTitle.textContent = 'Nearby Floats';
+                    el.trajectorySection.classList.add('hidden');
+                    el.depthProfile.classList.add('hidden');
+                    
+                    // Clear trajectory
+                    if (trajectoryPath) trajectoryPath.remove();
+                    trajectoryMarkers.forEach(m => m.remove());
+                    trajectoryMarkers = [];
+                    
+                    backBtn.remove();
+                };
+                el.floatInfo.insertBefore(backBtn, el.floatInfo.firstChild);
+            }
+        }
+        
+        async function loadFullFloatData(floatId) {
+            try {
+                el.loadingState.classList.remove('hidden');
+                el.loadingState.querySelector('p').textContent = 'Loading full float data...';
+                
+                const response = await fetch(`/api/query`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: `Show all data for float ${floatId}` })
+                });
+                
+                const result = await response.json();
+                
+                el.loadingState.classList.add('hidden');
+                
+                if (result.data && result.data.length > 0) {
+                    floatGroups[floatId] = result.data;
+                    return result.data;
+                }
+                return floatGroups[floatId] || [];
+            } catch (error) {
+                el.loadingState.classList.add('hidden');
+                console.error('Error loading full float data:', error);
+                return floatGroups[floatId] || [];
+            }
+        }
+        
+        async function showTrajectory() {
+            if (!selectedFloatId) return;
             
-            const points = floatGroups[selectedFloatId];
-            if (points.length < 2) {
+            // Load full float data first
+            let points = floatGroups[selectedFloatId];
+            if (!points || points.length < 10) {
+                // Might need more data - try to fetch full trajectory
+                points = await loadFullFloatData(selectedFloatId);
+            }
+            
+            if (!points || points.length < 2) {
                 alert('Not enough data points to show trajectory');
                 return;
             }
@@ -911,10 +1154,19 @@
             map.fitBounds(trajectoryPath.getBounds(), { padding: [50, 50] });
         }
         
-        function showProfile() {
-            if (!selectedFloatId || !floatGroups[selectedFloatId]) return;
+        async function showProfile() {
+            if (!selectedFloatId) return;
             
-            const points = floatGroups[selectedFloatId];
+            // Load full float data first
+            let points = floatGroups[selectedFloatId];
+            if (!points || points.length < 10) {
+                points = await loadFullFloatData(selectedFloatId);
+            }
+            
+            if (!points || points.length === 0) {
+                alert('No data available for profile');
+                return;
+            }
             
             // Check if we have pressure data
             const hasProfile = points.some(d => d.pressure != null);
