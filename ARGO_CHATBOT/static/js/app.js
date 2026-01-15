@@ -34,6 +34,7 @@ const el = {
     periodYear: $('periodYear'),
     periodMonth: $('periodMonth'),
     fullscreenMap: $('fullscreenMap'),
+    openChatBtn: $('openChatBtn'),
     
     // Results
     resultsPanel: $('resultsPanel'),
@@ -97,14 +98,17 @@ function initMap() {
         maxZoom: 19
     }).addTo(state.map);
     
-    // Add region boundary
-    const bounds = [[−20, 50], [25, 100]];
+    // Add region boundary (Indian Ocean: lat -20 to 25, lon 50 to 100)
+    const bounds = [[-20, 50], [25, 100]];
     L.rectangle(bounds, {
         color: '#3b82f6',
         weight: 1,
         fillOpacity: 0.05,
         dashArray: '5, 5'
     }).addTo(state.map);
+    
+    // Invalidate size after render
+    setTimeout(() => state.map.invalidateSize(), 100);
 }
 
 function initEventListeners() {
@@ -134,9 +138,21 @@ function initEventListeners() {
         el.queryInput.style.height = Math.min(el.queryInput.scrollHeight, 120) + 'px';
     });
     
-    // Panel toggle
+    // Panel toggle (collapse/expand chat)
     el.panelToggle.addEventListener('click', () => {
-        el.chatPanel.classList.toggle('collapsed');
+        const isCollapsed = el.chatPanel.classList.toggle('collapsed');
+        el.panelToggle.classList.toggle('rotated');
+        el.openChatBtn.classList.toggle('hidden', !isCollapsed);
+        // Resize map when panel collapses/expands
+        setTimeout(() => state.map.invalidateSize(), 350);
+    });
+    
+    // Open chat button (floating)
+    el.openChatBtn.addEventListener('click', () => {
+        el.chatPanel.classList.remove('collapsed');
+        el.panelToggle.classList.remove('rotated');
+        el.openChatBtn.classList.add('hidden');
+        setTimeout(() => state.map.invalidateSize(), 350);
     });
     
     // Tab switching

@@ -214,6 +214,35 @@ body {
     border-color: var(--accent);
 }
 
+/* Open Chat Button (floating when panel collapsed) */
+.open-chat-btn {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+    transition: all 0.3s;
+    z-index: 1001;
+}
+
+.open-chat-btn:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-lg), 0 0 40px var(--accent-glow);
+}
+
+.open-chat-btn.hidden {
+    display: none;
+}
+
 /* ========================================
    Results Panel
    ======================================== */
@@ -528,6 +557,14 @@ body {
 .collapse-btn:hover {
     background: var(--bg-hover);
     color: var(--accent);
+}
+
+.collapse-btn.rotated svg {
+    transform: rotate(180deg);
+}
+
+.collapse-btn svg {
+    transition: transform 0.3s ease;
 }
 
 /* Quick Actions */
