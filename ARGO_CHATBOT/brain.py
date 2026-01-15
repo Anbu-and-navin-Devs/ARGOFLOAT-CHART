@@ -79,13 +79,44 @@ def get_engine():
 
 db_context = {}
 LOCATIONS = {
+    # Indian Ocean regions
+    "indian ocean": "(\"latitude\" BETWEEN -40 AND 25 AND \"longitude\" BETWEEN 30 AND 120)",
     "arabian sea": "(\"latitude\" BETWEEN 5 AND 25 AND \"longitude\" BETWEEN 50 AND 75)",
     "bay of bengal": "(\"latitude\" BETWEEN 5 AND 22 AND \"longitude\" BETWEEN 80 AND 95)",
-    "equator": "(\"latitude\" BETWEEN -2 AND 2)",
     "andaman sea": "(\"latitude\" BETWEEN 5 AND 15 AND \"longitude\" BETWEEN 92 AND 98)",
-    "chennai": "(\"latitude\" BETWEEN 12.5 AND 13.5 AND \"longitude\" BETWEEN 80 AND 80.5)",
-    "mumbai": "(\"latitude\" BETWEEN 18.5 AND 19.5 AND \"longitude\" BETWEEN 72.5 AND 73)",
-    "sri lanka": "(\"latitude\" BETWEEN 5 AND 10 AND \"longitude\" BETWEEN 79 AND 82)"
+    "laccadive sea": "(\"latitude\" BETWEEN 8 AND 14 AND \"longitude\" BETWEEN 71 AND 77)",
+    "red sea": "(\"latitude\" BETWEEN 12 AND 30 AND \"longitude\" BETWEEN 32 AND 44)",
+    "persian gulf": "(\"latitude\" BETWEEN 24 AND 30 AND \"longitude\" BETWEEN 48 AND 56)",
+    "mozambique channel": "(\"latitude\" BETWEEN -25 AND -10 AND \"longitude\" BETWEEN 35 AND 45)",
+    
+    # Pacific Ocean regions
+    "pacific ocean": "(\"latitude\" BETWEEN -60 AND 60 AND \"longitude\" BETWEEN 100 AND 180)",
+    "south china sea": "(\"latitude\" BETWEEN 0 AND 25 AND \"longitude\" BETWEEN 100 AND 121)",
+    "philippine sea": "(\"latitude\" BETWEEN 5 AND 35 AND \"longitude\" BETWEEN 120 AND 140)",
+    "coral sea": "(\"latitude\" BETWEEN -25 AND -10 AND \"longitude\" BETWEEN 145 AND 165)",
+    "tasman sea": "(\"latitude\" BETWEEN -45 AND -30 AND \"longitude\" BETWEEN 150 AND 175)",
+    
+    # Atlantic Ocean regions
+    "atlantic ocean": "(\"latitude\" BETWEEN -60 AND 60 AND \"longitude\" BETWEEN -80 AND 0)",
+    "caribbean sea": "(\"latitude\" BETWEEN 10 AND 22 AND \"longitude\" BETWEEN -88 AND -60)",
+    "gulf of mexico": "(\"latitude\" BETWEEN 18 AND 30 AND \"longitude\" BETWEEN -98 AND -80)",
+    "mediterranean sea": "(\"latitude\" BETWEEN 30 AND 46 AND \"longitude\" BETWEEN -6 AND 36)",
+    "north sea": "(\"latitude\" BETWEEN 51 AND 62 AND \"longitude\" BETWEEN -5 AND 10)",
+    
+    # Cities/Ports
+    "chennai": "(\"latitude\" BETWEEN 12.5 AND 14 AND \"longitude\" BETWEEN 80 AND 81)",
+    "mumbai": "(\"latitude\" BETWEEN 18 AND 20 AND \"longitude\" BETWEEN 72 AND 73.5)",
+    "sri lanka": "(\"latitude\" BETWEEN 5 AND 10 AND \"longitude\" BETWEEN 79 AND 82)",
+    "singapore": "(\"latitude\" BETWEEN 0 AND 3 AND \"longitude\" BETWEEN 103 AND 105)",
+    "tokyo": "(\"latitude\" BETWEEN 34 AND 36 AND \"longitude\" BETWEEN 139 AND 141)",
+    "sydney": "(\"latitude\" BETWEEN -35 AND -33 AND \"longitude\" BETWEEN 150 AND 152)",
+    "cape town": "(\"latitude\" BETWEEN -35 AND -33 AND \"longitude\" BETWEEN 17 AND 19)",
+    "miami": "(\"latitude\" BETWEEN 25 AND 27 AND \"longitude\" BETWEEN -81 AND -79)",
+    
+    # Special regions
+    "equator": "(\"latitude\" BETWEEN -2 AND 2)",
+    "tropics": "(\"latitude\" BETWEEN -23.5 AND 23.5)",
+    "southern ocean": "(\"latitude\" BETWEEN -65 AND -40)"
 }
 
 def get_database_context(engine):
