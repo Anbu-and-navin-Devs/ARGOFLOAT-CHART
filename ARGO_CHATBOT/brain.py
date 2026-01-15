@@ -103,15 +103,38 @@ LOCATIONS = {
     "mediterranean sea": "(\"latitude\" BETWEEN 30 AND 46 AND \"longitude\" BETWEEN -6 AND 36)",
     "north sea": "(\"latitude\" BETWEEN 51 AND 62 AND \"longitude\" BETWEEN -5 AND 10)",
     
-    # Cities/Ports
-    "chennai": "(\"latitude\" BETWEEN 12.5 AND 14 AND \"longitude\" BETWEEN 80 AND 81)",
-    "mumbai": "(\"latitude\" BETWEEN 18 AND 20 AND \"longitude\" BETWEEN 72 AND 73.5)",
+    # Cities/Ports - India
+    "chennai": "(\"latitude\" BETWEEN 12 AND 14 AND \"longitude\" BETWEEN 79 AND 82)",
+    "mumbai": "(\"latitude\" BETWEEN 18 AND 20 AND \"longitude\" BETWEEN 71 AND 74)",
+    "kollam": "(\"latitude\" BETWEEN 8 AND 10 AND \"longitude\" BETWEEN 75 AND 77)",
+    "kochi": "(\"latitude\" BETWEEN 9 AND 11 AND \"longitude\" BETWEEN 75 AND 77)",
+    "cochin": "(\"latitude\" BETWEEN 9 AND 11 AND \"longitude\" BETWEEN 75 AND 77)",
+    "goa": "(\"latitude\" BETWEEN 14 AND 16 AND \"longitude\" BETWEEN 72 AND 74)",
+    "kolkata": "(\"latitude\" BETWEEN 21 AND 23 AND \"longitude\" BETWEEN 87 AND 89)",
+    "visakhapatnam": "(\"latitude\" BETWEEN 17 AND 18.5 AND \"longitude\" BETWEEN 82 AND 84)",
+    "vizag": "(\"latitude\" BETWEEN 17 AND 18.5 AND \"longitude\" BETWEEN 82 AND 84)",
+    "mangalore": "(\"latitude\" BETWEEN 12 AND 14 AND \"longitude\" BETWEEN 74 AND 76)",
+    "tuticorin": "(\"latitude\" BETWEEN 8 AND 9.5 AND \"longitude\" BETWEEN 77 AND 79)",
+    "pondicherry": "(\"latitude\" BETWEEN 11 AND 12.5 AND \"longitude\" BETWEEN 79 AND 80.5)",
+    "puducherry": "(\"latitude\" BETWEEN 11 AND 12.5 AND \"longitude\" BETWEEN 79 AND 80.5)",
+    "trivandrum": "(\"latitude\" BETWEEN 8 AND 9.5 AND \"longitude\" BETWEEN 76 AND 77.5)",
+    "thiruvananthapuram": "(\"latitude\" BETWEEN 8 AND 9.5 AND \"longitude\" BETWEEN 76 AND 77.5)",
+    "surat": "(\"latitude\" BETWEEN 20 AND 22 AND \"longitude\" BETWEEN 71 AND 73)",
+    "kandla": "(\"latitude\" BETWEEN 22 AND 24 AND \"longitude\" BETWEEN 69 AND 71)",
+    "paradip": "(\"latitude\" BETWEEN 19 AND 21 AND \"longitude\" BETWEEN 86 AND 87.5)",
+    "andaman": "(\"latitude\" BETWEEN 6 AND 14 AND \"longitude\" BETWEEN 91 AND 95)",
+    "port blair": "(\"latitude\" BETWEEN 11 AND 12.5 AND \"longitude\" BETWEEN 92 AND 93.5)",
+    "karwar": "(\"latitude\" BETWEEN 14 AND 15.5 AND \"longitude\" BETWEEN 73 AND 75)",
+    "ratnagiri": "(\"latitude\" BETWEEN 16 AND 17.5 AND \"longitude\" BETWEEN 72 AND 74)",
+    # Cities/Ports - International
     "sri lanka": "(\"latitude\" BETWEEN 5 AND 10 AND \"longitude\" BETWEEN 79 AND 82)",
     "singapore": "(\"latitude\" BETWEEN 0 AND 3 AND \"longitude\" BETWEEN 103 AND 105)",
     "tokyo": "(\"latitude\" BETWEEN 34 AND 36 AND \"longitude\" BETWEEN 139 AND 141)",
     "sydney": "(\"latitude\" BETWEEN -35 AND -33 AND \"longitude\" BETWEEN 150 AND 152)",
     "cape town": "(\"latitude\" BETWEEN -35 AND -33 AND \"longitude\" BETWEEN 17 AND 19)",
     "miami": "(\"latitude\" BETWEEN 25 AND 27 AND \"longitude\" BETWEEN -81 AND -79)",
+    "maldives": "(\"latitude\" BETWEEN 0 AND 8 AND \"longitude\" BETWEEN 72 AND 74)",
+    "mauritius": "(\"latitude\" BETWEEN -21 AND -19 AND \"longitude\" BETWEEN 56 AND 58)",
     
     # Special regions
     "equator": "(\"latitude\" BETWEEN -2 AND 2)",
@@ -148,7 +171,8 @@ SUPPORTED LOCATIONS:
 Indian Ocean: arabian sea, bay of bengal, indian ocean, andaman sea, laccadive sea, red sea, persian gulf, mozambique channel
 Pacific Ocean: pacific ocean, south china sea, philippine sea, coral sea, tasman sea
 Atlantic Ocean: atlantic ocean, caribbean sea, gulf of mexico, mediterranean sea, north sea
-Cities: chennai, mumbai, sri lanka, singapore, tokyo, sydney, cape town, miami
+Indian Cities: chennai, mumbai, kollam, kochi, cochin, goa, kolkata, visakhapatnam, vizag, mangalore, tuticorin, pondicherry, puducherry, trivandrum, thiruvananthapuram, surat, kandla, paradip, andaman, port blair, karwar, ratnagiri
+Other Cities: sri lanka, singapore, tokyo, sydney, cape town, miami, maldives, mauritius
 Special: equator, tropics, southern ocean
 
 EXTRACT THESE FIELDS:

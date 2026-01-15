@@ -212,6 +212,36 @@
             gap: 8px;
         }
         
+        /* Chart Type Tabs */
+        .chart-type-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .chart-type-tab {
+            padding: 6px 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .chart-type-tab:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        
+        .chart-type-tab.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+        
         .profile-chart {
             height: 200px;
             background: var(--bg-card);
@@ -647,13 +677,19 @@
                         <div class="info-grid" id="infoGrid"></div>
                     </div>
                     
-                    <!-- Profile Chart -->
+                    <!-- Profile Chart with Type Selection -->
                     <div class="profile-section hidden" id="profileSection">
                         <div class="section-title">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M18 20V10m-6 10V4M6 20v-6"/>
                             </svg>
-                            Depth Profile
+                            Data Visualization
+                        </div>
+                        <div class="chart-type-tabs" id="chartTypeTabs">
+                            <button class="chart-type-tab active" data-chart="temp-time">🌡️ Temp/Time</button>
+                            <button class="chart-type-tab" data-chart="sal-time">🧪 Sal/Time</button>
+                            <button class="chart-type-tab" data-chart="temp-sal">📊 Temp vs Sal</button>
+                            <button class="chart-type-tab" data-chart="all-time">📈 All/Time</button>
                         </div>
                         <div class="profile-chart">
                             <canvas id="profileChart"></canvas>
@@ -823,17 +859,24 @@
                 return;
             }
             
+            // First try using existing data
+            const existingData = floatGroups[selectedFloatId];
+            if (existingData && existingData.length >= 2) {
+                showTrajectory(existingData);
+                return;
+            }
+            
             try {
                 // Show loading
                 el.viewTrajectoryBtn.disabled = true;
                 el.viewTrajectoryBtn.innerHTML = '<div class="spinner" style="width:14px;height:14px;"></div> Loading...';
                 
-                // Fetch full trajectory from API
+                // Fetch full trajectory from API - simpler query
                 const response = await fetch(`${API_BASE}/api/query`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        query: `Show trajectory for float ${selectedFloatId}` 
+                        query: `all data for float ${selectedFloatId}` 
                     })
                 });
                 
@@ -842,14 +885,19 @@
                 if (result.data && result.data.length > 0) {
                     floatGroups[selectedFloatId] = result.data;
                     showTrajectory(result.data);
-                } else if (floatGroups[selectedFloatId]) {
-                    showTrajectory(floatGroups[selectedFloatId]);
+                } else if (existingData && existingData.length >= 2) {
+                    showTrajectory(existingData);
                 } else {
-                    alert('No trajectory data available');
+                    showTrajectory(existingData || []);
                 }
             } catch (error) {
                 console.error('Error loading trajectory:', error);
-                alert('Failed to load trajectory data');
+                // Fallback to existing data
+                if (existingData && existingData.length >= 2) {
+                    showTrajectory(existingData);
+                } else {
+                    alert('Unable to load trajectory data. The float may only have 1 data point.');
+                }
             } finally {
                 el.viewTrajectoryBtn.disabled = false;
                 el.viewTrajectoryBtn.innerHTML = `
@@ -867,6 +915,13 @@
                 return;
             }
             
+            // First try using existing data
+            const existingData = floatGroups[selectedFloatId];
+            if (existingData && existingData.length > 0) {
+                showProfile(existingData);
+                return;
+            }
+            
             try {
                 el.viewProfileBtn.disabled = true;
                 el.viewProfileBtn.innerHTML = '<div class="spinner" style="width:14px;height:14px;"></div> Loading...';
@@ -875,7 +930,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        query: `Show depth profile for float ${selectedFloatId}` 
+                        query: `all data for float ${selectedFloatId}` 
                     })
                 });
                 
@@ -884,14 +939,18 @@
                 if (result.data && result.data.length > 0) {
                     floatGroups[selectedFloatId] = result.data;
                     showProfile(result.data);
-                } else if (floatGroups[selectedFloatId]) {
-                    showProfile(floatGroups[selectedFloatId]);
+                } else if (existingData && existingData.length > 0) {
+                    showProfile(existingData);
                 } else {
-                    alert('No profile data available');
+                    showProfile(existingData || []);
                 }
             } catch (error) {
                 console.error('Error loading profile:', error);
-                alert('Failed to load profile data');
+                if (existingData && existingData.length > 0) {
+                    showProfile(existingData);
+                } else {
+                    alert('Unable to load profile data');
+                }
             } finally {
                 el.viewProfileBtn.disabled = false;
                 el.viewProfileBtn.innerHTML = `
@@ -1361,100 +1420,164 @@
             map.fitBounds(trajectoryPath.getBounds(), { padding: [50, 50] });
         }
         
+        let currentProfileData = null;
+        
         function showProfile(points) {
             if (!points || points.length === 0) {
-                alert('No data available for profile');
+                alert('No data available for visualization');
                 return;
             }
             
-            // Check if we have pressure data
-            const hasProfile = points.some(d => d.pressure != null);
-            if (!hasProfile) {
-                // Show temp/salinity over time instead
-                showTimeSeriesProfile(points);
-                return;
-            }
-            
+            currentProfileData = points;
             el.profileSection.classList.remove('hidden');
             
-            // Destroy existing chart
-            if (chart) chart.destroy();
-            
-            const sorted = [...points].sort((a, b) => (a.pressure || 0) - (b.pressure || 0));
-            
-            chart = new Chart(el.profileChart.getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: sorted.map(d => d.pressure?.toFixed(0)),
-                    datasets: [
-                        {
-                            label: 'Temp (°C)',
-                            data: sorted.map(d => d.temperature),
-                            borderColor: '#ef4444',
-                            tension: 0.3,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Salinity',
-                            data: sorted.map(d => d.salinity),
-                            borderColor: '#3b82f6',
-                            tension: 0.3,
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 } } } },
-                    scales: {
-                        x: { title: { display: true, text: 'Pressure (dbar)', color: '#94a3b8' }, ticks: { color: '#64748b', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        y: { position: 'left', ticks: { color: '#ef4444' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        y1: { position: 'right', ticks: { color: '#3b82f6' }, grid: { display: false } }
-                    }
-                }
+            // Initialize chart type tab handlers
+            const chartTypeTabs = document.getElementById('chartTypeTabs');
+            chartTypeTabs.querySelectorAll('.chart-type-tab').forEach(tab => {
+                tab.onclick = () => {
+                    chartTypeTabs.querySelectorAll('.chart-type-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    renderChart(tab.dataset.chart, points);
+                };
             });
+            
+            // Render default chart (temp over time)
+            renderChart('temp-time', points);
         }
         
-        function showTimeSeriesProfile(points) {
-            el.profileSection.classList.remove('hidden');
-            
+        function renderChart(chartType, points) {
             if (chart) chart.destroy();
             
             const sorted = [...points].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            
-            chart = new Chart(el.profileChart.getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: sorted.map(d => d.timestamp?.split('T')[0] || ''),
-                    datasets: [
-                        {
-                            label: 'Temp (°C)',
-                            data: sorted.map(d => d.temperature),
-                            borderColor: '#ef4444',
-                            tension: 0.3,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Salinity',
-                            data: sorted.map(d => d.salinity),
-                            borderColor: '#3b82f6',
-                            tension: 0.3,
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 } } } },
-                    scales: {
-                        x: { title: { display: true, text: 'Time', color: '#94a3b8' }, ticks: { color: '#64748b', font: { size: 8 }, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        y: { position: 'left', ticks: { color: '#ef4444' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        y1: { position: 'right', ticks: { color: '#3b82f6' }, grid: { display: false } }
-                    }
+            const labels = sorted.map(d => {
+                if (d.timestamp) {
+                    const date = new Date(d.timestamp);
+                    return `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear().toString().slice(2)}`;
                 }
+                return '';
             });
+            
+            let config;
+            
+            switch(chartType) {
+                case 'temp-time':
+                    config = {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Temperature (°C)',
+                                data: sorted.map(d => d.temperature),
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                fill: true,
+                                tension: 0.3
+                            }]
+                        },
+                        options: getChartOptions('Time', 'Temperature (°C)')
+                    };
+                    break;
+                    
+                case 'sal-time':
+                    config = {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Salinity (PSU)',
+                                data: sorted.map(d => d.salinity),
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                fill: true,
+                                tension: 0.3
+                            }]
+                        },
+                        options: getChartOptions('Time', 'Salinity (PSU)')
+                    };
+                    break;
+                    
+                case 'temp-sal':
+                    // Scatter plot - temp vs salinity
+                    const scatterData = sorted
+                        .filter(d => d.temperature != null && d.salinity != null)
+                        .map(d => ({ x: d.salinity, y: d.temperature }));
+                    config = {
+                        type: 'scatter',
+                        data: {
+                            datasets: [{
+                                label: 'Temp vs Salinity',
+                                data: scatterData,
+                                backgroundColor: '#22c55e',
+                                pointRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 } } } },
+                            scales: {
+                                x: { title: { display: true, text: 'Salinity (PSU)', color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                                y: { title: { display: true, text: 'Temperature (°C)', color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                            }
+                        }
+                    };
+                    break;
+                    
+                case 'all-time':
+                default:
+                    config = {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: 'Temp (°C)',
+                                    data: sorted.map(d => d.temperature),
+                                    borderColor: '#ef4444',
+                                    tension: 0.3,
+                                    yAxisID: 'y'
+                                },
+                                {
+                                    label: 'Salinity',
+                                    data: sorted.map(d => d.salinity),
+                                    borderColor: '#3b82f6',
+                                    tension: 0.3,
+                                    yAxisID: 'y1'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 } } } },
+                            scales: {
+                                x: { ticks: { color: '#64748b', font: { size: 8 }, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                                y: { position: 'left', title: { display: true, text: 'Temp', color: '#ef4444' }, ticks: { color: '#ef4444' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                                y1: { position: 'right', title: { display: true, text: 'Sal', color: '#3b82f6' }, ticks: { color: '#3b82f6' }, grid: { display: false } }
+                            }
+                        }
+                    };
+                    break;
+            }
+            
+            chart = new Chart(el.profileChart.getContext('2d'), config);
+        }
+        
+        function getChartOptions(xLabel, yLabel) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 } } } },
+                scales: {
+                    x: { title: { display: true, text: xLabel, color: '#94a3b8' }, ticks: { color: '#64748b', font: { size: 8 }, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { title: { display: true, text: yLabel, color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                }
+            };
+        }
+        
+        function showTimeSeriesProfile(points) {
+            // Redirect to the new showProfile with chart selection
+            showProfile(points);
         }
         
         function exportData() {
