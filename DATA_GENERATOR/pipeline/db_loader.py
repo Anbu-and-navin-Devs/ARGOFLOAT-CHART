@@ -41,36 +41,50 @@ def load_into_postgres(df: pd.DataFrame) -> Tuple[int, int, pd.DataFrame]:
     if df.empty:
         return 0, 0, pd.DataFrame(columns=CANONICAL_COLUMNS)
 
+    # Ensure correct data types
+    if 'float_id' in df.columns:
+        df['float_id'] = pd.to_numeric(df['float_id'], errors='coerce').astype('Int64')
+    
+    # Ensure numeric columns are proper floats
+    numeric_cols = ['latitude', 'longitude', 'pressure', 'temperature', 'salinity', 'chlorophyll', 'dissolved_oxygen']
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+
     with _engine_context() as engine:
         _ensure_table(df, engine)
 
         temp_table = "argo_data_temp"
         df.to_sql(temp_table, engine, if_exists="replace", index=False, chunksize=5000)
 
-        column_list = ", ".join(CANONICAL_COLUMNS)
+        # Use ON CONFLICT for upsert (simpler and faster)
         insert_stmt = text(
-            f"""
-            INSERT INTO argo_data ({column_list})
-            SELECT {column_list}
+            """
+            INSERT INTO argo_data (float_id, timestamp, latitude, longitude, pressure, temperature, salinity, chlorophyll, dissolved_oxygen)
+            SELECT 
+                float_id::integer, 
+                timestamp, 
+                latitude::double precision, 
+                longitude::double precision, 
+                pressure::double precision, 
+                temperature::double precision, 
+                salinity::double precision, 
+                chlorophyll::double precision, 
+                dissolved_oxygen::double precision
             FROM argo_data_temp t
             WHERE NOT EXISTS (
                 SELECT 1 FROM argo_data a
-                WHERE a.float_id = t.float_id
+                WHERE a.float_id = t.float_id::integer
                   AND a.timestamp = t.timestamp
-                  AND (a.pressure = t.pressure OR (a.pressure IS NULL AND t.pressure IS NULL))
+                  AND a.pressure = t.pressure::double precision
             )
-            RETURNING {column_list}
             """
         )
 
         with engine.begin() as connection:
             result = connection.execute(insert_stmt)
-            inserted_records = result.mappings().all()
-            inserted_rows = len(inserted_records)
-            inserted_df = pd.DataFrame(inserted_records)
-            if not inserted_df.empty:
-                inserted_df = inserted_df[CANONICAL_COLUMNS]
+            inserted_rows = result.rowcount
             connection.execute(text("DROP TABLE IF EXISTS argo_data_temp"))
 
         total_rows = len(df)
-        return total_rows, inserted_rows, inserted_df
+        return total_rows, inserted_rows, pd.DataFrame()

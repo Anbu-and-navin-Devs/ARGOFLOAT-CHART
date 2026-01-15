@@ -291,7 +291,7 @@ async function handleSendQuery() {
 }
 
 function displayResults(result) {
-    const { query_type, data, summary, sql_query } = result;
+    const { query_type, data, summary, sql_query, data_range } = result;
     
     state.currentData = data || [];
     
@@ -301,8 +301,9 @@ function displayResults(result) {
     // Update visualization
     updateVisualization(data, query_type);
     
-    // Update summary
-    updateSummary(summary, query_type, data);
+    // Update summary with data range info
+    const fullSummary = data_range ? `${summary}\n\n📅 ${data_range}` : summary;
+    updateSummary(fullSummary, query_type, data);
     
     // Update SQL
     if (sql_query) {
@@ -312,6 +313,8 @@ function displayResults(result) {
     // Show success toast
     if (data && data.length > 0) {
         showToast('Success', `Found ${data.length} records`, 'success');
+    } else {
+        showToast('No Data', data_range || 'No records found', 'warning');
     }
 }
 

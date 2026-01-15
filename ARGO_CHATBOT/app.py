@@ -110,20 +110,36 @@ def get_status():
     """Check API and database connection status."""
     db = get_db_engine()
     if not db:
-        # Return more info for debugging
         return jsonify({
             "status": "error", 
             "database": "disconnected",
-            "hint": "Check DATABASE_URL environment variable and Supabase pooler settings"
+            "hint": "Check DATABASE_URL environment variable"
         }), 500
     try:
         with db.connect() as connection:
-            result = connection.execute(text("SELECT COUNT(*) FROM argo_data"))
-            count = result.fetchone()[0]
+            result = connection.execute(text("""
+                SELECT COUNT(*), 
+                       COUNT(DISTINCT float_id),
+                       MIN(timestamp), 
+                       MAX(timestamp) 
+                FROM argo_data
+            """))
+            row = result.fetchone()
+            count, floats, min_date, max_date = row
+        
+        # Format dates
+        min_str = min_date.strftime("%Y-%m-%d") if min_date else None
+        max_str = max_date.strftime("%Y-%m-%d") if max_date else None
+        
         return jsonify({
             "status": "online", 
             "database": "connected",
-            "records": count
+            "records": count,
+            "unique_floats": floats,
+            "data_range": {
+                "start": min_str,
+                "end": max_str
+            }
         })
     except Exception as e:
         return jsonify({

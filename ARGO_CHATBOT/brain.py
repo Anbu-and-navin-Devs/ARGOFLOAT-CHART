@@ -149,6 +149,15 @@ def get_intelligent_answer(user_question: str):
             logging.error("Could not connect to database.")
             return {"query_type": "Error", "summary": "Could not connect to database.", "data": []}
 
+        # Format data availability info for responses
+        min_date = context.get("min_date")
+        max_date = context.get("max_date")
+        data_range_info = ""
+        if min_date and max_date:
+            min_date_str = min_date.strftime("%b %d, %Y") if hasattr(min_date, 'strftime') else str(min_date)[:10]
+            max_date_str = max_date.strftime("%b %d, %Y") if hasattr(max_date, 'strftime') else str(max_date)[:10]
+            data_range_info = f"Data available: {min_date_str} to {max_date_str}"
+
         prompt = PromptTemplate.from_template(INTENT_PARSER_PROMPT)
         parser_chain = prompt | llm | StrOutputParser()
         intent_json_str = parser_chain.invoke({"question": user_question})
@@ -433,22 +442,23 @@ def get_intelligent_answer(user_question: str):
         if not df.empty and 'distance_km' in df.columns:
             results_summary_text += f" Distances range from {df['distance_km'].min():.2f} to {df['distance_km'].max():.2f} km."
 
-        # Improved empty result messages
+        # Improved empty result messages with data availability info
         if num_records == 0:
             if intent.get("query_type") == "Proximity":
-                results_summary_text += " No floats found near the specified location. Try a different location or reduce the search radius. Valid locations: " + ", ".join(list(LOCATIONS.keys()))
+                results_summary_text += f" No floats found near the specified location. {data_range_info}. Try a different location or reduce the search radius. Valid locations: " + ", ".join(list(LOCATIONS.keys()))
             elif intent.get("query_type") in ["Trajectory", "Profile"] and intent.get("float_id") is not None:
-                available_floats = df["float_id"].unique().tolist() if "float_id" in df.columns else []
-                suggestion = "Check available float IDs: " + ", ".join(map(str, available_floats)) if available_floats else "No float IDs found in current data."
-                results_summary_text += f" No data found for the requested float ID {intent['float_id']}. {suggestion}"
+                results_summary_text += f" No data found for float ID {intent['float_id']}. {data_range_info}. The float may not have data in this time period."
             else:
-                available_metrics = [col for col in df.columns if col not in ["latitude", "longitude", "float_id", "timestamp"]]
-                metric_suggestion = "Available metrics: " + ", ".join(available_metrics) if available_metrics else "No metrics found in current data."
-                results_summary_text += f" No matching data found for your query. This may be due to strict filters, missing measurements, or limited data coverage. Try broadening your query or checking available float IDs/regions. {metric_suggestion}"
+                # Check if query mentions dates outside our range
+                time_constraint = intent.get("time_constraint", "")
+                if any(year in str(time_constraint).lower() for year in ["2020", "2021", "2022", "2023", "2024"]):
+                    results_summary_text = f"⚠️ The requested time period is outside our data range. {data_range_info}. Please query within the available date range."
+                else:
+                    results_summary_text += f" No matching data found. {data_range_info}. Try broadening your query or checking available regions."
         elif num_records == 1:
-            results_summary_text += " Only one record found. Results may not be representative; consider relaxing filters or exploring other time periods/locations."
+            results_summary_text += f" Only one record found. {data_range_info}."
         elif num_records < 10:
-            results_summary_text += " Few records found. For more robust analysis, try expanding your query scope."
+            results_summary_text += f" Few records found. {data_range_info}."
 
         summarization_prompt = PromptTemplate.from_template(SUMMARIZATION_PROMPT)
         summary_chain = summarization_prompt | llm | StrOutputParser()
@@ -463,7 +473,8 @@ def get_intelligent_answer(user_question: str):
             "query_type": intent.get("query_type"),
             "sql_query": generated_sql,
             "summary": summary,
-            "data": data_records
+            "data": data_records,
+            "data_range": data_range_info
         }
         # Debug: optionally surface parsed intent (without leaking internal complexity) if env var set
         if os.getenv("SHOW_INTENT_JSON", "0") in ("1", "true", "yes"):

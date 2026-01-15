@@ -1,10 +1,10 @@
-"""Utility functions to download ARGO observations from Argovis API."""
+"""Utility functions to download ARGO observations from ERDDAP servers."""
 from __future__ import annotations
 
 import os
 import sys
-from datetime import datetime, timezone
-from typing import List, Dict, Any, Optional, Callable
+from datetime import datetime, timezone, timedelta
+from typing import Optional, Callable
 
 import pandas as pd
 import requests
@@ -18,9 +18,17 @@ from DATA_GENERATOR.config import (
     REQUEST_TIMEOUT,
 )
 
-# Argovis API - Official REST API for ARGO data
-# Documentation: https://argovis-api.colorado.edu/docs/
-ARGOVIS_BASE_URL = "https://argovis-api.colorado.edu"
+# ERDDAP servers - primary and fallback
+ERDDAP_SERVERS = [
+    {
+        "name": "Ifremer",
+        "base_url": "https://erddap.ifremer.fr/erddap/tabledap/ArgoFloats.json",
+    },
+    {
+        "name": "NOAA PMEL",
+        "base_url": "https://data.pmel.noaa.gov/pmel/erddap/tabledap/ARGO.json",
+    }
+]
 
 
 def fetch_argo_data(
@@ -28,7 +36,7 @@ def fetch_argo_data(
     end: datetime,
     progress_callback: Optional[Callable[[str], None]] = None
 ) -> pd.DataFrame:
-    """Download ARGO float data from Argovis API for the given time range.
+    """Download ARGO float data from ERDDAP servers for the given time range.
     
     Parameters
     ----------
@@ -50,144 +58,181 @@ def fetch_argo_data(
             progress_callback(msg)
         print(msg)
     
-    # Convert to UTC ISO format
-    start_utc = start.astimezone(timezone.utc)
-    end_utc = end.astimezone(timezone.utc)
+    # Ensure UTC timezone
+    if start.tzinfo is None:
+        start = start.replace(tzinfo=timezone.utc)
+    else:
+        start = start.astimezone(timezone.utc)
+        
+    if end.tzinfo is None:
+        end = end.replace(tzinfo=timezone.utc)
+    else:
+        end = end.astimezone(timezone.utc)
     
     lat_min, lat_max = LATITUDE_RANGE
     lon_min, lon_max = LONGITUDE_RANGE
     
-    # Build bounding box: [[lon_min, lat_min], [lon_max, lat_max]]
-    box = f"[[{lon_min},{lat_min}],[{lon_max},{lat_max}]]"
+    # Format dates for ERDDAP query
+    start_str = start.strftime("%Y-%m-%d")
+    end_str = end.strftime("%Y-%m-%d")
     
-    url = f"{ARGOVIS_BASE_URL}/argo"
-    params = {
-        "startDate": start_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "endDate": end_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "box": box,
-        "data": "pressure,temperature,salinity,doxy,chla"
-    }
+    log(f"📅 Date range: {start_str} to {end_str}")
+    log(f"📍 Region: {lat_min}° to {lat_max}° lat, {lon_min}° to {lon_max}° lon")
     
-    log(f"🌐 Fetching from Argovis API...")
-    log(f"📅 Date range: {start_utc.date()} to {end_utc.date()}")
-    log(f"📍 Region: {lat_min}°-{lat_max}° lat, {lon_min}°-{lon_max}° lon")
-    
-    try:
-        response = requests.get(url, params=params, timeout=REQUEST_TIMEOUT)
-        response.raise_for_status()
-        profiles = response.json()
+    # Try each server
+    for server in ERDDAP_SERVERS:
+        server_name = server["name"]
+        base_url = server["base_url"]
         
-        if isinstance(profiles, dict) and "message" in profiles:
-            raise RuntimeError(f"API Error: {profiles['message']}")
+        log(f"🌐 Trying {server_name} ERDDAP server...")
         
-        log(f"✅ Received {len(profiles)} profiles from Argovis")
-        
-        if not profiles:
-            return pd.DataFrame()
-        
-        # Convert profiles to flat records
-        records = []
-        for profile in profiles:
-            float_id = profile.get("_id", "").split("_")[0]
-            timestamp = profile.get("timestamp")
+        try:
+            # Build ERDDAP query URL
+            # Request: platform_number, time, latitude, longitude, pres, temp, psal
+            query = (
+                f"?platform_number,time,latitude,longitude,pres,temp,psal"
+                f"&time>={start_str}"
+                f"&time<={end_str}"
+                f"&latitude>={lat_min}"
+                f"&latitude<={lat_max}"
+                f"&longitude>={lon_min}"
+                f"&longitude<={lon_max}"
+                f"&orderBy(%22time%22)"
+            )
             
-            geo = profile.get("geolocation", {})
-            coords = geo.get("coordinates", [None, None])
-            longitude = coords[0]
-            latitude = coords[1]
+            url = base_url + query
+            log(f"🔗 Requesting data...")
             
-            # Get data arrays
-            data = profile.get("data", [])
-            data_info = profile.get("data_info", [[]])
+            response = requests.get(url, timeout=REQUEST_TIMEOUT)
             
-            # Map data arrays by name
-            var_names = data_info[0] if data_info else []
-            data_map = {}
-            for i, name in enumerate(var_names):
-                if i < len(data):
-                    data_map[name] = data[i]
+            if response.status_code == 404:
+                log(f"⚠️ No data found on {server_name}")
+                continue
             
-            pressure_arr = data_map.get("pressure", [])
-            temp_arr = data_map.get("temperature", [])
-            sal_arr = data_map.get("salinity", [])
-            doxy_arr = data_map.get("doxy", [])
-            chla_arr = data_map.get("chla", [])
+            response.raise_for_status()
+            data = response.json()
             
-            # Create a record for each depth level
-            num_levels = len(pressure_arr) if pressure_arr else 0
+            # Parse ERDDAP JSON response
+            table = data.get("table", {})
+            column_names = table.get("columnNames", [])
+            rows = table.get("rows", [])
             
-            for i in range(num_levels):
-                pressure = pressure_arr[i] if i < len(pressure_arr) else None
-                temperature = temp_arr[i] if i < len(temp_arr) else None
-                salinity = sal_arr[i] if i < len(sal_arr) else None
-                dissolved_oxygen = doxy_arr[i] if i < len(doxy_arr) else None
-                chlorophyll = chla_arr[i] if i < len(chla_arr) else None
-                
-                # Skip if no valid measurements
-                if temperature is None and salinity is None:
-                    continue
-                
-                records.append({
-                    "float_id": int(float_id) if float_id.isdigit() else float_id,
-                    "timestamp": timestamp,
-                    "latitude": latitude,
-                    "longitude": longitude,
-                    "pressure": pressure,
-                    "temperature": temperature,
-                    "salinity": salinity,
-                    "dissolved_oxygen": dissolved_oxygen,
-                    "chlorophyll": chlorophyll,
-                })
-        
-        df = pd.DataFrame(records)
-        
-        if not df.empty:
-            # Convert timestamp to datetime
+            log(f"✅ Received {len(rows)} records from {server_name}")
+            
+            if not rows:
+                continue
+            
+            # Convert to DataFrame
+            df = pd.DataFrame(rows, columns=column_names)
+            
+            # Rename columns to match our schema
+            column_mapping = {
+                "platform_number": "float_id",
+                "time": "timestamp",
+                "pres": "pressure",
+                "temp": "temperature",
+                "psal": "salinity",
+            }
+            df = df.rename(columns=column_mapping)
+            
+            # Add missing columns
+            if "dissolved_oxygen" not in df.columns:
+                df["dissolved_oxygen"] = None
+            if "chlorophyll" not in df.columns:
+                df["chlorophyll"] = None
+            
+            # Convert timestamp
             df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
             
             # Convert numeric columns
-            numeric_cols = ["latitude", "longitude", "pressure", "temperature", 
-                          "salinity", "dissolved_oxygen", "chlorophyll"]
+            numeric_cols = ["latitude", "longitude", "pressure", "temperature", "salinity"]
             for col in numeric_cols:
                 if col in df.columns:
                     df[col] = pd.to_numeric(df[col], errors="coerce")
             
-            # Remove duplicates
-            df = df.drop_duplicates(
-                subset=["float_id", "timestamp", "pressure"], 
-                keep="last"
-            )
-            df = df.sort_values("timestamp").reset_index(drop=True)
-        
-        log(f"📊 Processed {len(df)} measurement records")
-        return df
-        
-    except requests.exceptions.Timeout:
-        raise RuntimeError(f"Argovis API timed out after {REQUEST_TIMEOUT}s")
-    except requests.exceptions.RequestException as e:
-        raise RuntimeError(f"Argovis API request failed: {e}")
-    except Exception as e:
-        raise RuntimeError(f"Error processing Argovis data: {e}")
-
-
-# Legacy function for compatibility
-def fetch_netcdf_dataset(start: datetime, end: datetime, progress_callback=None):
-    """Legacy wrapper - now uses Argovis API instead of NetCDF.
+            # Filter out rows with no temperature or salinity
+            df = df.dropna(subset=["temperature", "salinity"], how="all")
+            
+            # Ensure column order
+            output_cols = [
+                "float_id", "timestamp", "latitude", "longitude",
+                "pressure", "temperature", "salinity", "dissolved_oxygen", "chlorophyll"
+            ]
+            df = df[[c for c in output_cols if c in df.columns]]
+            
+            log(f"📊 Processed {len(df)} valid measurements")
+            
+            return df
+            
+        except requests.exceptions.Timeout:
+            log(f"⏱️ Timeout on {server_name}, trying next server...")
+            continue
+        except requests.exceptions.RequestException as e:
+            log(f"❌ Error on {server_name}: {e}")
+            continue
+        except Exception as e:
+            log(f"❌ Failed to parse {server_name} response: {e}")
+            continue
     
-    Returns a simple object with the dataframe accessible for transformation.
+    # All servers failed
+    log("❌ All ERDDAP servers failed. Please try again later.")
+    return pd.DataFrame()
+
+
+def fetch_argo_data_chunked(
+    start: datetime,
+    end: datetime,
+    chunk_days: int = 7,
+    progress_callback: Optional[Callable[[str], None]] = None
+) -> pd.DataFrame:
+    """Download ARGO data in chunks to handle large date ranges.
+    
+    Parameters
+    ----------
+    start : datetime
+        Start date.
+    end : datetime
+        End date.
+    chunk_days : int
+        Number of days per chunk.
+    progress_callback : callable, optional
+        Progress callback function.
+        
+    Returns
+    -------
+    pd.DataFrame
+        Combined DataFrame from all chunks.
     """
-    df = fetch_argo_data(start, end, progress_callback)
+    def log(msg: str) -> None:
+        if progress_callback:
+            progress_callback(msg)
+        print(msg)
     
-    # Create a simple wrapper object that mimics xarray.Dataset behavior
-    class DataWrapper:
-        def __init__(self, dataframe: pd.DataFrame):
-            self._df = dataframe
-            self.attrs = {}
-        
-        def to_dataframe(self):
-            return self._df.copy()
-        
-        def close(self):
-            pass
+    all_dfs = []
+    current = start
+    chunk_num = 0
+    total_days = (end - start).days
+    num_chunks = (total_days // chunk_days) + 1
     
-    return DataWrapper(df)
+    while current < end:
+        chunk_end = min(current + timedelta(days=chunk_days), end)
+        chunk_num += 1
+        
+        log(f"📦 Fetching chunk {chunk_num}/{num_chunks}: {current.date()} to {chunk_end.date()}")
+        
+        df = fetch_argo_data(current, chunk_end, progress_callback)
+        
+        if not df.empty:
+            all_dfs.append(df)
+            log(f"✅ Chunk {chunk_num}: {len(df)} records")
+        
+        current = chunk_end + timedelta(days=1)
+    
+    if all_dfs:
+        result = pd.concat(all_dfs, ignore_index=True)
+        # Remove duplicates based on float_id, timestamp, pressure
+        result = result.drop_duplicates(subset=["float_id", "timestamp", "pressure"])
+        log(f"📊 Total: {len(result)} unique records")
+        return result
+    
+    return pd.DataFrame()
