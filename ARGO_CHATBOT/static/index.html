@@ -26,14 +26,13 @@
                         <span class="badge-icon">🌊</span>
                         <span class="badge-text">Indian Ocean Region</span>
                     </div>
-                    <div class="map-period-controls">
-                        <select id="periodYear" class="map-select">
-                            <option value="">All Years</option>
-                        </select>
-                        <select id="periodMonth" class="map-select">
-                            <option value="">All Months</option>
-                        </select>
-                    </div>
+                    <!-- Map Explorer Button -->
+                    <button class="map-explorer-btn" id="mapExplorerBtn" title="Click on map to explore floats">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                        </svg>
+                        <span>Click to Explore</span>
+                    </button>
                 </div>
                 
                 <!-- Map Legend -->
@@ -115,6 +114,25 @@
                 </div>
                 
                 <div class="tab-content" id="chartTab">
+                    <div class="chart-controls">
+                        <label>Chart Type:</label>
+                        <select id="chartTypeSelect" class="chart-select">
+                            <option value="auto">Auto (Best fit)</option>
+                            <option value="profile">Depth Profile</option>
+                            <option value="timeseries">Time Series</option>
+                            <option value="scatter">Scatter Plot</option>
+                            <option value="histogram">Histogram</option>
+                            <option value="ts-diagram">T-S Diagram</option>
+                        </select>
+                        <label>X Axis:</label>
+                        <select id="chartXAxis" class="chart-select">
+                            <option value="auto">Auto</option>
+                        </select>
+                        <label>Y Axis:</label>
+                        <select id="chartYAxis" class="chart-select">
+                            <option value="auto">Auto</option>
+                        </select>
+                    </div>
                     <div class="chart-container" id="chartContainer">
                         <canvas id="dataChart"></canvas>
                     </div>

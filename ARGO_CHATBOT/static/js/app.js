@@ -17,9 +17,9 @@ const state = {
     markers: [],
     polylines: [],
     currentData: [],
+    currentQueryType: null,
     history: [],
     isLoading: false,
-    periods: {},
     panelWidth: 380
 };
 
@@ -31,10 +31,9 @@ const el = {
     mapContainer: $('mapContainer'),
     mapWrapper: $('mapWrapper'),
     mapInfoBadge: $('mapInfoBadge'),
-    periodYear: $('periodYear'),
-    periodMonth: $('periodMonth'),
     fullscreenMap: $('fullscreenMap'),
     openChatBtn: $('openChatBtn'),
+    mapExplorerBtn: $('mapExplorerBtn'),
     
     // Results
     resultsPanel: $('resultsPanel'),
@@ -49,6 +48,9 @@ const el = {
     sqlToggle: $('sqlToggle'),
     sqlCode: $('sqlCode'),
     chartContainer: $('chartContainer'),
+    chartTypeSelect: $('chartTypeSelect'),
+    chartXAxis: $('chartXAxis'),
+    chartYAxis: $('chartYAxis'),
     dataChart: $('dataChart'),
     tableHead: $('tableHead'),
     tableBody: $('tableBody'),
@@ -74,6 +76,8 @@ const el = {
     toastContainer: $('toastContainer')
 };
 
+// Map Explorer State
+let mapExplorerActive = false;
 // ========================================
 // Initialization
 // ========================================
@@ -83,7 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initResizable();
     loadHistory();
     checkStatus();
-    loadPeriods();
 });
 
 function initMap() {
@@ -186,9 +189,13 @@ function initEventListeners() {
     // Clear history
     el.clearHistory.addEventListener('click', clearHistory);
     
-    // Period selects
-    el.periodYear.addEventListener('change', loadPeriodData);
-    el.periodMonth.addEventListener('change', loadPeriodData);
+    // Map Explorer toggle
+    el.mapExplorerBtn.addEventListener('click', toggleMapExplorer);
+    
+    // Chart type and axis changes
+    el.chartTypeSelect.addEventListener('change', () => updateChart(state.currentData, state.currentQueryType));
+    el.chartXAxis.addEventListener('change', () => updateChart(state.currentData, state.currentQueryType));
+    el.chartYAxis.addEventListener('change', () => updateChart(state.currentData, state.currentQueryType));
 }
 
 function initResizable() {
@@ -238,12 +245,15 @@ async function checkStatus() {
             dot.classList.add('online');
             text.textContent = 'Connected';
             
-            // Show data range
+            // Show data range consistently
             if (data.data_range) {
-                el.dataRangeInfo.textContent = `📅 Data: ${data.data_range.start} to ${data.data_range.end}`;
-            }
-            if (data.records) {
-                el.dataRangeInfo.textContent += ` • ${data.records.toLocaleString()} records`;
+                const start = data.data_range.start;
+                const end = data.data_range.end;
+                const records = data.records ? data.records.toLocaleString() : '0';
+                el.dataRangeInfo.innerHTML = `
+                    <div class="data-range-main">📅 ${start} to ${end} • ${records} records</div>
+                    <div class="data-range-note">💡 For more data, use the local version</div>
+                `;
             }
         } else {
             dot.classList.remove('online');
@@ -252,44 +262,6 @@ async function checkStatus() {
     } catch (e) {
         console.error('Status check failed:', e);
         el.statusIndicator.querySelector('.status-text').textContent = 'Offline';
-    }
-}
-
-async function loadPeriods() {
-    try {
-        const res = await fetch(`${API_BASE}/api/available_periods`);
-        const data = await res.json();
-        
-        if (data.periods) {
-            state.periods = data.periods;
-            populatePeriodSelects();
-        }
-    } catch (e) {
-        console.error('Failed to load periods:', e);
-    }
-}
-
-function populatePeriodSelects() {
-    const years = Object.keys(state.periods).sort((a, b) => b - a);
-    
-    el.periodYear.innerHTML = '<option value="">All Years</option>';
-    years.forEach(year => {
-        el.periodYear.innerHTML += `<option value="${year}">${year}</option>`;
-    });
-}
-
-function loadPeriodData() {
-    const year = el.periodYear.value;
-    const month = el.periodMonth.value;
-    
-    // Update month options based on year
-    if (year && state.periods[year]) {
-        const months = state.periods[year].sort((a, b) => a - b);
-        el.periodMonth.innerHTML = '<option value="">All Months</option>';
-        months.forEach(m => {
-            const monthName = new Date(2000, m - 1).toLocaleString('en', { month: 'short' });
-            el.periodMonth.innerHTML += `<option value="${m}">${monthName}</option>`;
-        });
     }
 }
 
@@ -310,10 +282,6 @@ async function sendQuery() {
     
     try {
         const params = new URLSearchParams({ question });
-        const year = el.periodYear.value;
-        const month = el.periodMonth.value;
-        if (year) params.append('year', year);
-        if (month) params.append('month', month);
         
         const res = await fetch(`${API_BASE}/api/query?${params}`);
         const result = await res.json();
@@ -345,6 +313,7 @@ async function sendQuery() {
 function displayResults(result) {
     const { query_type, data, summary, sql_query, data_range } = result;
     state.currentData = data || [];
+    state.currentQueryType = query_type;
     
     // Update map
     updateMap(data, query_type);
@@ -367,6 +336,9 @@ function displayResults(result) {
         el.sqlCode.textContent = sql_query;
     }
     
+    // Populate chart axis options based on data
+    populateChartAxes(data);
+    
     // Update chart
     updateChart(data, query_type);
     
@@ -375,6 +347,24 @@ function displayResults(result) {
     
     // Switch to summary tab
     switchTab('summary');
+}
+
+function populateChartAxes(data) {
+    if (!data || data.length === 0) return;
+    
+    const numericCols = Object.keys(data[0]).filter(k => 
+        typeof data[0][k] === 'number' && !k.includes('id')
+    );
+    
+    const allCols = ['auto', ...numericCols];
+    
+    el.chartXAxis.innerHTML = allCols.map(c => 
+        `<option value="${c}">${c === 'auto' ? 'Auto' : c.replace('_', ' ')}</option>`
+    ).join('');
+    
+    el.chartYAxis.innerHTML = allCols.map(c => 
+        `<option value="${c}">${c === 'auto' ? 'Auto' : c.replace('_', ' ')}</option>`
+    ).join('');
 }
 
 function updateStats(data, queryType) {
@@ -500,79 +490,217 @@ function updateChart(data, queryType) {
     if (!data || data.length === 0) return;
     
     const ctx = el.dataChart.getContext('2d');
+    const chartType = el.chartTypeSelect.value;
+    const xAxis = el.chartXAxis.value;
+    const yAxis = el.chartYAxis.value;
     
-    // Profile chart (pressure vs temp/sal)
-    if (queryType === 'Profile' || data[0]?.pressure != null) {
-        const sorted = [...data].sort((a, b) => (a.pressure || 0) - (b.pressure || 0));
-        
-        state.chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: sorted.map(d => d.pressure?.toFixed(0) || ''),
-                datasets: [
-                    {
-                        label: 'Temperature (°C)',
-                        data: sorted.map(d => d.temperature),
-                        borderColor: '#ef4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        tension: 0.3,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'Salinity (PSU)',
-                        data: sorted.map(d => d.salinity),
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.3,
-                        yAxisID: 'y1'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top', labels: { color: '#94a3b8' } }
-                },
-                scales: {
-                    x: { title: { display: true, text: 'Pressure (dbar)', color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { position: 'left', title: { display: true, text: 'Temp (°C)', color: '#ef4444' }, ticks: { color: '#ef4444' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y1: { position: 'right', title: { display: true, text: 'Salinity (PSU)', color: '#3b82f6' }, ticks: { color: '#3b82f6' }, grid: { display: false } }
-                }
-            }
-        });
+    // Get numeric columns
+    const numericCols = Object.keys(data[0]).filter(k => 
+        typeof data[0][k] === 'number' && !k.includes('id')
+    );
+    
+    // Chart configuration based on type
+    let config;
+    
+    if (chartType === 'ts-diagram') {
+        // T-S Diagram (Temperature vs Salinity scatter)
+        config = createTSDiagram(data);
+    } else if (chartType === 'histogram') {
+        // Histogram of selected column
+        const col = yAxis !== 'auto' ? yAxis : (numericCols.includes('temperature') ? 'temperature' : numericCols[0]);
+        config = createHistogram(data, col);
+    } else if (chartType === 'scatter') {
+        // Scatter plot
+        const xCol = xAxis !== 'auto' ? xAxis : 'longitude';
+        const yCol = yAxis !== 'auto' ? yAxis : 'latitude';
+        config = createScatterPlot(data, xCol, yCol);
+    } else if (chartType === 'profile' || (chartType === 'auto' && data[0]?.pressure != null)) {
+        // Depth profile
+        config = createProfileChart(data);
+    } else if (chartType === 'timeseries' || (chartType === 'auto' && data.some(d => d.timestamp))) {
+        // Time series
+        const col = yAxis !== 'auto' ? yAxis : 'temperature';
+        config = createTimeSeriesChart(data, col);
     } else {
-        // Time series or scatter
-        const hasTime = data.some(d => d.timestamp);
-        
-        if (hasTime) {
-            const sorted = [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            
-            state.chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: sorted.map(d => new Date(d.timestamp).toLocaleDateString()),
-                    datasets: [{
-                        label: 'Temperature (°C)',
-                        data: sorted.map(d => d.temperature),
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#94a3b8' } } },
-                    scales: {
-                        x: { ticks: { color: '#64748b', maxTicksLimit: 10 }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                    }
-                }
-            });
-        }
+        // Default: auto-detect best chart
+        config = createAutoChart(data, queryType);
     }
+    
+    if (config) {
+        state.chart = new Chart(ctx, config);
+    }
+}
+
+function createProfileChart(data) {
+    const sorted = [...data].sort((a, b) => (a.pressure || 0) - (b.pressure || 0));
+    return {
+        type: 'line',
+        data: {
+            labels: sorted.map(d => d.pressure?.toFixed(0) || ''),
+            datasets: [
+                {
+                    label: 'Temperature (°C)',
+                    data: sorted.map(d => d.temperature),
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    tension: 0.3,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Salinity (PSU)',
+                    data: sorted.map(d => d.salinity),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.3,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top', labels: { color: '#94a3b8', font: { size: 10 } } } },
+            scales: {
+                x: { title: { display: true, text: 'Pressure (dbar)', color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { position: 'left', title: { display: true, text: 'Temp (°C)', color: '#ef4444' }, ticks: { color: '#ef4444' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y1: { position: 'right', title: { display: true, text: 'Salinity', color: '#3b82f6' }, ticks: { color: '#3b82f6' }, grid: { display: false } }
+            }
+        }
+    };
+}
+
+function createTimeSeriesChart(data, column) {
+    const sorted = [...data].filter(d => d.timestamp && d[column] != null)
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    
+    return {
+        type: 'line',
+        data: {
+            labels: sorted.map(d => new Date(d.timestamp).toLocaleDateString()),
+            datasets: [{
+                label: column.replace('_', ' '),
+                data: sorted.map(d => d[column]),
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#94a3b8' } } },
+            scales: {
+                x: { ticks: { color: '#64748b', maxTicksLimit: 8 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { title: { display: true, text: column, color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+        }
+    };
+}
+
+function createTSDiagram(data) {
+    const points = data.filter(d => d.temperature != null && d.salinity != null)
+        .map(d => ({ x: d.salinity, y: d.temperature }));
+    
+    return {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'T-S Points',
+                data: points,
+                backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                borderColor: '#3b82f6',
+                pointRadius: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#94a3b8' } }, title: { display: true, text: 'T-S Diagram', color: '#e2e8f0' } },
+            scales: {
+                x: { title: { display: true, text: 'Salinity (PSU)', color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { title: { display: true, text: 'Temperature (°C)', color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+        }
+    };
+}
+
+function createScatterPlot(data, xCol, yCol) {
+    const points = data.filter(d => d[xCol] != null && d[yCol] != null)
+        .map(d => ({ x: d[xCol], y: d[yCol] }));
+    
+    return {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: `${yCol} vs ${xCol}`,
+                data: points,
+                backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                borderColor: '#22c55e',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#94a3b8' } } },
+            scales: {
+                x: { title: { display: true, text: xCol, color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { title: { display: true, text: yCol, color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+        }
+    };
+}
+
+function createHistogram(data, column) {
+    const values = data.filter(d => d[column] != null).map(d => d[column]);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const binCount = 15;
+    const binSize = (max - min) / binCount;
+    
+    const bins = Array(binCount).fill(0);
+    const labels = [];
+    
+    for (let i = 0; i < binCount; i++) {
+        const binMin = min + i * binSize;
+        labels.push(binMin.toFixed(1));
+    }
+    
+    values.forEach(v => {
+        const binIdx = Math.min(Math.floor((v - min) / binSize), binCount - 1);
+        bins[binIdx]++;
+    });
+    
+    return {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: `${column} Distribution`,
+                data: bins,
+                backgroundColor: 'rgba(139, 92, 246, 0.7)',
+                borderColor: '#8b5cf6',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#94a3b8' } } },
+            scales: {
+                x: { title: { display: true, text: column, color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { title: { display: true, text: 'Count', color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+        }
+    };
+}
+
+function createAutoChart(data, queryType) {
+    if (data[0]?.pressure != null) return createProfileChart(data);
+    if (data.some(d => d.timestamp)) return createTimeSeriesChart(data, 'temperature');
+    if (data[0]?.temperature != null && data[0]?.salinity != null) return createTSDiagram(data);
+    return null;
 }
 
 function updateTable(data) {
@@ -743,4 +871,70 @@ function toggleFullscreen() {
     } else {
         document.exitFullscreen();
     }
+}
+
+// ========================================
+// Map Explorer (Click to find floats)
+// ========================================
+function toggleMapExplorer() {
+    mapExplorerActive = !mapExplorerActive;
+    el.mapExplorerBtn.classList.toggle('active', mapExplorerActive);
+    el.mapExplorerBtn.querySelector('span').textContent = mapExplorerActive ? 'Click Map...' : 'Click to Explore';
+    
+    if (mapExplorerActive) {
+        el.mapContainer.style.cursor = 'crosshair';
+        state.map.on('click', onMapClick);
+        showToast('Map Explorer', 'Click anywhere on the map to find nearby floats', 'info');
+    } else {
+        el.mapContainer.style.cursor = '';
+        state.map.off('click', onMapClick);
+    }
+}
+
+async function onMapClick(e) {
+    const { lat, lng } = e.latlng;
+    
+    // Add a temporary marker
+    const clickMarker = L.circleMarker([lat, lng], {
+        radius: 10,
+        fillColor: '#f59e0b',
+        fillOpacity: 0.8,
+        color: 'white',
+        weight: 2
+    }).addTo(state.map);
+    
+    clickMarker.bindPopup(`<strong>Searching...</strong><br>Lat: ${lat.toFixed(4)}<br>Lon: ${lng.toFixed(4)}`).openPopup();
+    
+    // Query for nearby floats
+    setLoading(true);
+    
+    try {
+        const question = `Find ARGO floats within 200km of latitude ${lat.toFixed(2)} longitude ${lng.toFixed(2)}`;
+        addMessage(`🗺️ Exploring: ${lat.toFixed(4)}, ${lng.toFixed(4)}`, 'user');
+        
+        const params = new URLSearchParams({ question });
+        const res = await fetch(`${API_BASE}/api/query?${params}`);
+        const result = await res.json();
+        
+        // Remove click marker
+        clickMarker.remove();
+        
+        // Display results
+        if (result.data?.length > 0) {
+            addMessage(result.summary || `Found ${result.data.length} nearby records`, 'assistant');
+            displayResults(result);
+            showToast('Found', `${result.data.length} records nearby`, 'success');
+        } else {
+            addMessage(result.summary || 'No floats found in this area', 'assistant');
+            showToast('No Data', result.data_range || 'No floats found nearby', 'warning');
+        }
+        
+    } catch (e) {
+        clickMarker.remove();
+        console.error('Map query failed:', e);
+        addMessage('Error searching this location', 'assistant');
+        showToast('Error', 'Search failed', 'error');
+    }
+    
+    setLoading(false);
 }

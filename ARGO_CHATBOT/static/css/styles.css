@@ -243,6 +243,31 @@ body {
     display: none;
 }
 
+/* Map Explorer Button */
+.map-explorer-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius);
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.map-explorer-btn:hover {
+    background: var(--accent-hover);
+    transform: scale(1.02);
+}
+
+.map-explorer-btn.active {
+    background: var(--success);
+}
+
 /* ========================================
    Results Panel
    ======================================== */
@@ -425,9 +450,42 @@ body {
 .sql-code.hidden { display: none; }
 
 /* Chart Tab */
+.chart-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.chart-controls label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.chart-select {
+    padding: 6px 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 11px;
+    cursor: pointer;
+    min-width: 100px;
+}
+
+.chart-select:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
 .chart-container {
-    height: 250px;
+    height: 220px;
     position: relative;
+    padding: 10px;
 }
 
 /* Table Tab */
@@ -634,10 +692,21 @@ body {
 
 .data-range-info {
     margin-top: 12px;
-    padding: 8px 12px;
+    padding: 10px 14px;
     background: var(--bg-card);
     border-radius: var(--radius-sm);
-    font-size: 11px;
+    border-left: 3px solid var(--accent);
+}
+
+.data-range-main {
+    font-size: 12px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.data-range-note {
+    margin-top: 6px;
+    font-size: 10px;
     color: var(--text-muted);
 }
 
