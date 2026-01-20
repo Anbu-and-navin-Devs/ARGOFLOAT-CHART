@@ -580,6 +580,373 @@
         .section-content.collapsed {
             display: none;
         }
+        
+        /* ========================================
+           Mobile Responsive Styles for Map Page
+           ======================================== */
+        
+        /* Tablet */
+        @media (max-width: 1024px) {
+            .data-panel {
+                width: 350px;
+                min-width: 300px;
+            }
+            
+            .map-topbar {
+                right: 360px;
+            }
+            
+            .info-grid {
+                gap: 10px;
+            }
+            
+            .summary-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            .map-page {
+                flex-direction: column;
+            }
+            
+            .map-main {
+                height: 50vh;
+                min-height: 250px;
+            }
+            
+            .map-topbar {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .back-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+                width: fit-content;
+            }
+            
+            .map-instructions {
+                padding: 10px 14px;
+                font-size: 12px;
+                line-height: 1.4;
+            }
+            
+            .map-instructions svg {
+                display: none;
+            }
+            
+            .map-status {
+                bottom: 10px;
+                left: 10px;
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+            
+            /* Data Panel - Bottom sheet on mobile */
+            .data-panel {
+                width: 100%;
+                min-width: 100%;
+                max-width: 100%;
+                height: 50vh;
+                border-left: none;
+                border-top: 1px solid var(--border);
+                border-radius: 16px 16px 0 0;
+            }
+            
+            .panel-resize-handle {
+                display: none;
+            }
+            
+            /* Add drag handle indicator for mobile */
+            .panel-header::before {
+                content: '';
+                position: absolute;
+                top: 8px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 40px;
+                height: 4px;
+                background: var(--border-hover);
+                border-radius: 2px;
+            }
+            
+            .panel-header {
+                position: relative;
+                padding: 20px 16px 12px;
+            }
+            
+            .panel-title {
+                font-size: 15px;
+            }
+            
+            .panel-content {
+                padding: 12px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            
+            .info-item {
+                padding: 10px;
+            }
+            
+            .info-label {
+                font-size: 9px;
+            }
+            
+            .info-value {
+                font-size: 13px;
+            }
+            
+            .section-title {
+                font-size: 13px;
+                margin-bottom: 10px;
+            }
+            
+            .chart-type-tabs {
+                gap: 4px;
+                margin-bottom: 10px;
+            }
+            
+            .chart-type-tab {
+                padding: 6px 8px;
+                font-size: 10px;
+            }
+            
+            .profile-chart {
+                height: 160px;
+                padding: 8px;
+            }
+            
+            .trajectory-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            
+            .traj-stat {
+                padding: 10px;
+            }
+            
+            .traj-stat-value {
+                font-size: 16px;
+            }
+            
+            .traj-stat-label {
+                font-size: 8px;
+            }
+            
+            .summary-stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            
+            .summary-stat {
+                padding: 8px;
+            }
+            
+            .summary-stat-value {
+                font-size: 14px;
+            }
+            
+            .summary-stat-label {
+                font-size: 8px;
+            }
+            
+            .float-item {
+                padding: 10px;
+                margin-bottom: 6px;
+            }
+            
+            .float-item-id {
+                font-size: 13px;
+            }
+            
+            .float-item-distance {
+                font-size: 10px;
+            }
+            
+            .float-item-details {
+                font-size: 11px;
+            }
+            
+            .panel-actions {
+                padding: 12px;
+                gap: 8px;
+            }
+            
+            .action-button {
+                padding: 10px 12px;
+                font-size: 11px;
+            }
+            
+            .empty-state {
+                padding: 20px 12px;
+            }
+            
+            .empty-state svg {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .empty-state h3 {
+                font-size: 13px;
+            }
+            
+            .empty-state p {
+                font-size: 11px;
+            }
+            
+            .clicked-location {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+            
+            .location-coords {
+                font-size: 14px;
+            }
+            
+            .location-ocean {
+                font-size: 11px;
+            }
+            
+            .back-to-floats {
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+            
+            /* Popup styles */
+            .leaflet-popup-content {
+                margin: 10px 12px;
+            }
+            
+            .popup-title {
+                font-size: 13px;
+            }
+            
+            .popup-info {
+                font-size: 11px;
+            }
+        }
+        
+        /* Small Mobile */
+        @media (max-width: 480px) {
+            .map-main {
+                height: 45vh;
+                min-height: 200px;
+            }
+            
+            .data-panel {
+                height: 55vh;
+            }
+            
+            .map-topbar {
+                top: 8px;
+                left: 8px;
+                right: 8px;
+            }
+            
+            .back-btn {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+            
+            .map-instructions {
+                padding: 8px 12px;
+                font-size: 11px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .trajectory-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .chart-type-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 4px;
+            }
+            
+            .chart-type-tab {
+                flex-shrink: 0;
+            }
+            
+            .profile-chart {
+                height: 140px;
+            }
+        }
+        
+        /* Landscape Mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .map-page {
+                flex-direction: row;
+            }
+            
+            .map-main {
+                width: 55%;
+                height: 100vh;
+            }
+            
+            .data-panel {
+                width: 45%;
+                height: 100vh;
+                border-radius: 0;
+                border-left: 1px solid var(--border);
+                border-top: none;
+            }
+            
+            .panel-header::before {
+                display: none;
+            }
+            
+            .panel-header {
+                padding: 12px 16px;
+            }
+            
+            .map-topbar {
+                right: auto;
+                max-width: calc(55% - 20px);
+            }
+            
+            .profile-chart {
+                height: 120px;
+            }
+        }
+        
+        /* Touch-friendly for map page */
+        @media (hover: none) and (pointer: coarse) {
+            .back-btn,
+            .chart-type-tab,
+            .action-button,
+            .float-item {
+                min-height: 44px;
+            }
+            
+            .chart-type-tab {
+                padding: 10px 12px;
+            }
+            
+            .action-button {
+                padding: 12px 16px;
+            }
+            
+            .float-item {
+                padding: 12px;
+            }
+        }
     </style>
 </head>
 <body>

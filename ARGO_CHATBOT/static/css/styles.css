@@ -243,6 +243,10 @@ body {
     display: none;
 }
 
+.mobile-chat-label {
+    display: none;
+}
+
 /* Map Explorer Button */
 .map-explorer-btn {
     display: flex;
@@ -1036,28 +1040,631 @@ body {
 }
 
 /* ========================================
-   Responsive
+   Responsive - Tablet (max-width: 1024px)
+   ======================================== */
+
+@media (max-width: 1024px) {
+    :root {
+        --chat-width: 340px;
+        --chat-min: 280px;
+    }
+    
+    .map-overlay-controls {
+        flex-wrap: wrap;
+        max-width: calc(100% - 80px);
+    }
+    
+    .quick-btn {
+        padding: 8px 10px;
+        font-size: 10px;
+    }
+    
+    .chart-controls {
+        gap: 8px;
+    }
+    
+    .chart-select {
+        min-width: 80px;
+    }
+}
+
+/* ========================================
+   Responsive - Mobile (max-width: 768px)
    ======================================== */
 
 @media (max-width: 768px) {
-    .chat-panel {
-        position: fixed;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        z-index: 2000;
-        transform: translateX(100%);
+    :root {
+        --chat-width: 100%;
+        --chat-min: 100%;
+        --chat-max: 100%;
+        --radius: 10px;
+        --radius-sm: 6px;
+        --radius-lg: 14px;
     }
     
-    .chat-panel.open {
-        transform: translateX(0);
+    body {
+        font-size: 14px;
+    }
+    
+    /* App Container - Stack vertically on mobile */
+    .app-container {
+        flex-direction: column;
+    }
+    
+    /* Main Content */
+    .main-content {
+        height: 45vh;
+        min-height: 200px;
+    }
+    
+    /* Map Overlays */
+    .map-overlay-controls {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .map-info-badge {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+    
+    .badge-icon {
+        font-size: 14px;
+    }
+    
+    .map-explorer-btn {
+        padding: 8px 12px;
+        font-size: 11px;
+        width: fit-content;
+    }
+    
+    .map-legend {
+        bottom: 12px;
+        left: 10px;
+        padding: 8px 12px;
+        gap: 12px;
+        font-size: 10px;
+    }
+    
+    .map-fullscreen-btn {
+        top: 10px;
+        right: 10px;
+        width: 36px;
+        height: 36px;
+    }
+    
+    /* Open Chat Button - adjust for mobile */
+    .open-chat-btn {
+        bottom: 16px;
+        right: 16px;
+        width: auto;
+        height: auto;
+        padding: 12px 18px;
+        border-radius: var(--radius);
+        gap: 8px;
+    }
+    
+    .open-chat-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .mobile-chat-label {
+        display: inline;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    
+    /* Results Panel - Mobile optimized */
+    .results-panel {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        max-height: 60%;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        z-index: 2001;
+    }
+    
+    .results-header {
+        padding: 10px 14px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .results-tabs {
+        width: 100%;
+        justify-content: center;
+        overflow-x: auto;
+    }
+    
+    .tab-btn {
+        padding: 8px 12px;
+        font-size: 11px;
+        flex-shrink: 0;
+    }
+    
+    .tab-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .results-actions {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+    
+    .tab-content {
+        padding: 12px 14px;
+    }
+    
+    .summary-content {
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    
+    .stat-card {
+        padding: 10px;
+    }
+    
+    .stat-value {
+        font-size: 16px;
+    }
+    
+    .stat-label {
+        font-size: 9px;
+    }
+    
+    .sql-toggle {
+        padding: 8px 10px;
+        font-size: 11px;
+    }
+    
+    .sql-code {
+        font-size: 10px;
+        padding: 10px;
+    }
+    
+    /* Chart Tab Mobile */
+    .chart-controls {
+        padding: 8px 12px;
+        gap: 6px;
+    }
+    
+    .chart-controls label {
+        font-size: 10px;
+    }
+    
+    .chart-select {
+        padding: 5px 8px;
+        font-size: 10px;
+        min-width: 70px;
+    }
+    
+    .chart-container {
+        height: 180px;
+        padding: 8px;
+    }
+    
+    /* Table Tab Mobile */
+    .table-wrapper {
+        max-height: 220px;
+    }
+    
+    .data-table {
+        font-size: 11px;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 8px 10px;
+    }
+    
+    .data-table th {
+        font-size: 9px;
+    }
+    
+    /* Chat Panel - Full screen on mobile */
+    .chat-panel {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 45vh;
+        bottom: 0;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        border-left: none;
+        border-top: 1px solid var(--border);
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        z-index: 2000;
+        transform: none;
+    }
+    
+    .chat-panel.collapsed {
+        transform: translateY(calc(100% - 60px));
+    }
+    
+    .chat-panel.collapsed .chat-messages,
+    .chat-panel.collapsed .quick-actions,
+    .chat-panel.collapsed .history-section,
+    .chat-panel.collapsed .chat-input {
+        display: none;
+    }
+    
+    /* Resize Handle - Horizontal swipe on mobile */
+    .resize-handle {
+        display: none;
+    }
+    
+    /* Chat Header - Mobile */
+    .chat-header {
+        padding: 12px 16px;
+        cursor: pointer;
+    }
+    
+    .brand-icon {
+        font-size: 24px;
+    }
+    
+    .brand-text h1 {
+        font-size: 16px;
+    }
+    
+    .brand-tagline {
+        font-size: 9px;
+    }
+    
+    .collapse-btn svg {
+        transform: rotate(-90deg);
+    }
+    
+    .chat-panel.collapsed .collapse-btn svg {
+        transform: rotate(90deg);
+    }
+    
+    /* Quick Actions - Mobile */
+    .quick-actions {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        padding: 10px 12px;
+    }
+    
+    .quick-btn {
+        padding: 8px 10px;
+        font-size: 10px;
+        gap: 4px;
+    }
+    
+    .quick-icon {
+        font-size: 12px;
+    }
+    
+    /* Chat Messages - Mobile */
+    .chat-messages {
+        padding: 12px;
+        gap: 10px;
+    }
+    
+    .welcome-msg {
+        padding: 16px 12px;
+    }
+    
+    .welcome-icon {
+        font-size: 36px;
+        margin-bottom: 8px;
+    }
+    
+    .welcome-msg h3 {
+        font-size: 14px;
+    }
+    
+    .welcome-msg p {
+        font-size: 12px;
+    }
+    
+    .data-range-info {
+        padding: 10px 12px;
+    }
+    
+    .data-range-main {
+        font-size: 12px;
+    }
+    
+    .data-range-stats {
+        font-size: 11px;
+    }
+    
+    .data-range-note {
+        font-size: 9px;
+    }
+    
+    /* Messages - Mobile */
+    .message {
+        max-width: 90%;
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+    
+    .message-time {
+        font-size: 9px;
+    }
+    
+    /* History Section - Mobile */
+    .history-section {
+        padding: 6px 12px;
+    }
+    
+    .history-toggle {
+        padding: 5px 8px;
+        font-size: 10px;
+    }
+    
+    .history-item {
+        padding: 5px 8px;
+        font-size: 9px;
+        max-width: 120px;
+    }
+    
+    /* Chat Input - Mobile */
+    .chat-input {
+        padding: 12px;
+    }
+    
+    .input-container {
+        gap: 6px;
+        padding: 3px;
+    }
+    
+    .input-container textarea {
+        padding: 8px 10px;
+        font-size: 14px;
+        max-height: 80px;
+    }
+    
+    .send-btn {
+        width: 38px;
+        height: 38px;
+    }
+    
+    .send-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .status-bar {
+        margin-top: 6px;
+    }
+    
+    .status-indicator {
+        font-size: 10px;
+    }
+    
+    /* Toast - Mobile */
+    .toast-container {
+        bottom: auto;
+        top: 16px;
+        left: 16px;
+        right: 16px;
+    }
+    
+    .toast {
+        padding: 12px 14px;
+        gap: 10px;
+    }
+    
+    .toast-title {
+        font-size: 12px;
+    }
+    
+    .toast-message {
+        font-size: 11px;
+    }
+}
+
+/* ========================================
+   Responsive - Small Mobile (max-width: 480px)
+   ======================================== */
+
+@media (max-width: 480px) {
+    /* Even smaller screens */
+    .main-content {
+        height: 40vh;
+        min-height: 180px;
+    }
+    
+    .chat-panel {
+        top: 40vh;
+    }
+    
+    .map-overlay-controls {
+        top: 8px;
+        left: 8px;
+        right: 8px;
+    }
+    
+    .map-info-badge {
+        padding: 5px 8px;
+        font-size: 10px;
+    }
+    
+    .map-explorer-btn {
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+    
+    .map-legend {
+        bottom: 8px;
+        left: 8px;
+        padding: 6px 10px;
+        gap: 8px;
+        font-size: 9px;
+    }
+    
+    .legend-dot {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .legend-line {
+        width: 16px;
+    }
+    
+    .map-fullscreen-btn {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .map-fullscreen-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    /* Quick Actions - Single column on very small screens */
+    .quick-actions {
+        grid-template-columns: 1fr;
+        gap: 5px;
+        padding: 8px 10px;
+    }
+    
+    .quick-btn {
+        justify-content: flex-start;
+    }
+    
+    /* Stats grid - 2 columns */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Results Panel */
+    .results-panel {
+        max-height: 65%;
+    }
+    
+    .tab-btn {
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+    
+    /* Chat header simplified */
+    .brand-text h1 {
+        font-size: 14px;
+    }
+    
+    .welcome-msg h3 {
+        font-size: 13px;
+    }
+    
+    .welcome-msg p {
+        font-size: 11px;
+    }
+}
+
+/* ========================================
+   Responsive - Landscape Mobile
+   ======================================== */
+
+@media (max-width: 768px) and (orientation: landscape) {
+    .app-container {
+        flex-direction: row;
+    }
+    
+    .main-content {
+        height: 100vh;
+        width: 50%;
+    }
+    
+    .chat-panel {
+        position: relative;
+        top: 0;
+        width: 50% !important;
+        height: 100vh;
+        border-radius: 0;
+        border-left: 1px solid var(--border);
+        border-top: none;
+    }
+    
+    .chat-panel.collapsed {
+        transform: translateX(calc(100% - 60px));
+    }
+    
+    .collapse-btn svg {
+        transform: rotate(0deg);
+    }
+    
+    .chat-panel.collapsed .collapse-btn svg {
+        transform: rotate(180deg);
     }
     
     .results-panel {
-        max-height: 50%;
+        max-height: 60%;
+        width: 50%;
     }
     
-    .quick-actions {
-        grid-template-columns: 1fr;
+    .map-overlay-controls {
+        max-width: calc(100% - 60px);
+    }
+}
+
+/* ========================================
+   Touch-friendly improvements
+   ======================================== */
+
+@media (hover: none) and (pointer: coarse) {
+    /* Touch devices */
+    .tab-btn,
+    .quick-btn,
+    .action-btn,
+    .collapse-btn,
+    .send-btn,
+    .history-toggle,
+    .sql-toggle,
+    .map-fullscreen-btn,
+    .map-explorer-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .quick-btn {
+        min-height: 40px;
+    }
+    
+    .tab-btn {
+        min-height: 40px;
+        padding: 10px 14px;
+    }
+    
+    .history-item {
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Better tap targets */
+    .input-container textarea {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Disable hover effects that don't work on touch */
+    .quick-btn:hover,
+    .tab-btn:hover,
+    .action-btn:hover {
+        background: inherit;
+    }
+    
+    .quick-btn:active,
+    .tab-btn:active,
+    .action-btn:active {
+        background: var(--bg-hover);
     }
 }

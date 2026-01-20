@@ -129,13 +129,17 @@ function initEventListeners() {
     });
     
     // Panel toggle (collapse/expand chat)
-    el.panelToggle.addEventListener('click', () => {
-        const isCollapsed = el.chatPanel.classList.toggle('collapsed');
-        el.panelToggle.classList.toggle('rotated');
-        el.openChatBtn.classList.toggle('hidden', !isCollapsed);
-        // Resize map when panel collapses/expands
-        setTimeout(() => state.map.invalidateSize(), 350);
-    });
+    el.panelToggle.addEventListener('click', toggleChatPanel);
+    
+    // Mobile: Allow clicking on chat header to toggle
+    const chatHeader = document.querySelector('.chat-header');
+    if (chatHeader) {
+        chatHeader.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && e.target !== el.panelToggle && !el.panelToggle.contains(e.target)) {
+                toggleChatPanel();
+            }
+        });
+    }
     
     // Open chat button (floating)
     el.openChatBtn.addEventListener('click', () => {
@@ -180,6 +184,41 @@ function initEventListeners() {
     el.chartTypeSelect.addEventListener('change', () => updateChart(state.currentData, state.currentQueryType));
     el.chartXAxis.addEventListener('change', () => updateChart(state.currentData, state.currentQueryType));
     el.chartYAxis.addEventListener('change', () => updateChart(state.currentData, state.currentQueryType));
+    
+    // Handle window resize for responsive adjustments
+    window.addEventListener('resize', handleResize);
+    
+    // Initial responsive check
+    handleResize();
+}
+
+// Toggle chat panel function
+function toggleChatPanel() {
+    const isCollapsed = el.chatPanel.classList.toggle('collapsed');
+    el.panelToggle.classList.toggle('rotated');
+    el.openChatBtn.classList.toggle('hidden', !isCollapsed);
+    // Resize map when panel collapses/expands
+    setTimeout(() => state.map.invalidateSize(), 350);
+}
+
+// Handle responsive behavior on window resize
+function handleResize() {
+    const isMobile = window.innerWidth <= 768;
+    const isLandscape = window.innerWidth > window.innerHeight;
+    
+    // Update map size after resize
+    if (state.map) {
+        setTimeout(() => state.map.invalidateSize(), 100);
+    }
+    
+    // On mobile, ensure proper layout
+    if (isMobile && !isLandscape) {
+        // Portrait mobile mode - chat panel at bottom
+        el.chatPanel.style.width = '';
+    } else if (!isMobile) {
+        // Desktop mode - restore saved width
+        el.chatPanel.style.width = state.panelWidth + 'px';
+    }
 }
 
 function initResizable() {
