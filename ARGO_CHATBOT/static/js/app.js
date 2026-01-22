@@ -9,6 +9,7 @@
 // Configuration
 // ========================================
 const CONFIG = {
+    VERSION: '1.0.0',
     API_BASE: '',
     HISTORY_KEY: 'floatchart_history',
     THEME_KEY: 'floatchart_theme',
@@ -146,7 +147,7 @@ function cacheElements() {
 // Initialization
 // ========================================
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log(`🌊 FloatChart Pro v${CONFIG.VERSION} initializing...`);
+    console.log(`🌊 FloatChart v${CONFIG.VERSION} initializing...`);
     
     cacheElements();
     
@@ -161,6 +162,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     initEventListeners();
     initKeyboardShortcuts();
+    initShortcutsModal();
+    initTourHandlers();
     initResizable();
     initVoiceRecognition();
     initSuggestions();
@@ -174,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Show welcome animation
     showWelcomeAnimation();
     
-    console.log(`✅ FloatChart Pro v${CONFIG.VERSION} ready!`);
+    console.log(`✅ FloatChart v${CONFIG.VERSION} ready!`);
 });
 
 // ========================================
@@ -609,13 +612,20 @@ function toggleShortcutsModal() {
     if (!modal) return;
     
     modal.classList.toggle('hidden');
+}
+
+// Initialize shortcuts modal handlers once
+function initShortcutsModal() {
+    const modal = document.getElementById('shortcutsModal');
+    const closeBtn = document.getElementById('closeShortcutsModal');
     
-    if (!modal.classList.contains('hidden')) {
-        // Add close handlers
-        document.getElementById('closeShortcutsModal')?.addEventListener('click', () => {
-            modal.classList.add('hidden');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal?.classList.add('hidden');
         });
-        
+    }
+    
+    if (modal) {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.classList.add('hidden');
@@ -1143,17 +1153,33 @@ function showTourStep(stepIndex) {
     target.style.zIndex = '10005';
     target.style.boxShadow = '0 0 0 4px var(--accent-primary), 0 0 20px var(--accent-glow)';
     target.style.borderRadius = '8px';
+}
+
+// Initialize tour button handlers once
+function initTourHandlers() {
+    const skipBtn = document.getElementById('tourSkip');
+    const nextBtn = document.getElementById('tourNext');
     
-    // Setup event handlers
-    document.getElementById('tourSkip')?.addEventListener('click', endTour);
-    document.getElementById('tourNext')?.addEventListener('click', () => {
-        // Remove highlight from current target
-        target.style.zIndex = '';
-        target.style.boxShadow = '';
-        
-        currentTourStep++;
-        showTourStep(currentTourStep);
-    });
+    if (skipBtn) {
+        skipBtn.addEventListener('click', endTour);
+    }
+    
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            // Remove highlight from current target
+            const currentStep = TOUR_STEPS[currentTourStep];
+            if (currentStep) {
+                const target = document.querySelector(currentStep.target);
+                if (target) {
+                    target.style.zIndex = '';
+                    target.style.boxShadow = '';
+                }
+            }
+            
+            currentTourStep++;
+            showTourStep(currentTourStep);
+        });
+    }
 }
 
 function endTour() {

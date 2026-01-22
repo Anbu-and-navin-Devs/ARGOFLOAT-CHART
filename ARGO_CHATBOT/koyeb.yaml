@@ -1,0 +1,22 @@
+name: floatchart
+type: web
+env: python
+regions:
+  - fra  # Frankfurt - good global coverage
+instance_type: free
+scaling:
+  min: 1
+  max: 1
+ports:
+  - port: 8000
+    protocol: http
+routes:
+  - path: /
+    port: 8000
+health_checks:
+  - port: 8000
+    path: /api/status
+    interval: 30
+    timeout: 10
+build_command: pip install -r requirements.txt
+run_command: gunicorn app:app --bind 0.0.0.0:8000 --workers 2 --threads 4 --timeout 120
