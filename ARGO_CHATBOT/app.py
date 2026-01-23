@@ -231,18 +231,48 @@ def get_status():
         }), 500
 
 
+# Region definitions for filtering
+OCEAN_REGIONS = {
+    "all": {"name": "All Regions", "lat_min": -90, "lat_max": 90, "lon_min": -180, "lon_max": 180},
+    "bay_of_bengal": {"name": "Bay of Bengal", "lat_min": 5, "lat_max": 22, "lon_min": 80, "lon_max": 95},
+    "arabian_sea": {"name": "Arabian Sea", "lat_min": 5, "lat_max": 25, "lon_min": 50, "lon_max": 75},
+    "indian_ocean": {"name": "Indian Ocean", "lat_min": -40, "lat_max": 25, "lon_min": 30, "lon_max": 120},
+    "pacific": {"name": "Pacific Ocean", "lat_min": -60, "lat_max": 60, "lon_min": 100, "lon_max": 180},
+    "atlantic": {"name": "Atlantic Ocean", "lat_min": -60, "lat_max": 60, "lon_min": -80, "lon_max": 0},
+    "mediterranean": {"name": "Mediterranean Sea", "lat_min": 30, "lat_max": 46, "lon_min": -6, "lon_max": 36},
+}
+
+
+@app.route('/api/regions')
+def get_regions():
+    """Get available ocean regions for filtering."""
+    return jsonify([{"id": k, "name": v["name"]} for k, v in OCEAN_REGIONS.items()])
+
+
 @app.route('/api/dashboard/stats')
 @cached(ttl=300)
 def get_dashboard_stats():
-    """Get real statistics for the dashboard."""
+    """Get real statistics for the dashboard with optional region filter."""
     db = get_db_engine()
     if not db:
         return jsonify({"error": "Database not connected"}), 500
     
+    # Get region filter from query params
+    region_id = request.args.get('region', 'all')
+    region = OCEAN_REGIONS.get(region_id, OCEAN_REGIONS['all'])
+    
+    # Build WHERE clause for region
+    region_filter = ""
+    if region_id != "all":
+        region_filter = f"""
+            AND latitude >= {region['lat_min']} AND latitude <= {region['lat_max']}
+            AND longitude >= {region['lon_min']} AND longitude <= {region['lon_max']}
+        """
+    
     try:
         with db.connect() as conn:
-            # Get overview stats
-            result = conn.execute(text("""
+            # Get overview stats with region filter
+            result = conn.execute(text(f"""
                 SELECT 
                     ROUND(AVG(temperature)::numeric, 1) as avg_temp,
                     ROUND(AVG(salinity)::numeric, 1) as avg_salinity,
@@ -251,11 +281,12 @@ def get_dashboard_stats():
                     COUNT(*) as total_records
                 FROM argo_data
                 WHERE temperature IS NOT NULL
+                {region_filter}
             """))
             stats = result.fetchone()
             
-            # Get temperature distribution
-            temp_result = conn.execute(text("""
+            # Get temperature distribution with region filter
+            temp_result = conn.execute(text(f"""
                 SELECT 
                     CASE 
                         WHEN temperature >= 20 AND temperature < 22 THEN '20-22'
@@ -269,13 +300,14 @@ def get_dashboard_stats():
                     COUNT(*) as count
                 FROM argo_data
                 WHERE temperature IS NOT NULL
+                {region_filter}
                 GROUP BY range
                 ORDER BY range
             """))
             temp_dist = {row[0]: row[1] for row in temp_result.fetchall()}
             
-            # Get salinity distribution
-            sal_result = conn.execute(text("""
+            # Get salinity distribution with region filter
+            sal_result = conn.execute(text(f"""
                 SELECT 
                     CASE 
                         WHEN salinity >= 33 AND salinity < 34 THEN '33-34'
@@ -287,12 +319,14 @@ def get_dashboard_stats():
                     COUNT(*) as count
                 FROM argo_data
                 WHERE salinity IS NOT NULL
+                {region_filter}
                 GROUP BY range
                 ORDER BY range
             """))
             sal_dist = {row[0]: row[1] for row in sal_result.fetchall()}
             
             return jsonify({
+                "region": region["name"],
                 "overview": {
                     "avg_temperature": float(stats[0]) if stats[0] else 0,
                     "avg_salinity": float(stats[1]) if stats[1] else 0,

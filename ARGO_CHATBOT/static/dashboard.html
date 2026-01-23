@@ -379,8 +379,24 @@
         
         <!-- Main Content -->
         <main class="dashboard-content">
-            <h1 class="dashboard-title">Analytics Dashboard</h1>
-            <p class="dashboard-subtitle">Comprehensive overview of ARGO float oceanographic data</p>
+            <div class="dashboard-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <h1 class="dashboard-title">Analytics Dashboard</h1>
+                    <p class="dashboard-subtitle" id="regionSubtitle">Comprehensive overview of ARGO float oceanographic data</p>
+                </div>
+                <div class="region-selector" style="display: flex; align-items: center; gap: 0.75rem;">
+                    <label for="regionSelect" style="color: var(--text-secondary); font-weight: 500;">Region:</label>
+                    <select id="regionSelect" style="padding: 0.5rem 1rem; border-radius: var(--radius-md); background: var(--bg-elevated); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.875rem; cursor: pointer; min-width: 180px;">
+                        <option value="all">🌍 All Regions</option>
+                        <option value="bay_of_bengal">🌊 Bay of Bengal</option>
+                        <option value="arabian_sea">🌊 Arabian Sea</option>
+                        <option value="indian_ocean">🌊 Indian Ocean</option>
+                        <option value="pacific">🌊 Pacific Ocean</option>
+                        <option value="atlantic">🌊 Atlantic Ocean</option>
+                        <option value="mediterranean">🌊 Mediterranean Sea</option>
+                    </select>
+                </div>
+            </div>
             
             <!-- Stats Overview -->
             <div class="stats-overview">
@@ -527,6 +543,12 @@
             }
         };
         
+        // Store chart instances for updating
+        let tempChart = null;
+        let salChart = null;
+        let timelineChart = null;
+        let regionChart = null;
+        
         function getChartColors() {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             return {
@@ -538,9 +560,20 @@
             };
         }
         
+        // Region selector handler
+        document.getElementById('regionSelect').addEventListener('change', async (e) => {
+            const region = e.target.value;
+            await loadDashboardData(region);
+        });
+        
         // Fetch dashboard data
-        async function loadDashboardData() {
+        async function loadDashboardData(region = 'all') {
             try {
+                // Show loading state
+                document.getElementById('avgTemp').innerHTML = '<span class="skeleton" style="display:inline-block;width:60px;height:24px;"></span>';
+                document.getElementById('avgSal').innerHTML = '<span class="skeleton" style="display:inline-block;width:60px;height:24px;"></span>';
+                document.getElementById('floatCount').innerHTML = '<span class="skeleton" style="display:inline-block;width:60px;height:24px;"></span>';
+                
                 // Fetch status first
                 const statusResponse = await fetch('/api/status');
                 const statusData = await statusResponse.json();
@@ -548,9 +581,13 @@
                 // Update activity summary
                 updateActivitySummary(statusData);
                 
-                // Fetch real dashboard stats
-                const statsResponse = await fetch('/api/dashboard/stats');
+                // Fetch real dashboard stats with region filter
+                const statsResponse = await fetch(`/api/dashboard/stats?region=${region}`);
                 const stats = await statsResponse.json();
+                
+                // Update region subtitle
+                document.getElementById('regionSubtitle').textContent = 
+                    stats.region ? `Statistics for ${stats.region}` : 'Comprehensive overview of ARGO float oceanographic data';
                 
                 if (stats.overview) {
                     // Update overview cards with REAL data
@@ -561,7 +598,7 @@
                     document.getElementById('maxDepth').textContent = `${Math.round(stats.overview.max_depth).toLocaleString()} m`;
                 }
                 
-                // Load charts with real data
+                // Load/Update charts with real data
                 await loadCharts(stats);
                 
             } catch (error) {
@@ -614,13 +651,17 @@
         async function loadCharts(stats) {
             const colors = getChartColors();
             
+            // Destroy existing charts before recreating
+            if (tempChart) tempChart.destroy();
+            if (salChart) salChart.destroy();
+            
             // Temperature Distribution with REAL data
             const tempLabels = ['20-22', '22-24', '24-26', '26-28', '28-30', '30+'];
             const tempData = stats?.temperature_distribution 
                 ? tempLabels.map(label => stats.temperature_distribution[label] || 0)
                 : [15, 35, 80, 120, 95, 45];
             
-            new Chart(document.getElementById('tempDistChart'), {
+            tempChart = new Chart(document.getElementById('tempDistChart'), {
                 type: 'bar',
                 data: {
                     labels: tempLabels,
@@ -655,7 +696,7 @@
                 ? salLabels.map(label => stats.salinity_distribution[label] || 0)
                 : [45, 80, 150, 85];
                 
-            new Chart(document.getElementById('salDistChart'), {
+            salChart = new Chart(document.getElementById('salDistChart'), {
                 type: 'bar',
                 data: {
                     labels: salLabels,
@@ -684,9 +725,10 @@
                 }
             });
             
-            // Timeline
-            new Chart(document.getElementById('timelineChart'), {
-                type: 'line',
+            // Timeline - only create once
+            if (!timelineChart) {
+                timelineChart = new Chart(document.getElementById('timelineChart'), {
+                    type: 'line',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     datasets: [{
@@ -714,9 +756,11 @@
                     }
                 }
             });
+            }
             
-            // Regional Coverage
-            new Chart(document.getElementById('regionChart'), {
+            // Regional Coverage - only create once
+            if (!regionChart) {
+                regionChart = new Chart(document.getElementById('regionChart'), {
                 type: 'doughnut',
                 data: {
                     labels: ['Bay of Bengal', 'Arabian Sea', 'Central Indian Ocean', 'Other'],
@@ -747,6 +791,7 @@
                     }
                 }
             });
+            }
         }
         
         // Load on page ready
