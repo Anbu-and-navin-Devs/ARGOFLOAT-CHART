@@ -148,6 +148,7 @@ def serve_dashboard():
     return send_from_directory(STATIC_DIR, 'dashboard.html')
 
 @app.route('/manifest.json')
+@app.route('/static/manifest.json')
 def serve_manifest():
     """Serve PWA manifest."""
     return send_from_directory(STATIC_DIR, 'manifest.json')

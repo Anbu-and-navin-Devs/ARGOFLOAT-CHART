@@ -9,8 +9,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application
 COPY ARGO_CHATBOT/ .
 
-# Expose port (Hugging Face uses 7860)
+# Expose port (Railway uses PORT env variable)
 EXPOSE 7860
 
-# Run with gunicorn for better performance
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:7860", "--workers", "2", "--threads", "4", "--timeout", "120"]
+# Run with gunicorn - use sync worker to avoid sendfile issues
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:7860", "--workers", "2", "--timeout", "120", "--worker-class", "sync"]
