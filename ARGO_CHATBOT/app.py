@@ -35,7 +35,7 @@ if not DATABASE_URL:
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
-app = Flask(__name__, static_folder=STATIC_DIR)
+app = Flask(__name__, static_folder=STATIC_DIR, static_url_path='/static')
 CORS(app)  # Enable Cross-Origin Resource Sharing
 
 # =============================================
@@ -165,12 +165,21 @@ def serve_static(path):
 @app.route('/static/css/<path:path>')
 def serve_css(path):
     """Serve CSS files."""
-    return send_from_directory(os.path.join(STATIC_DIR, 'css'), path)
+    response = send_from_directory(os.path.join(STATIC_DIR, 'css'), path)
+    response.headers['Content-Type'] = 'text/css; charset=utf-8'
+    return response
 
 @app.route('/static/js/<path:path>')
 def serve_js(path):
     """Serve JavaScript files."""
-    return send_from_directory(os.path.join(STATIC_DIR, 'js'), path)
+    response = send_from_directory(os.path.join(STATIC_DIR, 'js'), path)
+    response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+    return response
+
+@app.route('/static/icons/<path:path>')
+def serve_icons(path):
+    """Serve icon files."""
+    return send_from_directory(os.path.join(STATIC_DIR, 'icons'), path)
 
 # =============================================
 # API ENDPOINTS
