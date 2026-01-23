@@ -20,11 +20,16 @@ try:
 except ImportError:
     get_intelligent_answer = None
 
-load_dotenv()
+# Load .env only if it exists (for local development)
+try:
+    load_dotenv()
+except:
+    pass
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL environment variable is required!")
+    raise RuntimeError("DATABASE_URL environment variable is required! Set it in Railway Variables or your .env file.")
 
 # Get the directory where this script is located
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

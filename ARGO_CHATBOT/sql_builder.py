@@ -29,7 +29,8 @@ def _build_path_query(intent: dict, existing_cols=None) -> str:
     if not select_cols:
         select_cols = base_cols
     where_clause = f'"float_id" = {float_id}' if float_id else '1=1'
-    return f'SELECT {', '.join([f'"{c}"' for c in select_cols])} FROM argo_data WHERE {where_clause} ORDER BY "timestamp" ASC;'
+    cols_str = ', '.join([f'"{c}"' for c in select_cols])
+    return f'SELECT {cols_str} FROM argo_data WHERE {where_clause} ORDER BY "timestamp" ASC;'
 
 def _build_proximity_query(intent: dict, db_context: dict) -> str:
     lat, lon, limit = intent.get("latitude"), intent.get("longitude"), intent.get("limit", 5)
