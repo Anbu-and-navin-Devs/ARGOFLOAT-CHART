@@ -273,65 +273,63 @@ curl -X POST https://argofloat-chart.onrender.com/api/query \
 
 ## Deployment
 
-### 🎓 Students: GitHub Student Developer Pack (Best Option)
+### Render (Recommended)
 
-If you have a student email (.edu, .ac.in, etc.) or student ID, get free premium hosting!
+Best free platform for Flask apps — already configured!
 
-1. Go to [education.github.com/pack](https://education.github.com/pack)
-2. Click **Get Student Benefits** → Verify with student email or ID
-3. Once approved, you get:
-   - **Railway**: $5/month free (no card needed!)
-   - **DigitalOcean**: $200 free credits
-   - **Azure**: $100 free credits
+**Step 1: Create Render Account**
+1. Go to [render.com](https://render.com) → Sign up with GitHub
+2. Authorize Render to access your repos
 
-Then deploy on Railway:
-1. [railway.app](https://railway.app) → Sign in with GitHub
-2. New Project → Deploy from GitHub → Select this repo
-3. Set root directory: `ARGO_CHATBOT`
-4. Add env vars: `DATABASE_URL`, `GROQ_API_KEY`
-5. Deploy!
+**Step 2: Create Web Service**
+1. Click **New** → **Web Service**
+2. Connect your GitHub repo: `ARGOFLOAT-CHART`
+3. Configure:
+   - **Name**: `floatchart`
+   - **Root Directory**: `ARGO_CHATBOT`
+   - **Runtime**: Python 3
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120`
+
+**Step 3: Add Environment Variables**
+Go to **Environment** → Add:
+```
+DATABASE_URL = your_supabase_connection_string
+GROQ_API_KEY = your_groq_api_key
+```
+
+**Step 4: Deploy**
+- Click **Create Web Service**
+- Wait ~3-5 minutes for build
+- Your app: `https://floatchart.onrender.com`
+
+> **Tip:** Free tier sleeps after 15 min idle. Use [UptimeRobot](https://uptimerobot.com) to ping every 5 min and prevent cold starts.
 
 ---
 
-### Hugging Face Spaces (Free, No Card, Fast)
+### Alternative Platforms
 
-Best free option without student verification.
+<details>
+<summary><strong>🎓 GitHub Student Pack (Premium Free)</strong></summary>
 
-**Step 1: Create Account**
-1. Go to [huggingface.co](https://huggingface.co/) → Sign Up (free, no card)
-2. Verify your email
+If you have a student email (.edu, .ac.in):
+1. Go to [education.github.com/pack](https://education.github.com/pack)
+2. Get verified → Unlock:
+   - **Railway**: $5/month free credits
+   - **DigitalOcean**: $200 credits
+   - **Azure**: $100 credits
 
-**Step 2: Create New Space**
-1. Go to [huggingface.co/new-space](https://huggingface.co/new-space)
-2. Fill in:
-   - **Space name**: `floatchart`
-   - **License**: MIT
-   - **SDK**: Select **Docker**
-   - **Hardware**: CPU basic (free)
-3. Click **Create Space**
+</details>
 
-**Step 3: Upload Files**
-1. Click **Files** tab → **Add file** → **Upload files**
-2. Upload these from your project:
-   - `Dockerfile` (from root)
-   - `ARGO_CHATBOT/` folder (entire folder)
-3. Or use Git:
-   ```bash
-   git clone https://huggingface.co/spaces/YOUR_USERNAME/floatchart
-   # Copy your files
-   git add . && git commit -m "Initial" && git push
-   ```
+<details>
+<summary><strong>Hugging Face Spaces</strong></summary>
 
-**Step 4: Add Secrets (Environment Variables)**
-1. Go to **Settings** → **Repository secrets**
-2. Add:
-   - `DATABASE_URL` = your Supabase connection string
-   - `GROQ_API_KEY` = your Groq API key
+1. [huggingface.co/new-space](https://huggingface.co/new-space)
+2. Select **Docker** SDK
+3. Upload files and add secrets
+4. Auto-deploys on push
 
-**Step 5: Deploy**
-- It auto-deploys when you push files
-- Wait ~2-3 minutes for build
-- Your app: `https://huggingface.co/spaces/YOUR_USERNAME/floatchart`
+</details>
 
 ---
 
@@ -339,11 +337,11 @@ Best free option without student verification.
 
 | Platform | Card Required | Cold Start | Performance | Best For |
 |----------|--------------|------------|-------------|----------|
+| **Render** | ❌ No | ~30s* | ⭐⭐⭐⭐ | Everyone |
 | **Railway (Student)** | ❌ No | None | ⭐⭐⭐⭐⭐ | Students |
-| **Hugging Face** | ❌ No | ~10s | ⭐⭐⭐⭐ | Everyone |
-| Render + UptimeRobot | ❌ No | None* | ⭐⭐⭐ | Backup |
+| **Hugging Face** | ❌ No | ~10s | ⭐⭐⭐ | Quick demos |
 
-*With UptimeRobot pinging every 5 minutes
+*With UptimeRobot, cold start is eliminated
 
 ---
 
