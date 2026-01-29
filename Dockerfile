@@ -6,10 +6,9 @@ WORKDIR /app
 COPY ARGO_CHATBOT/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application
 COPY ARGO_CHATBOT/ .
 
-# Expose port (Railway uses PORT env variable)
+
 EXPOSE 7860
 
 # Run with gunicorn - use sync worker to avoid sendfile issues
