@@ -28,12 +28,14 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from DATA_GENERATOR.env_utils import load_environment
 
-# ERDDAP Servers
+# ERDDAP Servers - Ifremer is primary (most reliable), NOAA as backup
 ERDDAP_SERVERS = {
-    "noaa": "https://coastwatch.pfeg.noaa.gov/erddap/tabledap",
     "ifremer": "https://erddap.ifremer.fr/erddap/tabledap",
+    "noaa": "https://coastwatch.pfeg.noaa.gov/erddap/tabledap",
 }
 DATASET_ID = "ArgoFloats"
+# Ifremer uses different column names
+IFREMER_COLUMNS = "platform_number,time,latitude,longitude,temp,psal,pres"
 
 # All ocean regions for comprehensive data
 REGIONS = {
@@ -53,15 +55,21 @@ REGIONS = {
 
 
 def get_db_engine(db_url: str = None):
-    """Create database engine."""
+    """Create database engine compatible with CockroachDB."""
     if db_url:
-        return create_engine(db_url)
+        return create_engine(db_url, connect_args={"sslmode": "verify-full"})
     
     load_environment()
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
         raise RuntimeError("DATABASE_URL not set")
-    return create_engine(database_url)
+    
+    # CockroachDB compatibility - disable version check
+    from sqlalchemy.dialects import postgresql
+    return create_engine(
+        database_url,
+        isolation_level="AUTOCOMMIT",  # CockroachDB works best with autocommit
+    )
 
 
 def clean_and_fill_missing(df: pd.DataFrame) -> pd.DataFrame:
@@ -154,9 +162,15 @@ def fetch_chunk(lat_min: float, lat_max: float, lon_min: float, lon_max: float,
     start_str = start_date.strftime("%Y-%m-%dT00:00:00Z")
     end_str = end_date.strftime("%Y-%m-%dT23:59:59Z")
     
+    # Use correct column names for Ifremer
+    if "ifremer" in base_url:
+        columns = "platform_number,time,latitude,longitude,temp,psal,pres"
+    else:
+        columns = "float_id,time,latitude,longitude,temp,psal,pres"
+    
     url = (
         f"{base_url}/{DATASET_ID}.csv?"
-        f"float_id,time,latitude,longitude,temp,psal,pres"
+        f"{columns}"
         f"&time>={start_str}&time<={end_str}"
         f"&latitude>={lat_min}&latitude<={lat_max}"
         f"&longitude>={lon_min}&longitude<={lon_max}"
@@ -178,9 +192,10 @@ def fetch_chunk(lat_min: float, lat_max: float, lon_min: float, lon_max: float,
             if df.empty:
                 return None
             
-            # Rename columns
+            # Rename columns (handle both Ifremer and NOAA naming)
             df = df.rename(columns={
-                "float_id": "float_id",
+                "platform_number": "float_id",  # Ifremer
+                "float_id": "float_id",         # NOAA
                 "time": "timestamp",
                 "latitude": "latitude",
                 "longitude": "longitude",
@@ -252,7 +267,7 @@ def fetch_region_data(region_name: str, bounds: tuple, start_year: int = 2018,
 
 
 def upload_to_database(df: pd.DataFrame, engine, chunk_size: int = 5000) -> int:
-    """Upload data to database in chunks to avoid memory issues."""
+    """Upload data to database in chunks (CockroachDB compatible)."""
     
     if df.empty:
         return 0
@@ -265,24 +280,39 @@ def upload_to_database(df: pd.DataFrame, engine, chunk_size: int = 5000) -> int:
     
     print(f"  Uploading {len(df)} records to database...")
     
+    # Use psycopg2 directly for CockroachDB compatibility
+    import psycopg2
+    from psycopg2.extras import execute_values
+    
+    load_environment()
+    db_url = os.getenv("DATABASE_URL")
+    conn = psycopg2.connect(db_url)
+    cursor = conn.cursor()
+    
     total_uploaded = 0
+    columns = ["float_id", "timestamp", "latitude", "longitude", "temperature", "salinity", "pressure"]
     
     for i in range(0, len(df), chunk_size):
         chunk = df.iloc[i:i + chunk_size]
         try:
-            chunk.to_sql("argo_data", engine, if_exists="append", index=False, method="multi")
+            # Prepare data tuples
+            values = [tuple(row[col] for col in columns) for _, row in chunk.iterrows()]
+            
+            # Use UPSERT for CockroachDB (simpler than ON CONFLICT)
+            insert_sql = """
+                UPSERT INTO argo_data (float_id, timestamp, latitude, longitude, temperature, salinity, pressure)
+                VALUES %s
+            """
+            execute_values(cursor, insert_sql, values, page_size=1000)
+            conn.commit()
             total_uploaded += len(chunk)
             print(f"    Uploaded {total_uploaded}/{len(df)} records")
         except Exception as e:
             print(f"    Error uploading chunk: {e}")
-            # Try inserting one by one for problematic chunks
-            for _, row in chunk.iterrows():
-                try:
-                    pd.DataFrame([row]).to_sql("argo_data", engine, if_exists="append", index=False)
-                    total_uploaded += 1
-                except:
-                    pass
+            conn.rollback()
     
+    cursor.close()
+    conn.close()
     return total_uploaded
 
 
@@ -351,33 +381,43 @@ Then run: python bulk_fetch.py --init-db
 
 
 def init_database(engine):
-    """Initialize database with proper schema."""
+    """Initialize database with proper schema (CockroachDB compatible)."""
     print("Creating database table...")
     
-    create_table_sql = """
-    CREATE TABLE IF NOT EXISTS argo_data (
-        id SERIAL PRIMARY KEY,
-        float_id BIGINT,
-        timestamp TIMESTAMP,
-        latitude DOUBLE PRECISION,
-        longitude DOUBLE PRECISION,
-        temperature DOUBLE PRECISION,
-        salinity DOUBLE PRECISION,
-        pressure DOUBLE PRECISION,
-        UNIQUE(float_id, timestamp, latitude, longitude)
-    );
-    
-    CREATE INDEX IF NOT EXISTS idx_argo_timestamp ON argo_data(timestamp);
-    CREATE INDEX IF NOT EXISTS idx_argo_float ON argo_data(float_id);
-    CREATE INDEX IF NOT EXISTS idx_argo_location ON argo_data(latitude, longitude);
-    """
+    # CockroachDB compatible - use INT8 instead of SERIAL
+    statements = [
+        """CREATE TABLE IF NOT EXISTS argo_data (
+            id INT8 DEFAULT unique_rowid() PRIMARY KEY,
+            float_id INT8,
+            timestamp TIMESTAMP,
+            latitude DOUBLE PRECISION,
+            longitude DOUBLE PRECISION,
+            temperature DOUBLE PRECISION,
+            salinity DOUBLE PRECISION,
+            pressure DOUBLE PRECISION,
+            UNIQUE(float_id, timestamp, latitude, longitude)
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_argo_timestamp ON argo_data(timestamp)",
+        "CREATE INDEX IF NOT EXISTS idx_argo_float ON argo_data(float_id)",
+        "CREATE INDEX IF NOT EXISTS idx_argo_location ON argo_data(latitude, longitude)",
+    ]
     
     try:
-        with engine.connect() as conn:
-            for statement in create_table_sql.split(";"):
-                if statement.strip():
-                    conn.execute(text(statement))
-            conn.commit()
+        # Use psycopg2 directly to bypass SQLAlchemy version detection issue
+        import psycopg2
+        load_environment()
+        db_url = os.getenv("DATABASE_URL")
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor()
+        for stmt in statements:
+            try:
+                cursor.execute(stmt)
+            except Exception as e:
+                if "already exists" not in str(e).lower():
+                    print(f"  Warning: {e}")
+        conn.commit()
+        cursor.close()
+        conn.close()
         print("✅ Database initialized successfully!")
         return True
     except Exception as e:
@@ -386,27 +426,35 @@ def init_database(engine):
 
 
 def get_stats(engine):
-    """Get database statistics."""
+    """Get database statistics (CockroachDB compatible)."""
     try:
-        with engine.connect() as conn:
-            result = conn.execute(text("""
-                SELECT 
-                    COUNT(*) as total,
-                    COUNT(DISTINCT float_id) as floats,
-                    MIN(timestamp) as min_date,
-                    MAX(timestamp) as max_date,
-                    ROUND(AVG(temperature)::numeric, 2) as avg_temp,
-                    ROUND(AVG(salinity)::numeric, 2) as avg_sal
-                FROM argo_data
-            """)).fetchone()
-            
-            return {
-                "total_records": result[0],
-                "unique_floats": result[1],
-                "date_range": f"{result[2]} to {result[3]}",
-                "avg_temperature": result[4],
-                "avg_salinity": result[5]
-            }
+        import psycopg2
+        load_environment()
+        db_url = os.getenv("DATABASE_URL")
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT 
+                COUNT(*) as total,
+                COUNT(DISTINCT float_id) as floats,
+                MIN(timestamp) as min_date,
+                MAX(timestamp) as max_date,
+                ROUND(AVG(temperature)::numeric, 2) as avg_temp,
+                ROUND(AVG(salinity)::numeric, 2) as avg_sal
+            FROM argo_data
+        """)
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        return {
+            "total_records": result[0],
+            "unique_floats": result[1],
+            "date_range": f"{result[2]} to {result[3]}",
+            "avg_temperature": result[4],
+            "avg_salinity": result[5]
+        }
     except Exception as e:
         return {"error": str(e)}
 
