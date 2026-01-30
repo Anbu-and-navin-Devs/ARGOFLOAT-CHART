@@ -36,7 +36,7 @@ FloatChart lets you explore ARGO float oceanographic data through natural langua
 | **Unique Floats** | 2,906 |
 | **Date Range** | 2020–2026 |
 | **Geographic Coverage** | Global (Indian Ocean, Pacific, Atlantic, Mediterranean) |
-| **Database Provider** | [Neon](https://neon.tech) (3GB free tier) |
+| **Database Provider** | [CockroachDB](https://cockroachlabs.cloud) (10GB free) or [Neon](https://neon.tech) |
 
 > **Note:** The demo runs on Render's free tier, so there may be a ~30s cold start delay if the server has been idle.
 

@@ -20,13 +20,19 @@ from sqlalchemy import create_engine, text
 from typing import Optional, List
 from io import StringIO
 import time
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from DATA_GENERATOR.env_utils import load_environment
 
-# ERDDAP Server
-ERDDAP_BASE = "https://coastwatch.pfeg.noaa.gov/erddap/tabledap"
+# ERDDAP Servers
+ERDDAP_SERVERS = {
+    "noaa": "https://coastwatch.pfeg.noaa.gov/erddap/tabledap",
+    "ifremer": "https://erddap.ifremer.fr/erddap/tabledap",
+}
 DATASET_ID = "ArgoFloats"
 
 # All ocean regions for comprehensive data
@@ -125,15 +131,31 @@ def clean_and_fill_missing(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def create_session() -> requests.Session:
+    session = requests.Session()
+    retry = Retry(
+        total=5,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET"],
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+    session.headers.update({"Accept-Encoding": "gzip"})
+    return session
+
+
 def fetch_chunk(lat_min: float, lat_max: float, lon_min: float, lon_max: float,
-                start_date: datetime, end_date: datetime, retries: int = 3) -> Optional[pd.DataFrame]:
+                start_date: datetime, end_date: datetime, base_url: str,
+                session: Optional[requests.Session] = None, retries: int = 3) -> Optional[pd.DataFrame]:
     """Fetch a single chunk of data with retries."""
     
     start_str = start_date.strftime("%Y-%m-%dT00:00:00Z")
     end_str = end_date.strftime("%Y-%m-%dT23:59:59Z")
     
     url = (
-        f"{ERDDAP_BASE}/{DATASET_ID}.csv?"
+        f"{base_url}/{DATASET_ID}.csv?"
         f"float_id,time,latitude,longitude,temp,psal,pres"
         f"&time>={start_str}&time<={end_str}"
         f"&latitude>={lat_min}&latitude<={lat_max}"
@@ -143,7 +165,8 @@ def fetch_chunk(lat_min: float, lat_max: float, lon_min: float, lon_max: float,
     
     for attempt in range(retries):
         try:
-            response = requests.get(url, timeout=180)
+            client = session or requests
+            response = client.get(url, timeout=180)
             
             if response.status_code == 404:
                 return None  # No data for this query
@@ -182,7 +205,10 @@ def fetch_chunk(lat_min: float, lat_max: float, lon_min: float, lon_max: float,
     return None
 
 
-def fetch_region_data(region_name: str, bounds: tuple, start_year: int = 2018) -> pd.DataFrame:
+def fetch_region_data(region_name: str, bounds: tuple, start_year: int = 2018,
+                      end_year: Optional[int] = None, chunk_days: int = 90,
+                      base_url: str = ERDDAP_SERVERS["noaa"],
+                      sleep_seconds: float = 0.5) -> pd.DataFrame:
     """
     Fetch all data for a region from start_year to now, in monthly chunks.
     """
@@ -193,16 +219,20 @@ def fetch_region_data(region_name: str, bounds: tuple, start_year: int = 2018) -
     
     all_data = []
     
-    # Fetch data in 3-month chunks to avoid timeouts
+    # Fetch data in chunks to avoid timeouts
     current_date = datetime(start_year, 1, 1)
-    end_date = datetime.now()
+    if end_year is None:
+        end_date = datetime.now()
+    else:
+        end_date = datetime(end_year, 12, 31)
+    session = create_session()
     
     while current_date < end_date:
-        chunk_end = min(current_date + timedelta(days=90), end_date)
+        chunk_end = min(current_date + timedelta(days=chunk_days), end_date)
         
         print(f"   Fetching: {current_date.strftime('%Y-%m')} to {chunk_end.strftime('%Y-%m')}...", end=" ")
         
-        df = fetch_chunk(lat_min, lat_max, lon_min, lon_max, current_date, chunk_end)
+        df = fetch_chunk(lat_min, lat_max, lon_min, lon_max, current_date, chunk_end, base_url, session=session)
         
         if df is not None and not df.empty:
             print(f"✓ {len(df)} records")
@@ -211,7 +241,7 @@ def fetch_region_data(region_name: str, bounds: tuple, start_year: int = 2018) -
             print("- no data")
         
         current_date = chunk_end + timedelta(days=1)
-        time.sleep(1)  # Be nice to the server
+        time.sleep(sleep_seconds)  # Be nice to the server
     
     if all_data:
         combined = pd.concat(all_data, ignore_index=True)
@@ -260,7 +290,7 @@ def setup_neon_database():
     """Guide user through Neon database setup."""
     print("""
 ╔══════════════════════════════════════════════════════════════════╗
-║           🐘 NEON DATABASE SETUP (3GB FREE!)                     ║
+║           🐘 NEON DATABASE SETUP (0.5GB FREE)                    ║
 ╚══════════════════════════════════════════════════════════════════╝
 
 1. Go to: https://neon.tech
@@ -277,6 +307,44 @@ postgresql://user:password@ep-xxxx.region.aws.neon.tech/neondb
    DATABASE_URL=postgresql://user:password@ep-xxxx.region.aws.neon.tech/neondb?sslmode=require
 
 6. Update Render environment variable with the same URL
+
+Then run: python bulk_fetch.py --init-db
+""")
+
+
+def setup_cockroachdb():
+    """Guide user through CockroachDB Serverless setup - RECOMMENDED for large data."""
+    print("""
+╔══════════════════════════════════════════════════════════════════╗
+║     🪳 COCKROACHDB SERVERLESS SETUP (10GB FREE!) - RECOMMENDED   ║
+╚══════════════════════════════════════════════════════════════════╝
+
+✅ Best choice for global ARGO data (2020-2026, ~10GB)
+
+1. Go to: https://cockroachlabs.cloud/
+2. Click "Sign Up" (use GitHub/Google for easy signup)
+3. Create a new cluster:
+   - Plan: "Serverless" (FREE)
+   - Cloud: AWS or GCP
+   - Region: Choose nearest (ap-south-1 for India)
+   - Cluster name: "floatchart"
+4. Create SQL user:
+   - Username: "floatchart_user"
+   - Generate password and SAVE IT
+5. Download CA certificate (or use sslmode=verify-full)
+6. Copy connection string from "Connect" → "Connection parameters"
+
+Your connection string will look like:
+postgresql://floatchart_user:PASSWORD@floatchart-xxx.xxx.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full
+
+7. Update your .env file:
+   DATABASE_URL=postgresql://floatchart_user:PASSWORD@floatchart-xxx.xxx.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full
+
+Free tier includes:
+  • 10 GB storage (vs 0.5GB Neon)
+  • 50M request units/month
+  • Auto-scaling
+  • No cold starts
 
 Then run: python bulk_fetch.py --init-db
 """)
@@ -346,11 +414,16 @@ def get_stats(engine):
 def main():
     parser = argparse.ArgumentParser(description="Bulk ARGO data fetcher for FloatChart")
     
-    parser.add_argument("--setup-neon", action="store_true", help="Show Neon setup guide")
+    parser.add_argument("--setup-neon", action="store_true", help="Show Neon setup guide (0.5GB free)")
+    parser.add_argument("--setup-cockroach", action="store_true", help="Show CockroachDB setup guide (10GB free) - RECOMMENDED")
     parser.add_argument("--init-db", action="store_true", help="Initialize database schema")
-    parser.add_argument("--fetch-all", action="store_true", help="Fetch all data from 2018")
+    parser.add_argument("--fetch-all", action="store_true", help="Fetch all data from 2020")
     parser.add_argument("--fetch-region", type=str, help="Fetch specific region")
-    parser.add_argument("--start-year", type=int, default=2018, help="Start year (default: 2018)")
+    parser.add_argument("--start-year", type=int, default=2020, help="Start year (default: 2020)")
+    parser.add_argument("--end-year", type=int, default=None, help="End year (default: current year)")
+    parser.add_argument("--chunk-days", type=int, default=90, help="Days per request chunk (default: 90)")
+    parser.add_argument("--server", type=str, default="noaa", choices=["noaa", "ifremer"], help="ERDDAP server")
+    parser.add_argument("--parallel", type=int, default=3, help="Parallel regions to fetch (default: 3)")
     parser.add_argument("--stats", action="store_true", help="Show database statistics")
     parser.add_argument("--test-connection", action="store_true", help="Test database connection")
     
@@ -358,6 +431,10 @@ def main():
     
     if args.setup_neon:
         setup_neon_database()
+        return 0
+    
+    if args.setup_cockroach:
+        setup_cockroachdb()
         return 0
     
     # Connect to database
@@ -399,17 +476,37 @@ def main():
         
         total_records = 0
         
-        for region_name, bounds in REGIONS.items():
-            df = fetch_region_data(region_name, bounds, args.start_year)
-            
-            if not df.empty:
-                uploaded = upload_to_database(df, engine)
-                total_records += uploaded
-                print(f"   ✅ {region_name}: {uploaded} records uploaded")
-            
-            # Show progress
-            stats = get_stats(engine)
-            print(f"   📊 Total in database: {stats.get('total_records', 0):,} records")
+        base_url = ERDDAP_SERVERS[args.server]
+        with ThreadPoolExecutor(max_workers=max(1, args.parallel)) as executor:
+            futures = {
+                executor.submit(
+                    fetch_region_data,
+                    region_name,
+                    bounds,
+                    args.start_year,
+                    args.end_year,
+                    args.chunk_days,
+                    base_url,
+                    0.5 if args.server == "noaa" else 0.8,
+                ): region_name
+                for region_name, bounds in REGIONS.items()
+            }
+            for future in as_completed(futures):
+                region_name = futures[future]
+                try:
+                    df = future.result()
+                except Exception as e:
+                    print(f"   ❌ {region_name}: fetch failed ({e})")
+                    continue
+
+                if not df.empty:
+                    uploaded = upload_to_database(df, engine)
+                    total_records += uploaded
+                    print(f"   ✅ {region_name}: {uploaded} records uploaded")
+
+                # Show progress
+                stats = get_stats(engine)
+                print(f"   📊 Total in database: {stats.get('total_records', 0):,} records")
         
         print(f"\n🎉 Complete! Total records uploaded: {total_records:,}")
         
@@ -428,7 +525,8 @@ def main():
             return 1
         
         init_database(engine)
-        df = fetch_region_data(region_key, REGIONS[region_key], args.start_year)
+        base_url = ERDDAP_SERVERS[args.server]
+        df = fetch_region_data(region_key, REGIONS[region_key], args.start_year, args.end_year, args.chunk_days, base_url)
         
         if not df.empty:
             uploaded = upload_to_database(df, engine)
