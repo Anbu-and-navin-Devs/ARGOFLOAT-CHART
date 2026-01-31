@@ -386,7 +386,10 @@ def handle_query():
         response = get_intelligent_answer(user_query)
         return jsonify(response)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        import traceback
+        error_detail = traceback.format_exc()
+        print(f"Query error: {error_detail}")
+        return jsonify({"error": str(e), "detail": error_detail}), 500
 
 @app.route('/api/query/stream', methods=['POST'])
 def handle_query_stream():
