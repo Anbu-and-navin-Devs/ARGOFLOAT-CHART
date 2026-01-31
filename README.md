@@ -14,18 +14,49 @@
 - 📊 **Dashboard** - Visualize temperature, salinity trends
 - ⬇️ **Data Manager** - Download ARGO data from ERDDAP servers
 
+## � Team
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/Anbu-2006">
+        <img src="https://github.com/Anbu-2006.png" width="100px;" alt="Anbuselvan T"/>
+        <br />
+        <sub><b>Anbuselvan T</b></sub>
+      </a>
+      <br />
+      <sub>🧠 AI & Backend</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/navin18-cmd">
+        <img src="https://github.com/navin18-cmd.png" width="100px;" alt="Navin"/>
+        <br />
+        <sub><b>Navin</b></sub>
+      </a>
+      <br />
+      <sub>🎨 Frontend</sub>
+    </td>
+  </tr>
+</table>
+
+### Contributions
+
+| Contributor | Role | Work Done |
+|-------------|------|-----------|
+| **[Anbuselvan T](https://github.com/Anbu-2006)** | AI & Data Engineer | 🔹 AI/LLM integration & smart routing<br>🔹 Database architecture (CockroachDB)<br>🔹 Data pipeline (ERDDAP → DB)<br>🔹 Backend logic & SQL builder<br>🔹 Data Manager tool |
+| **[Navin](https://github.com/navin18-cmd)** | Frontend Developer | 🔹 Chat interface UI<br>🔹 Interactive map design<br>🔹 Dashboard visualizations<br>🔹 CSS styling & responsiveness<br>🔹 User experience design |
+
 ## 🚀 Quick Start
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/floatchart.git
-cd floatchart
+git clone https://github.com/Anbu-Navin-Devs/ARGOFLOAT-CHART.git
+cd ARGOFLOAT-CHART
 
 # Run setup
 python local_setup.py
 
-# Edit credentials
-# ARGO_CHATBOT/.env
+# Edit credentials in .env (created at project root)
 
 # Start the chat app
 cd ARGO_CHATBOT
@@ -84,7 +115,7 @@ FloatChart/
 
 ## 🔧 Configuration
 
-Create `ARGO_CHATBOT/.env`:
+After running `local_setup.py`, edit `.env` at project root:
 
 ```env
 # Database (CockroachDB - Free 10GB at cockroachlabs.cloud)
@@ -148,3 +179,9 @@ python app.py
 ## 📄 License
 
 MIT License - feel free to use and modify!
+
+---
+
+<p align="center">
+  Made with ❤️ by <a href="https://github.com/Anbu-2006">Anbuselvan T</a> & <a href="https://github.com/navin18-cmd">Navin</a>
+</p>
