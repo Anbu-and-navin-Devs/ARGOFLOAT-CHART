@@ -348,7 +348,18 @@ def get_engine():
     # Convert postgresql:// to cockroachdb:// for proper CockroachDB support
     if db_url.startswith("postgresql://") and "cockroach" in db_url:
         db_url = db_url.replace("postgresql://", "cockroachdb://", 1)
-    _ENGINE = create_engine(db_url)
+    
+    # CockroachDB Cloud requires SSL - use 'require' mode if 'verify-full' fails
+    if "cockroach" in db_url.lower() and "sslmode=verify-full" in db_url:
+        db_url = db_url.replace("sslmode=verify-full", "sslmode=require")
+    
+    _ENGINE = create_engine(
+        db_url,
+        pool_pre_ping=True,
+        pool_size=2,
+        max_overflow=3,
+        connect_args={"sslmode": "require"} if "cockroach" in db_url.lower() else {}
+    )
     return _ENGINE
 
 db_context = {}
