@@ -12,11 +12,8 @@ import sql_builder
 import time
 
 # ------------------------------------------------------------------
-# 🧠 SMART AI ROUTING SYSTEM
-# Routes queries to the best AI based on complexity:
-#   - Simple/Fast queries → Groq (lightning fast, free)
-#   - Complex ocean queries → DeepSeek (excellent reasoning, free)
-#   - Fallback chain for reliability
+# 🧠 AI PROVIDER - Groq (100% FREE & UNLIMITED)
+# Using Llama 3.3 70B for all queries - fast, free, and excellent quality
 # ------------------------------------------------------------------
 
 def classify_query_complexity(question: str) -> str:

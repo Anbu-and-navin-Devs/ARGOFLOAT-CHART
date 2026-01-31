@@ -100,9 +100,9 @@ def create_env_file(project_root):
 DATABASE_URL=postgresql://postgres:password@localhost:5432/floatchart
 
 # ============================================
-# 🧠 AI PROVIDERS - Smart Routing (Both FREE!)
+# 🧠 AI PROVIDER - Groq (100% FREE & UNLIMITED!)
 # ============================================
-DEEPSEEK_API_KEY=your_deepseek_api_key_here
+# Get FREE key at: https://console.groq.com/keys
 GROQ_API_KEY=your_groq_api_key_here
 
 # ============================================
@@ -110,7 +110,6 @@ GROQ_API_KEY=your_groq_api_key_here
 # ============================================
 # OPENAI_API_KEY=your_openai_key
 # ANTHROPIC_API_KEY=your_anthropic_key
-# GOOGLE_API_KEY=your_google_key
 """
         root_env.write_text(env_content)
         print_success("Created .env file at project root (PostgreSQL for local)")
@@ -174,7 +173,8 @@ def check_env_configured(project_root):
     
     content = env_file.read_text()
     
-    if "your_cockroachdb_url_here" in content or "your_groq_api_key_here" in content or "your_deepseek_api_key_here" in content:
+    # Check for placeholder values (user needs to replace these)
+    if "your_cockroachdb_url_here" in content or "your_groq_api_key_here" in content:
         return False
     
     return "DATABASE_URL=" in content and len(content) > 50
@@ -279,21 +279,20 @@ def show_instructions():
     print(f"""
 {Colors.BOLD}📝 SETUP INSTRUCTIONS:{Colors.END}
 
-{Colors.CYAN}1. Get a Free Database (CockroachDB):{Colors.END}
-   • Go to https://cockroachlabs.cloud
-   • Create free account (10GB free)
-   • Create a cluster
-   • Copy the connection string
+{Colors.CYAN}1. Setup Database (PostgreSQL - LOCAL):{Colors.END}
+   • Install PostgreSQL: https://postgresql.org/download
+   • Create database: CREATE DATABASE floatchart;
+   • Use connection: postgresql://postgres:password@localhost:5432/floatchart
 
-{Colors.CYAN}2. Get a Free AI API Key (Groq):{Colors.END}
-   • Go to https://console.groq.com
-   • Create free account
-   • Generate API key
+{Colors.CYAN}2. Get a FREE AI API Key (Groq):{Colors.END}
+   • Go to https://console.groq.com/keys
+   • Sign up with Google/GitHub (30 seconds)
+   • Create API key - 100% FREE, no limits!
 
-{Colors.CYAN}3. Configure .env:{Colors.END}
-   Edit {Colors.BOLD}ARGO_CHATBOT/.env{Colors.END}:
+{Colors.CYAN}3. Configure .env (at project root):{Colors.END}
+   Edit {Colors.BOLD}.env{Colors.END}:
    
-   DATABASE_URL=postgresql://...
+   DATABASE_URL=postgresql://postgres:password@localhost:5432/floatchart
    GROQ_API_KEY=gsk_...
 
 {Colors.CYAN}4. Download Data:{Colors.END}
@@ -348,14 +347,14 @@ def main():
 {Colors.WARNING}{Colors.BOLD}
 ⚠️  Configuration Required
 {Colors.END}
-Please edit {Colors.BOLD}ARGO_CHATBOT/.env{Colors.END} with your credentials:
+Please edit {Colors.BOLD}.env{Colors.END} (at project root) with your credentials:
 
-  DATABASE_URL=your_cockroachdb_connection_string
+  DATABASE_URL=postgresql://postgres:password@localhost:5432/floatchart
   GROQ_API_KEY=your_groq_api_key
 
 {Colors.CYAN}Get free credentials at:{Colors.END}
-  • Database: https://cockroachlabs.cloud (10GB free)
-  • AI API:   https://console.groq.com (free tier)
+  • Database: Install PostgreSQL locally (UNLIMITED storage!)
+  • AI API:   https://console.groq.com (100% FREE, no limits!)
 
 After configuring, run this script again or:
   cd DATA_GENERATOR && python app.py  (to download data)
