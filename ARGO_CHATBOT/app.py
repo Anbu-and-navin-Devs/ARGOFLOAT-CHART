@@ -130,6 +130,22 @@ def get_db_engine():
             print(f"Database connection lost, reconnecting... ({e})")
             _engine = None
     
+    # Prepare connect_args for SSL if using CockroachDB Cloud
+    connect_args = {
+        "connect_timeout": 30,
+        "keepalives": 1,
+        "keepalives_idle": 30,
+        "keepalives_interval": 10,
+        "keepalives_count": 5
+    }
+    
+    # CockroachDB Cloud requires SSL - use system certificates
+    if "cockroach" in db_url.lower():
+        # Use 'require' instead of 'verify-full' if no local cert
+        if "sslmode=verify-full" in db_url:
+            db_url = db_url.replace("sslmode=verify-full", "sslmode=require")
+        connect_args["sslmode"] = "require"
+    
     try:
         _engine = create_engine(
             db_url,
@@ -138,13 +154,7 @@ def get_db_engine():
             max_overflow=3,
             pool_recycle=280,
             pool_timeout=20,
-            connect_args={
-                "connect_timeout": 30,
-                "keepalives": 1,
-                "keepalives_idle": 30,
-                "keepalives_interval": 10,
-                "keepalives_count": 5
-            }
+            connect_args=connect_args
         )
         with _engine.connect() as conn:
             conn.execute(text("SELECT 1"))
@@ -232,16 +242,31 @@ def check_local_mode():
 
 @app.route('/api/health')
 def health_check():
-    """Health check endpoint."""
-    db_status = "connected"
+    """Health check endpoint with diagnostic info."""
+    db_status = "disconnected"
+    db_error = None
     engine = get_db_engine()
     
-    if not engine:
-        db_status = "disconnected"
+    if engine:
+        try:
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            db_status = "connected"
+        except Exception as e:
+            db_error = str(e)
+    
+    # Check environment variables (don't expose secrets)
+    env_check = {
+        "DATABASE_URL_set": bool(os.getenv("DATABASE_URL")),
+        "GROQ_API_KEY_set": bool(os.getenv("GROQ_API_KEY")),
+        "DATABASE_URL_prefix": os.getenv("DATABASE_URL", "")[:30] + "..." if os.getenv("DATABASE_URL") else None
+    }
     
     return jsonify({
         "status": "healthy",
         "database": db_status,
+        "database_error": db_error,
+        "env_check": env_check,
         "timestamp": datetime.utcnow().isoformat()
     })
 
