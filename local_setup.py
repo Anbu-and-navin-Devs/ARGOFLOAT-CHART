@@ -49,6 +49,23 @@ def print_warning(message):
 def print_error(message):
     print(f"  {Colors.FAIL}✗{Colors.END} {message}")
 
+def clean_deployment_files(project_root):
+    """
+    Remove deployment-specific files after local setup.
+    These files are only needed for cloud deployment (Render).
+    """
+    deployment_files = [
+        project_root / "Procfile",
+    ]
+    
+    for file_path in deployment_files:
+        if file_path.exists():
+            try:
+                file_path.unlink()
+                print_success(f"Cleaned deployment file: {file_path.name}")
+            except Exception:
+                pass  # Ignore errors
+
 def check_python_version():
     """Check if Python version is compatible."""
     version = sys.version_info
@@ -73,8 +90,7 @@ def create_env_file(project_root):
     """
     Setup environment files for LOCAL development.
     - Creates .env at PROJECT ROOT from .env.example
-    - ARGO_CHATBOT/.env stays for cloud deployment
-    - Local apps find root .env automatically
+    - PostgreSQL only (local database)
     """
     root_env = project_root / ".env"
     env_example = project_root / ".env.example"
@@ -87,36 +103,25 @@ def create_env_file(project_root):
     # Copy .env.example to .env (for local use)
     if env_example.exists():
         shutil.copy(env_example, root_env)
-        print_success("Created .env from .env.example (for local development)")
+        print_success("Created .env from .env.example")
     else:
-        # Fallback: create minimal .env with PostgreSQL for local
+        # Fallback: create minimal .env with PostgreSQL
         env_content = """# FloatChart Configuration - Local Setup
 # Using PostgreSQL for LOCAL (unlimited storage!)
-# For cloud deployment, use CockroachDB
 
-# 🏠 LOCAL DATABASE: PostgreSQL (UNLIMITED storage!)
+# 🏠 DATABASE: PostgreSQL
 # Install PostgreSQL: https://www.postgresql.org/download/
 # Create database: CREATE DATABASE floatchart;
 DATABASE_URL=postgresql://postgres:password@localhost:5432/floatchart
 
-# ============================================
-# 🧠 AI PROVIDER - Groq (100% FREE & UNLIMITED!)
-# ============================================
+# 🧠 AI PROVIDER - Groq (100% FREE!)
 # Get FREE key at: https://console.groq.com/keys
 GROQ_API_KEY=your_groq_api_key_here
-
-# ============================================
-# 💎 Optional: Premium AI providers
-# ============================================
-# OPENAI_API_KEY=your_openai_key
-# ANTHROPIC_API_KEY=your_anthropic_key
 """
         root_env.write_text(env_content)
-        print_success("Created .env file at project root (PostgreSQL for local)")
+        print_success("Created .env file at project root")
     
-    print_warning("Please edit .env at project root with your credentials")
-    print_warning("LOCAL uses PostgreSQL (unlimited storage)")
-    print_warning("CLOUD uses CockroachDB (ARGO_CHATBOT/.env)")
+    print_warning("Please edit .env with your PostgreSQL credentials and Groq API key")
     return True
 
 def install_dependencies(project_root):
@@ -174,7 +179,7 @@ def check_env_configured(project_root):
     content = env_file.read_text()
     
     # Check for placeholder values (user needs to replace these)
-    if "your_cockroachdb_url_here" in content or "your_groq_api_key_here" in content:
+    if "your_groq_api_key_here" in content or "your_password" in content:
         return False
     
     return "DATABASE_URL=" in content and len(content) > 50
@@ -279,20 +284,21 @@ def show_instructions():
     print(f"""
 {Colors.BOLD}📝 SETUP INSTRUCTIONS:{Colors.END}
 
-{Colors.CYAN}1. Setup Database (PostgreSQL - LOCAL):{Colors.END}
+{Colors.CYAN}1. Setup Database (PostgreSQL):{Colors.END}
    • Install PostgreSQL: https://postgresql.org/download
+   • Open pgAdmin or psql terminal
    • Create database: CREATE DATABASE floatchart;
-   • Use connection: postgresql://postgres:password@localhost:5432/floatchart
+   • Note your password for postgres user
 
 {Colors.CYAN}2. Get a FREE AI API Key (Groq):{Colors.END}
    • Go to https://console.groq.com/keys
    • Sign up with Google/GitHub (30 seconds)
    • Create API key - 100% FREE, no limits!
 
-{Colors.CYAN}3. Configure .env (at project root):{Colors.END}
-   Edit {Colors.BOLD}.env{Colors.END}:
+{Colors.CYAN}3. Configure .env:{Colors.END}
+   Edit {Colors.BOLD}.env{Colors.END} in project root:
    
-   DATABASE_URL=postgresql://postgres:password@localhost:5432/floatchart
+   DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/floatchart
    GROQ_API_KEY=gsk_...
 
 {Colors.CYAN}4. Download Data:{Colors.END}
@@ -334,6 +340,9 @@ def main():
         # Step 4: Create .env file
         print_step(4, total_steps, "Setting up configuration...")
         create_env_file(project_root)
+        
+        # Clean deployment files (not needed for local)
+        clean_deployment_files(project_root)
         
         # Verify
         verify_installation()

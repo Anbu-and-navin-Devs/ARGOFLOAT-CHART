@@ -8,7 +8,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-2.0+-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com)
-[![CockroachDB](https://img.shields.io/badge/CockroachDB-Serverless-6933FF?style=for-the-badge&logo=cockroachlabs&logoColor=white)](https://cockroachlabs.cloud)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org)
 [![Groq](https://img.shields.io/badge/Groq-LLama_3.3-F55036?style=for-the-badge&logo=groq&logoColor=white)](https://groq.com)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
@@ -25,9 +25,9 @@
 - [Tech Stack](#%EF%B8%8F-tech-stack)
 - [Project Architecture](#-project-architecture)
 - [Getting Started](#-getting-started)
-- [Local vs Cloud Deployment](#-local-vs-cloud-deployment)
 - [Configuration](#-configuration)
 - [Usage](#-usage)
+- [Live Demo vs Local](#-live-demo-vs-local)
 - [Contributors](#-contributors)
 - [Resources](#-resources)
 - [License](#-license)
@@ -152,11 +152,10 @@ Our advanced AI system provides structured, data-driven responses:
 <td><strong>Database</strong></td>
 <td>
 
-![CockroachDB](https://img.shields.io/badge/CockroachDB-6933FF?style=flat&logo=cockroachlabs&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql&logoColor=white)
 
 </td>
-<td>Cloud (CockroachDB) & Local (PostgreSQL) data storage</td>
+<td>Local PostgreSQL data storage</td>
 </tr>
 <tr>
 <td><strong>Frontend</strong></td>
@@ -179,15 +178,6 @@ Our advanced AI system provides structured, data-driven responses:
 </td>
 <td>Charts, graphs, interactive maps</td>
 </tr>
-<tr>
-<td><strong>Deployment</strong></td>
-<td>
-
-![Render](https://img.shields.io/badge/Render-46E3B7?style=flat&logo=render&logoColor=white)
-
-</td>
-<td>Cloud hosting, CI/CD, SSL</td>
-</tr>
 </table>
 
 ---
@@ -201,7 +191,6 @@ ARGOFLOAT-CHART/
 │   ├── app.py                       # Flask server & API endpoints
 │   ├── brain.py                     # AI logic, insights, recommendations
 │   ├── sql_builder.py               # Dynamic SQL generation & optimization
-│   ├── gunicorn.conf.py             # Production server configuration
 │   ├── requirements.txt             # App-specific dependencies
 │   └── 📁 static/
 │       ├── index.html               # Chat interface
@@ -219,7 +208,6 @@ ARGOFLOAT-CHART/
 │
 ├── requirements.txt                 # Global Python dependencies
 ├── local_setup.py                   # One-click local setup wizard
-├── Procfile                         # Render deployment config
 ├── LICENSE                          # MIT License
 └── README.md                        # Project documentation
 ```
@@ -228,10 +216,9 @@ ARGOFLOAT-CHART/
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   ERDDAP API    │───▶│  DATA_GENERATOR │───▶│   Database      │
-│  (ARGO Source)  │    │  (ETL Pipeline) │    │ (CockroachDB/   │
-└─────────────────┘    └─────────────────┘    │  PostgreSQL)    │
-                                              └────────┬────────┘
+│   ERDDAP API    │───▶│  DATA_GENERATOR │───▶│   PostgreSQL    │
+│  (ARGO Source)  │    │  (ETL Pipeline) │    │   (Database)    │
+└─────────────────┘    └─────────────────┘    └────────┬────────┘
                                                        │
                                                        ▼
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -247,8 +234,7 @@ ARGOFLOAT-CHART/
 ### Prerequisites
 
 - **Python 3.9+** - [Download](https://python.org/downloads)
-- **PostgreSQL** (for local) - [Download](https://postgresql.org/download) *or*
-- **CockroachDB account** (for cloud) - [Sign up FREE](https://cockroachlabs.cloud)
+- **PostgreSQL** - [Download](https://postgresql.org/download)
 - **Groq API Key** (FREE) - [Get key](https://console.groq.com/keys)
 
 ### ⚡ Quick Start (3 Steps)
@@ -270,119 +256,29 @@ python app.py
 
 ---
 
-## 🏠 Local vs Cloud Deployment
-
-Choose the deployment strategy that fits your needs:
-
-<table>
-<tr>
-<th width="50%">🏠 Local Development</th>
-<th width="50%">☁️ Cloud Production</th>
-</tr>
-<tr>
-<td>
-
-**Database:** PostgreSQL (Local)
-
-**Best For:**
-- 🔬 Research & experimentation
-- 📊 Full dataset exploration (46M+ records)
-- ⚡ Maximum query performance
-- 🔒 Sensitive data handling
-
-**Advantages:**
-- ✅ Unlimited storage (based on disk)
-- ✅ Zero network latency
-- ✅ Complete data privacy
-- ✅ No cloud costs
-
-**Setup:**
-```bash
-# Install PostgreSQL locally
-psql -U postgres
-CREATE DATABASE floatchart;
-\q
-
-python local_setup.py
-```
-
-</td>
-<td>
-
-**Database:** CockroachDB Serverless
-
-**Best For:**
-- 🌐 Public demos & presentations
-- 👥 Team collaboration
-- 📱 Access from anywhere
-- 🚀 Quick deployment
-
-**Advantages:**
-- ✅ No infrastructure management
-- ✅ Auto-scaling & high availability
-- ✅ 10GB free tier
-- ✅ Built-in SSL security
-
-**Setup:**
-```bash
-# Create account at cockroachlabs.cloud
-# Get connection string
-# Deploy to Render/Heroku
-```
-
-</td>
-</tr>
-<tr>
-<td>
-
-**Environment Variables:**
-```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/floatchart
-GROQ_API_KEY=gsk_your_key_here
-```
-
-</td>
-<td>
-
-**Environment Variables:**
-```env
-DATABASE_URL=cockroachdb://user:pass@host:26257/db?sslmode=require
-GROQ_API_KEY=gsk_your_key_here
-```
-
-</td>
-</tr>
-</table>
-
-### 📊 Comparison Matrix
-
-| Feature | Local (PostgreSQL) | Cloud (CockroachDB) |
-|---------|-------------------|---------------------|
-| **Storage Limit** | Unlimited (disk-based) | 10GB (free tier) |
-| **Query Speed** | ⚡⚡⚡ Fastest | ⚡⚡ Fast |
-| **Network Required** | ❌ No | ✅ Yes |
-| **Setup Complexity** | Medium | Easy |
-| **Cost** | Free | Free (10GB) |
-| **Accessibility** | Local only | Anywhere |
-| **Data Records** | 46M+ possible | ~5-10M recommended |
-| **Best Use Case** | Research | Demo/Production |
-
----
-
 ## ⚙️ Configuration
 
-### 🔑 API Keys Setup
+### 🗄️ PostgreSQL Setup
 
-#### Groq AI (Required - 100% FREE!)
+1. **Install PostgreSQL**: [postgresql.org/download](https://postgresql.org/download)
+2. **Create Database**:
+   ```sql
+   CREATE DATABASE floatchart;
+   ```
+3. **Update `.env`**:
+   ```env
+   DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/floatchart
+   ```
+
+### 🔑 Groq AI Setup (Required - 100% FREE!)
 
 1. Visit [console.groq.com/keys](https://console.groq.com/keys)
 2. Sign up with Google/GitHub (30 seconds)
 3. Click **"Create API Key"**
-4. Copy and add to `.env` file
-
-```env
-GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxx
-```
+4. Copy and add to `.env` file:
+   ```env
+   GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxx
+   ```
 
 **Why Groq?**
 | Benefit | Details |
@@ -442,6 +338,22 @@ python bulk_fetch.py --stats              # Database statistics
 
 ---
 
+## 🌐 Live Demo vs Local
+
+Try our [**Live Demo**](https://argofloat-chart-hank.onrender.com) or run locally for the full experience:
+
+| Feature | 🌐 Live Demo | 🏠 Local Setup |
+|---------|--------------|----------------|
+| **Data** | Limited (~5M records) | Full dataset (46M+ records) |
+| **Query Speed** | Slower (network) | ⚡ Fast (local) |
+| **Storage** | 10GB limit | Unlimited |
+| **Setup Required** | None | PostgreSQL + setup |
+| **Best For** | Quick preview | Research & full exploration |
+
+> 💡 **Tip**: Use the Live Demo to test the interface, then set up locally for serious data analysis!
+
+---
+
 ## 👥 Contributors
 
 <div align="center">
@@ -493,7 +405,7 @@ python bulk_fetch.py --stats              # Database statistics
 <td><strong>AI & Data Engineer</strong></td>
 <td>
 ◆ AI/LLM integration with Groq & smart query routing<br>
-◆ Database architecture design (CockroachDB)<br>
+◆ Database architecture design<br>
 ◆ Data pipeline development (ERDDAP → Database)<br>
 ◆ Backend logic, API design & SQL query builder<br>
 ◆ Query optimization with bounding box filtering<br>
@@ -529,7 +441,7 @@ python bulk_fetch.py --stats              # Database statistics
 |----------|-------------|
 | [🌊 ARGO Program](https://argo.ucsd.edu) | Global ocean observation network |
 | [📡 ERDDAP Server](https://erddap.ifremer.fr) | ARGO data distribution service |
-| [🗄️ CockroachDB](https://cockroachlabs.cloud) | Serverless distributed database |
+| [� PostgreSQL](https://postgresql.org) | Open-source relational database |
 | [🧠 Groq Console](https://console.groq.com) | AI/LLM API provider |
 | [🐍 Flask Documentation](https://flask.palletsprojects.com) | Python web framework |
 | [📊 Chart.js](https://chartjs.org) | JavaScript charting library |
