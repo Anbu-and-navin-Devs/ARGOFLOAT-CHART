@@ -145,69 +145,83 @@ def cached(ttl=None):
     return decorator
 
 # =============================================
-# DATABASE CONNECTION
+# DATABASE CONNECTION - Optimized for CockroachDB
 # =============================================
 _engine = None
+_db_warmed = False
 
 def get_db_engine():
-    """Get or create database engine with lazy initialization."""
+    """Get or create database engine with eager initialization."""
     global _engine
     
     if not DATABASE_URL:
         return None
+    
+    # Return existing healthy engine
+    if _engine is not None:
+        return _engine
     
     # Convert postgresql:// to cockroachdb:// for proper CockroachDB support
     db_url = DATABASE_URL
     if db_url.startswith("postgresql://") and "cockroach" in db_url:
         db_url = db_url.replace("postgresql://", "cockroachdb://", 1)
     
-    if _engine is not None:
-        try:
-            with _engine.connect() as conn:
-                conn.execute(text("SELECT 1"))
-            return _engine
-        except Exception as e:
-            print(f"Database connection lost, reconnecting... ({e})")
-            _engine = None
-    
-    # Prepare connect_args for SSL if using CockroachDB Cloud
+    # Prepare connect_args for CockroachDB Cloud
     connect_args = {
-        "connect_timeout": 30,
+        "connect_timeout": 10,      # Faster timeout
         "keepalives": 1,
-        "keepalives_idle": 30,
-        "keepalives_interval": 10,
-        "keepalives_count": 5,
-        "options": "-c statement_timeout=60000"  # 60 second query timeout
+        "keepalives_idle": 10,      # More aggressive keepalive
+        "keepalives_interval": 5,
+        "keepalives_count": 3,
     }
     
-    # CockroachDB Cloud requires SSL - use system certificates
+    # CockroachDB Cloud requires SSL
     if "cockroach" in db_url.lower():
-        # Use 'require' instead of 'verify-full' if no local cert
         if "sslmode=verify-full" in db_url:
             db_url = db_url.replace("sslmode=verify-full", "sslmode=require")
         connect_args["sslmode"] = "require"
-        # CockroachDB specific: Remove PostgreSQL statement_timeout (use CockroachDB's)
-        connect_args.pop("options", None)
     
     try:
         _engine = create_engine(
             db_url,
-            pool_pre_ping=True,
-            pool_size=3,           # Increased from 2 for better concurrency
-            max_overflow=5,        # Increased from 3 for burst traffic
-            pool_recycle=180,      # Reduced from 280 for fresher connections
-            pool_timeout=30,       # Increased from 20 for slow network
+            pool_pre_ping=True,      # Check connection health
+            pool_size=5,              # More connections ready
+            max_overflow=10,          # Allow burst
+            pool_recycle=120,         # Recycle every 2 min
+            pool_timeout=15,          # Fail fast
             connect_args=connect_args,
-            echo=False,            # Disable SQL logging for performance
+            echo=False,
         )
+        # Eagerly create connections
         with _engine.connect() as conn:
             conn.execute(text("SELECT 1"))
-        print("✅ Database connected successfully.")
+        print("✅ Database connected")
         return _engine
     except Exception as e:
-        print(f"❌ Database connection error: {e}")
+        print(f"❌ Database error: {e}")
         _engine = None
         return None
+
+def warm_db_connection():
+    """Warm up database connection and cache common queries."""
+    global _db_warmed
+    if _db_warmed:
+        return
+    
+    engine = get_db_engine()
+    if not engine:
+        return
+    
+    try:
+        with engine.connect() as conn:
+            # Warm up connection pool with multiple connections
+            conn.execute(text("SELECT 1"))
+            # Pre-cache table statistics (makes subsequent queries faster)
+            conn.execute(text("SELECT COUNT(*) FROM argo_data LIMIT 1"))
+        _db_warmed = True
+        print("✅ Database warmed up")
+    except Exception as e:
+        print(f"⚠️ Warm-up failed: {e}")
 
 # =============================================
 # STATIC FILE ROUTES
@@ -716,10 +730,29 @@ def get_map_points():
 # RUN SERVER
 # =============================================
 
+# Health check endpoint for Render to keep app warm
+@app.route('/health')
+def health_check():
+    """Health check endpoint - also keeps connection warm."""
+    engine = get_db_engine()
+    if engine:
+        try:
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            return jsonify({"status": "healthy", "database": "connected"}), 200
+        except:
+            pass
+    return jsonify({"status": "healthy", "database": "disconnected"}), 200
+
 if __name__ == "__main__":
     print("\n" + "="*50)
     print("  FloatChart - AI-Powered Ocean Data Chat")
     print("="*50)
+    
+    # Warm up database on startup
+    print("\n🔄 Warming up database connection...")
+    warm_db_connection()
+    
     print(f"\n🌐 Opening at: http://localhost:5000")
     print("\n📋 Pages:")
     print("   /           - Chat Interface")
