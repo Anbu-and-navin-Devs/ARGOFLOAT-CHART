@@ -272,7 +272,7 @@ def health_check():
 
 @app.route('/api/status')
 def get_status():
-    """Get application status including database stats."""
+    """Get application status - fast version."""
     engine = get_db_engine()
     
     if not engine:
@@ -285,35 +285,14 @@ def get_status():
     
     try:
         with engine.connect() as conn:
-            # Quick connection test first
+            # Just verify connection - don't count records (too slow on free tier)
             conn.execute(text("SELECT 1"))
-            
-            # Use estimate for large tables (much faster)
-            try:
-                # Try to get approximate count (CockroachDB/PostgreSQL)
-                result = conn.execute(text("""
-                    SELECT reltuples::bigint as estimate 
-                    FROM pg_class 
-                    WHERE relname = 'argo_data'
-                """))
-                row = result.fetchone()
-                total_records = int(row[0]) if row and row[0] > 0 else 0
-                
-                # If estimate is 0, do a quick limited count
-                if total_records == 0:
-                    result = conn.execute(text("SELECT COUNT(*) FROM argo_data LIMIT 1"))
-                    total_records = result.scalar() or 0
-            except:
-                # Fallback to actual count with timeout
-                result = conn.execute(text("SELECT COUNT(*) FROM argo_data"))
-                total_records = result.scalar() or 0
             
             return jsonify({
                 "status": "online",
                 "database": "connected",
                 "database_connected": True,
-                "total_records": total_records,
-                "records": total_records
+                "total_records": "available"
             })
     except Exception as e:
         print(f"Status check error: {e}")
