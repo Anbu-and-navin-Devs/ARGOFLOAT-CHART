@@ -116,6 +116,11 @@ def get_db_engine():
     if not DATABASE_URL:
         return None
     
+    # Convert postgresql:// to cockroachdb:// for proper CockroachDB support
+    db_url = DATABASE_URL
+    if db_url.startswith("postgresql://") and "cockroach" in db_url:
+        db_url = db_url.replace("postgresql://", "cockroachdb://", 1)
+    
     if _engine is not None:
         try:
             with _engine.connect() as conn:
@@ -127,7 +132,7 @@ def get_db_engine():
     
     try:
         _engine = create_engine(
-            DATABASE_URL,
+            db_url,
             pool_pre_ping=True,
             pool_size=2,
             max_overflow=3,

@@ -9,6 +9,7 @@ gunicorn
 # Database
 sqlalchemy
 psycopg2-binary
+sqlalchemy-cockroachdb  # CockroachDB support
 
 # Data Processing
 pandas

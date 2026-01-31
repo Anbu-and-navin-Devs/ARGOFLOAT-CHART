@@ -95,7 +95,7 @@ def get_groq_llm():
     if groq_key:
         try:
             from langchain_groq import ChatGroq
-            model = os.getenv("GROQ_MODEL_NAME", "llama-3.1-70b-versatile")
+            model = os.getenv("GROQ_MODEL_NAME", "llama-3.3-70b-versatile")
             return ChatGroq(
                 model=model,
                 temperature=0,
@@ -357,6 +357,9 @@ def get_engine():
     db_url = os.getenv("DATABASE_URL")
     if not db_url:
         raise RuntimeError("DATABASE_URL not set in environment.")
+    # Convert postgresql:// to cockroachdb:// for proper CockroachDB support
+    if db_url.startswith("postgresql://") and "cockroach" in db_url:
+        db_url = db_url.replace("postgresql://", "cockroachdb://", 1)
     _ENGINE = create_engine(db_url)
     return _ENGINE
 
