@@ -1220,27 +1220,16 @@ function endTour() {
 // ========================================
 async function checkStatus() {
     try {
-        const res = await fetch(`${CONFIG.API_BASE}/api/status`);
+        // Use health endpoint (more reliable)
+        const res = await fetch(`${CONFIG.API_BASE}/api/health`);
         const data = await res.json();
         
         const dot = el.statusIndicator?.querySelector('.status-dot');
         const text = el.statusIndicator?.querySelector('.status-text');
         
-        if (data.status === 'online' && data.database === 'connected') {
+        if (data.status === 'healthy' && data.database === 'connected') {
             dot?.classList.add('online');
             if (text) text.textContent = 'Connected';
-            
-            if (data.data_range && el.dataRangeInfo) {
-                const { start, end } = data.data_range;
-                const records = data.records?.toLocaleString() || '0';
-                const floats = data.unique_floats?.toLocaleString() || '0';
-                
-                el.dataRangeInfo.innerHTML = `
-                    <div class="data-range-main">📅 <strong>${start}</strong> to <strong>${end}</strong></div>
-                    <div class="data-range-stats">🌊 ${records} records • ${floats} ARGO floats</div>
-                    <div class="data-range-note">🔍 Indian Ocean, Bay of Bengal, Arabian Sea & more</div>
-                `;
-            }
         } else {
             dot?.classList.remove('online');
             if (text) text.textContent = 'Disconnected';
