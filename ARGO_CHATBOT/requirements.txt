@@ -1,0 +1,25 @@
+# FloatChart - ARGO_CHATBOT Dependencies
+# Run: pip install -r requirements.txt
+
+# Web Framework
+flask
+flask-cors
+gunicorn
+
+# Database
+sqlalchemy
+psycopg2-binary
+
+# Data Processing
+pandas
+numpy
+requests
+
+# AI (at least one required - Groq is FREE!)
+langchain-core
+langchain-groq         # FREE - recommended
+langchain-openai       # Paid - best quality
+langchain-google-genai # Free tier available
+
+# Environment
+python-dotenv
