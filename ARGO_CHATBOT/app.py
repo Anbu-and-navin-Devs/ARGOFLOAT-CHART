@@ -291,6 +291,17 @@ def health_check():
         "timestamp": datetime.utcnow().isoformat()
     })
 
+@app.route('/api/test-ai')
+def test_ai():
+    """Test AI connection."""
+    try:
+        from brain import get_llm
+        llm = get_llm()
+        result = llm.invoke("Say hello in one word")
+        return jsonify({"status": "ok", "response": result.content[:100]})
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)})
+
 @app.route('/api/status')
 def get_status():
     """Get application status - fast version."""
