@@ -171,7 +171,7 @@ These floats drift at depth and surface every **10 days** to transmit data via s
 📅 "Data from January 2024"  
 🔄 "Compare Arabian Sea vs Indian Ocean salinity"
 🛤️ "Track float 2900757"
-🌡️ "Coldest recorded temperature in Pacific"
+🌡️ "Coldest recorded temperature in Bay of Bengal"
 ```
 
 <br/>
