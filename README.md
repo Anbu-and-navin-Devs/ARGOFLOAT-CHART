@@ -155,7 +155,8 @@ GROQ_API_KEY=your_groq_key
 
 | Environment | Database | Storage | Best For |
 |-------------|----------|---------|----------|
-| **Local** | PostgreSQL | ♾️ Unlimited | Full data exploration |
+| **Local** | PostgreSQL | based on user 
+storage| Full data exploration |
 | **Cloud** | CockroachDB | 10GB | Demo, production |
 
 ## 📥 Getting Data
