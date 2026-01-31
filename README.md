@@ -4,7 +4,7 @@
 
 <br/>
 
-<h3>🚀 Transform <strong>46 Million</strong> Ocean Observations into Instant Insights</h3>
+<h3>🚀 Transform <strong>46 Million+ </strong> Ocean Observations into Instant Insights</h3>
 
 <p><i>Query the world's largest ocean monitoring network using natural language — no SQL or coding required!</i></p>
 
