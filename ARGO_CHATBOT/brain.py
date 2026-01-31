@@ -662,8 +662,25 @@ def get_database_context(engine):
     if db_context: return db_context
     try:
         with engine.connect() as connection:
+            # First check if table exists
+            result = connection.execute(text("""
+                SELECT EXISTS (
+                    SELECT 1 FROM information_schema.tables 
+                    WHERE table_name = 'argo_data'
+                )
+            """)).fetchone()
+            
+            if not result or not result[0]:
+                print("WARNING: argo_data table does not exist!")
+                return None
+            
             result = connection.execute(text('SELECT MIN("timestamp"), MAX("timestamp") FROM argo_data')).fetchone()
             min_date, max_date = result
+            
+            if not min_date or not max_date:
+                print("WARNING: argo_data table is empty!")
+                return None
+                
             db_context = { "min_date": min_date, "max_date": max_date }
             print(f"Database context loaded: Data ranges from {db_context['min_date']} to {db_context['max_date']}")
             return db_context
@@ -902,8 +919,8 @@ def get_intelligent_answer(user_question: str):
 
         context = get_database_context(engine)
         if not context:
-            logging.error("Could not connect to database.")
-            return {"query_type": "Error", "summary": "Could not connect to database. Please try again later.", "data": []}
+            logging.error("Database has no data or table doesn't exist.")
+            return {"query_type": "Error", "summary": "No ocean data available yet. Please run the Data Generator to fetch ARGO float data first.", "data": []}
 
         # Format data availability info for responses
         min_date = context.get("min_date")
