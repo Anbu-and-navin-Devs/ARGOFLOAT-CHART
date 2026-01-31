@@ -353,7 +353,9 @@ def get_engine():
 
 db_context = {}
 LOCATIONS = {
-    # Indian Ocean regions
+    # ==========================================
+    # INDIAN OCEAN REGIONS
+    # ==========================================
     "indian ocean": "(\"latitude\" BETWEEN -40 AND 25 AND \"longitude\" BETWEEN 30 AND 120)",
     "arabian sea": "(\"latitude\" BETWEEN 5 AND 25 AND \"longitude\" BETWEEN 50 AND 75)",
     "bay of bengal": "(\"latitude\" BETWEEN 5 AND 22 AND \"longitude\" BETWEEN 80 AND 95)",
@@ -361,59 +363,287 @@ LOCATIONS = {
     "laccadive sea": "(\"latitude\" BETWEEN 8 AND 14 AND \"longitude\" BETWEEN 71 AND 77)",
     "red sea": "(\"latitude\" BETWEEN 12 AND 30 AND \"longitude\" BETWEEN 32 AND 44)",
     "persian gulf": "(\"latitude\" BETWEEN 24 AND 30 AND \"longitude\" BETWEEN 48 AND 56)",
+    "gulf of oman": "(\"latitude\" BETWEEN 22 AND 27 AND \"longitude\" BETWEEN 56 AND 62)",
+    "gulf of aden": "(\"latitude\" BETWEEN 10 AND 15 AND \"longitude\" BETWEEN 43 AND 51)",
     "mozambique channel": "(\"latitude\" BETWEEN -25 AND -10 AND \"longitude\" BETWEEN 35 AND 45)",
     
-    # Pacific Ocean regions
+    # ==========================================
+    # PACIFIC OCEAN REGIONS
+    # ==========================================
     "pacific ocean": "(\"latitude\" BETWEEN -60 AND 60 AND \"longitude\" BETWEEN 100 AND 180)",
+    "north pacific": "(\"latitude\" BETWEEN 0 AND 60 AND \"longitude\" BETWEEN 100 AND 180)",
+    "south pacific": "(\"latitude\" BETWEEN -60 AND 0 AND \"longitude\" BETWEEN 100 AND 180)",
     "south china sea": "(\"latitude\" BETWEEN 0 AND 25 AND \"longitude\" BETWEEN 100 AND 121)",
     "philippine sea": "(\"latitude\" BETWEEN 5 AND 35 AND \"longitude\" BETWEEN 120 AND 140)",
     "coral sea": "(\"latitude\" BETWEEN -25 AND -10 AND \"longitude\" BETWEEN 145 AND 165)",
     "tasman sea": "(\"latitude\" BETWEEN -45 AND -30 AND \"longitude\" BETWEEN 150 AND 175)",
+    "east china sea": "(\"latitude\" BETWEEN 25 AND 33 AND \"longitude\" BETWEEN 120 AND 130)",
+    "sea of japan": "(\"latitude\" BETWEEN 35 AND 52 AND \"longitude\" BETWEEN 127 AND 142)",
+    "java sea": "(\"latitude\" BETWEEN -8 AND -3 AND \"longitude\" BETWEEN 105 AND 120)",
+    "banda sea": "(\"latitude\" BETWEEN -8 AND -4 AND \"longitude\" BETWEEN 122 AND 132)",
+    "celebes sea": "(\"latitude\" BETWEEN 0 AND 7 AND \"longitude\" BETWEEN 118 AND 127)",
+    "sulu sea": "(\"latitude\" BETWEEN 5 AND 12 AND \"longitude\" BETWEEN 118 AND 123)",
     
-    # Atlantic Ocean regions
+    # ==========================================
+    # ATLANTIC OCEAN REGIONS
+    # ==========================================
     "atlantic ocean": "(\"latitude\" BETWEEN -60 AND 60 AND \"longitude\" BETWEEN -80 AND 0)",
+    "north atlantic": "(\"latitude\" BETWEEN 0 AND 60 AND \"longitude\" BETWEEN -80 AND 0)",
+    "south atlantic": "(\"latitude\" BETWEEN -60 AND 0 AND \"longitude\" BETWEEN -70 AND 20)",
     "caribbean sea": "(\"latitude\" BETWEEN 10 AND 22 AND \"longitude\" BETWEEN -88 AND -60)",
     "gulf of mexico": "(\"latitude\" BETWEEN 18 AND 30 AND \"longitude\" BETWEEN -98 AND -80)",
     "mediterranean sea": "(\"latitude\" BETWEEN 30 AND 46 AND \"longitude\" BETWEEN -6 AND 36)",
     "north sea": "(\"latitude\" BETWEEN 51 AND 62 AND \"longitude\" BETWEEN -5 AND 10)",
+    "baltic sea": "(\"latitude\" BETWEEN 53 AND 66 AND \"longitude\" BETWEEN 10 AND 30)",
+    "black sea": "(\"latitude\" BETWEEN 40 AND 47 AND \"longitude\" BETWEEN 27 AND 42)",
+    "bay of biscay": "(\"latitude\" BETWEEN 43 AND 48 AND \"longitude\" BETWEEN -10 AND 0)",
     
-    # Cities/Ports - India
-    "chennai": "(\"latitude\" BETWEEN 12 AND 14 AND \"longitude\" BETWEEN 79 AND 82)",
+    # ==========================================
+    # INDIAN COASTAL CITIES - WEST COAST (North to South)
+    # ==========================================
+    "kandla": "(\"latitude\" BETWEEN 22 AND 24 AND \"longitude\" BETWEEN 69 AND 71)",
+    "porbandar": "(\"latitude\" BETWEEN 21 AND 22.5 AND \"longitude\" BETWEEN 69 AND 70.5)",
+    "veraval": "(\"latitude\" BETWEEN 20 AND 21.5 AND \"longitude\" BETWEEN 69 AND 71)",
+    "diu": "(\"latitude\" BETWEEN 20 AND 21 AND \"longitude\" BETWEEN 70 AND 71.5)",
+    "surat": "(\"latitude\" BETWEEN 20 AND 22 AND \"longitude\" BETWEEN 71 AND 73)",
+    "daman": "(\"latitude\" BETWEEN 20 AND 21 AND \"longitude\" BETWEEN 72 AND 73.5)",
     "mumbai": "(\"latitude\" BETWEEN 18 AND 20 AND \"longitude\" BETWEEN 71 AND 74)",
-    "kollam": "(\"latitude\" BETWEEN 8 AND 10 AND \"longitude\" BETWEEN 75 AND 77)",
+    "bombay": "(\"latitude\" BETWEEN 18 AND 20 AND \"longitude\" BETWEEN 71 AND 74)",
+    "alibag": "(\"latitude\" BETWEEN 18 AND 19 AND \"longitude\" BETWEEN 72 AND 73.5)",
+    "ratnagiri": "(\"latitude\" BETWEEN 16 AND 17.5 AND \"longitude\" BETWEEN 72 AND 74)",
+    "rajapur": "(\"latitude\" BETWEEN 16 AND 17 AND \"longitude\" BETWEEN 73 AND 74)",
+    "goa": "(\"latitude\" BETWEEN 14 AND 16 AND \"longitude\" BETWEEN 72 AND 74)",
+    "panaji": "(\"latitude\" BETWEEN 15 AND 16 AND \"longitude\" BETWEEN 73 AND 74.5)",
+    "karwar": "(\"latitude\" BETWEEN 14 AND 15.5 AND \"longitude\" BETWEEN 73 AND 75)",
+    "mangalore": "(\"latitude\" BETWEEN 12 AND 14 AND \"longitude\" BETWEEN 74 AND 76)",
+    "mangaluru": "(\"latitude\" BETWEEN 12 AND 14 AND \"longitude\" BETWEEN 74 AND 76)",
+    "udupi": "(\"latitude\" BETWEEN 13 AND 14 AND \"longitude\" BETWEEN 74 AND 75.5)",
+    "kasaragod": "(\"latitude\" BETWEEN 12 AND 13 AND \"longitude\" BETWEEN 74 AND 75.5)",
+    "kannur": "(\"latitude\" BETWEEN 11 AND 12.5 AND \"longitude\" BETWEEN 74 AND 76)",
+    "cannanore": "(\"latitude\" BETWEEN 11 AND 12.5 AND \"longitude\" BETWEEN 74 AND 76)",
+    "kozhikode": "(\"latitude\" BETWEEN 11 AND 12 AND \"longitude\" BETWEEN 75 AND 76.5)",
+    "calicut": "(\"latitude\" BETWEEN 11 AND 12 AND \"longitude\" BETWEEN 75 AND 76.5)",
+    "beypore": "(\"latitude\" BETWEEN 11 AND 11.5 AND \"longitude\" BETWEEN 75 AND 76)",
+    "ponnani": "(\"latitude\" BETWEEN 10.5 AND 11 AND \"longitude\" BETWEEN 75 AND 76.5)",
+    "thrissur": "(\"latitude\" BETWEEN 10 AND 11 AND \"longitude\" BETWEEN 75 AND 77)",
     "kochi": "(\"latitude\" BETWEEN 9 AND 11 AND \"longitude\" BETWEEN 75 AND 77)",
     "cochin": "(\"latitude\" BETWEEN 9 AND 11 AND \"longitude\" BETWEEN 75 AND 77)",
-    "goa": "(\"latitude\" BETWEEN 14 AND 16 AND \"longitude\" BETWEEN 72 AND 74)",
-    "kolkata": "(\"latitude\" BETWEEN 21 AND 23 AND \"longitude\" BETWEEN 87 AND 89)",
-    "visakhapatnam": "(\"latitude\" BETWEEN 17 AND 18.5 AND \"longitude\" BETWEEN 82 AND 84)",
-    "vizag": "(\"latitude\" BETWEEN 17 AND 18.5 AND \"longitude\" BETWEEN 82 AND 84)",
-    "mangalore": "(\"latitude\" BETWEEN 12 AND 14 AND \"longitude\" BETWEEN 74 AND 76)",
-    "tuticorin": "(\"latitude\" BETWEEN 8 AND 9.5 AND \"longitude\" BETWEEN 77 AND 79)",
-    "pondicherry": "(\"latitude\" BETWEEN 11 AND 12.5 AND \"longitude\" BETWEEN 79 AND 80.5)",
-    "puducherry": "(\"latitude\" BETWEEN 11 AND 12.5 AND \"longitude\" BETWEEN 79 AND 80.5)",
+    "alappuzha": "(\"latitude\" BETWEEN 9 AND 10 AND \"longitude\" BETWEEN 76 AND 77)",
+    "alleppey": "(\"latitude\" BETWEEN 9 AND 10 AND \"longitude\" BETWEEN 76 AND 77)",
+    "kollam": "(\"latitude\" BETWEEN 8 AND 10 AND \"longitude\" BETWEEN 75 AND 77)",
+    "quilon": "(\"latitude\" BETWEEN 8 AND 10 AND \"longitude\" BETWEEN 75 AND 77)",
+    "varkala": "(\"latitude\" BETWEEN 8.5 AND 9 AND \"longitude\" BETWEEN 76 AND 77)",
     "trivandrum": "(\"latitude\" BETWEEN 8 AND 9.5 AND \"longitude\" BETWEEN 76 AND 77.5)",
     "thiruvananthapuram": "(\"latitude\" BETWEEN 8 AND 9.5 AND \"longitude\" BETWEEN 76 AND 77.5)",
-    "surat": "(\"latitude\" BETWEEN 20 AND 22 AND \"longitude\" BETWEEN 71 AND 73)",
-    "kandla": "(\"latitude\" BETWEEN 22 AND 24 AND \"longitude\" BETWEEN 69 AND 71)",
-    "paradip": "(\"latitude\" BETWEEN 19 AND 21 AND \"longitude\" BETWEEN 86 AND 87.5)",
-    "andaman": "(\"latitude\" BETWEEN 6 AND 14 AND \"longitude\" BETWEEN 91 AND 95)",
-    "port blair": "(\"latitude\" BETWEEN 11 AND 12.5 AND \"longitude\" BETWEEN 92 AND 93.5)",
-    "karwar": "(\"latitude\" BETWEEN 14 AND 15.5 AND \"longitude\" BETWEEN 73 AND 75)",
-    "ratnagiri": "(\"latitude\" BETWEEN 16 AND 17.5 AND \"longitude\" BETWEEN 72 AND 74)",
-    # Cities/Ports - International
-    "sri lanka": "(\"latitude\" BETWEEN 5 AND 10 AND \"longitude\" BETWEEN 79 AND 82)",
-    "singapore": "(\"latitude\" BETWEEN 0 AND 3 AND \"longitude\" BETWEEN 103 AND 105)",
-    "tokyo": "(\"latitude\" BETWEEN 34 AND 36 AND \"longitude\" BETWEEN 139 AND 141)",
-    "sydney": "(\"latitude\" BETWEEN -35 AND -33 AND \"longitude\" BETWEEN 150 AND 152)",
-    "cape town": "(\"latitude\" BETWEEN -35 AND -33 AND \"longitude\" BETWEEN 17 AND 19)",
-    "miami": "(\"latitude\" BETWEEN 25 AND 27 AND \"longitude\" BETWEEN -81 AND -79)",
-    "maldives": "(\"latitude\" BETWEEN 0 AND 8 AND \"longitude\" BETWEEN 72 AND 74)",
-    "mauritius": "(\"latitude\" BETWEEN -21 AND -19 AND \"longitude\" BETWEEN 56 AND 58)",
+    "kovalam": "(\"latitude\" BETWEEN 8 AND 8.5 AND \"longitude\" BETWEEN 76 AND 77.5)",
+    "kanyakumari": "(\"latitude\" BETWEEN 7.5 AND 8.5 AND \"longitude\" BETWEEN 77 AND 78)",
+    "cape comorin": "(\"latitude\" BETWEEN 7.5 AND 8.5 AND \"longitude\" BETWEEN 77 AND 78)",
     
-    # Special regions
+    # ==========================================
+    # INDIAN COASTAL CITIES - EAST COAST (South to North)
+    # ==========================================
+    "rameswaram": "(\"latitude\" BETWEEN 9 AND 10 AND \"longitude\" BETWEEN 78 AND 80)",
+    "tuticorin": "(\"latitude\" BETWEEN 8 AND 9.5 AND \"longitude\" BETWEEN 77 AND 79)",
+    "thoothukudi": "(\"latitude\" BETWEEN 8 AND 9.5 AND \"longitude\" BETWEEN 77 AND 79)",
+    "nagapattinam": "(\"latitude\" BETWEEN 10 AND 11 AND \"longitude\" BETWEEN 79 AND 80.5)",
+    "karaikal": "(\"latitude\" BETWEEN 10.5 AND 11 AND \"longitude\" BETWEEN 79 AND 80.5)",
+    "cuddalore": "(\"latitude\" BETWEEN 11 AND 12 AND \"longitude\" BETWEEN 79 AND 80.5)",
+    "pondicherry": "(\"latitude\" BETWEEN 11 AND 12.5 AND \"longitude\" BETWEEN 79 AND 80.5)",
+    "puducherry": "(\"latitude\" BETWEEN 11 AND 12.5 AND \"longitude\" BETWEEN 79 AND 80.5)",
+    "mahabalipuram": "(\"latitude\" BETWEEN 12 AND 12.8 AND \"longitude\" BETWEEN 80 AND 81)",
+    "chennai": "(\"latitude\" BETWEEN 12 AND 14 AND \"longitude\" BETWEEN 79 AND 82)",
+    "madras": "(\"latitude\" BETWEEN 12 AND 14 AND \"longitude\" BETWEEN 79 AND 82)",
+    "ennore": "(\"latitude\" BETWEEN 13 AND 13.5 AND \"longitude\" BETWEEN 80 AND 81)",
+    "pulicat": "(\"latitude\" BETWEEN 13 AND 14 AND \"longitude\" BETWEEN 80 AND 81)",
+    "nellore": "(\"latitude\" BETWEEN 14 AND 15 AND \"longitude\" BETWEEN 79 AND 80.5)",
+    "machilipatnam": "(\"latitude\" BETWEEN 15 AND 16.5 AND \"longitude\" BETWEEN 80 AND 82)",
+    "kakinada": "(\"latitude\" BETWEEN 16 AND 17.5 AND \"longitude\" BETWEEN 82 AND 83.5)",
+    "visakhapatnam": "(\"latitude\" BETWEEN 17 AND 18.5 AND \"longitude\" BETWEEN 82 AND 84)",
+    "vizag": "(\"latitude\" BETWEEN 17 AND 18.5 AND \"longitude\" BETWEEN 82 AND 84)",
+    "bheemunipatnam": "(\"latitude\" BETWEEN 17.5 AND 18 AND \"longitude\" BETWEEN 83 AND 84)",
+    "gopalpur": "(\"latitude\" BETWEEN 19 AND 20 AND \"longitude\" BETWEEN 84 AND 85.5)",
+    "puri": "(\"latitude\" BETWEEN 19 AND 20.5 AND \"longitude\" BETWEEN 85 AND 86.5)",
+    "konark": "(\"latitude\" BETWEEN 19.5 AND 20 AND \"longitude\" BETWEEN 85 AND 87)",
+    "paradip": "(\"latitude\" BETWEEN 19 AND 21 AND \"longitude\" BETWEEN 86 AND 87.5)",
+    "dhamra": "(\"latitude\" BETWEEN 20 AND 21 AND \"longitude\" BETWEEN 86 AND 87.5)",
+    "chandipur": "(\"latitude\" BETWEEN 21 AND 22 AND \"longitude\" BETWEEN 86 AND 88)",
+    "digha": "(\"latitude\" BETWEEN 21 AND 22 AND \"longitude\" BETWEEN 87 AND 88.5)",
+    "haldia": "(\"latitude\" BETWEEN 21 AND 22.5 AND \"longitude\" BETWEEN 87 AND 88.5)",
+    "kolkata": "(\"latitude\" BETWEEN 21 AND 23 AND \"longitude\" BETWEEN 87 AND 89)",
+    "calcutta": "(\"latitude\" BETWEEN 21 AND 23 AND \"longitude\" BETWEEN 87 AND 89)",
+    "sundarbans": "(\"latitude\" BETWEEN 21 AND 23 AND \"longitude\" BETWEEN 88 AND 90)",
+    
+    # ==========================================
+    # INDIAN ISLANDS
+    # ==========================================
+    "andaman": "(\"latitude\" BETWEEN 6 AND 14 AND \"longitude\" BETWEEN 91 AND 95)",
+    "andaman islands": "(\"latitude\" BETWEEN 10 AND 14 AND \"longitude\" BETWEEN 91 AND 94)",
+    "nicobar islands": "(\"latitude\" BETWEEN 6 AND 10 AND \"longitude\" BETWEEN 92 AND 95)",
+    "port blair": "(\"latitude\" BETWEEN 11 AND 12.5 AND \"longitude\" BETWEEN 92 AND 93.5)",
+    "car nicobar": "(\"latitude\" BETWEEN 8.5 AND 10 AND \"longitude\" BETWEEN 92 AND 94)",
+    "lakshadweep": "(\"latitude\" BETWEEN 8 AND 14 AND \"longitude\" BETWEEN 71 AND 75)",
+    "kavaratti": "(\"latitude\" BETWEEN 10 AND 11 AND \"longitude\" BETWEEN 72 AND 73.5)",
+    "minicoy": "(\"latitude\" BETWEEN 8 AND 9 AND \"longitude\" BETWEEN 72 AND 74)",
+    
+    # ==========================================
+    # SOUTH ASIAN COUNTRIES
+    # ==========================================
+    "sri lanka": "(\"latitude\" BETWEEN 5 AND 10 AND \"longitude\" BETWEEN 79 AND 82)",
+    "colombo": "(\"latitude\" BETWEEN 6 AND 8 AND \"longitude\" BETWEEN 79 AND 81)",
+    "trincomalee": "(\"latitude\" BETWEEN 8 AND 9.5 AND \"longitude\" BETWEEN 80 AND 82)",
+    "galle": "(\"latitude\" BETWEEN 5.5 AND 7 AND \"longitude\" BETWEEN 79 AND 81)",
+    "jaffna": "(\"latitude\" BETWEEN 9 AND 10 AND \"longitude\" BETWEEN 79 AND 81)",
+    "bangladesh": "(\"latitude\" BETWEEN 20 AND 26 AND \"longitude\" BETWEEN 88 AND 93)",
+    "chittagong": "(\"latitude\" BETWEEN 21 AND 23 AND \"longitude\" BETWEEN 91 AND 92.5)",
+    "cox bazar": "(\"latitude\" BETWEEN 21 AND 22 AND \"longitude\" BETWEEN 91 AND 92.5)",
+    "pakistan": "(\"latitude\" BETWEEN 23 AND 26 AND \"longitude\" BETWEEN 66 AND 70)",
+    "karachi": "(\"latitude\" BETWEEN 24 AND 25.5 AND \"longitude\" BETWEEN 66 AND 68)",
+    "gwadar": "(\"latitude\" BETWEEN 24 AND 26 AND \"longitude\" BETWEEN 61 AND 63)",
+    "maldives": "(\"latitude\" BETWEEN 0 AND 8 AND \"longitude\" BETWEEN 72 AND 74)",
+    "male": "(\"latitude\" BETWEEN 4 AND 5 AND \"longitude\" BETWEEN 73 AND 74)",
+    
+    # ==========================================
+    # SOUTHEAST ASIA
+    # ==========================================
+    "myanmar": "(\"latitude\" BETWEEN 10 AND 20 AND \"longitude\" BETWEEN 92 AND 100)",
+    "yangon": "(\"latitude\" BETWEEN 16 AND 17.5 AND \"longitude\" BETWEEN 95 AND 97)",
+    "thailand": "(\"latitude\" BETWEEN 5 AND 15 AND \"longitude\" BETWEEN 97 AND 106)",
+    "phuket": "(\"latitude\" BETWEEN 7 AND 8.5 AND \"longitude\" BETWEEN 98 AND 99)",
+    "malaysia": "(\"latitude\" BETWEEN 1 AND 8 AND \"longitude\" BETWEEN 99 AND 120)",
+    "penang": "(\"latitude\" BETWEEN 5 AND 6 AND \"longitude\" BETWEEN 99 AND 101)",
+    "singapore": "(\"latitude\" BETWEEN 0 AND 3 AND \"longitude\" BETWEEN 103 AND 105)",
+    "indonesia": "(\"latitude\" BETWEEN -10 AND 6 AND \"longitude\" BETWEEN 95 AND 140)",
+    "jakarta": "(\"latitude\" BETWEEN -7 AND -5 AND \"longitude\" BETWEEN 106 AND 107.5)",
+    "bali": "(\"latitude\" BETWEEN -9 AND -8 AND \"longitude\" BETWEEN 114 AND 116)",
+    "vietnam": "(\"latitude\" BETWEEN 8 AND 23 AND \"longitude\" BETWEEN 102 AND 110)",
+    "philippines": "(\"latitude\" BETWEEN 5 AND 20 AND \"longitude\" BETWEEN 116 AND 127)",
+    "manila": "(\"latitude\" BETWEEN 14 AND 15 AND \"longitude\" BETWEEN 120 AND 121.5)",
+    
+    # ==========================================
+    # EAST ASIA
+    # ==========================================
+    "china": "(\"latitude\" BETWEEN 18 AND 40 AND \"longitude\" BETWEEN 108 AND 125)",
+    "hong kong": "(\"latitude\" BETWEEN 22 AND 23 AND \"longitude\" BETWEEN 113 AND 115)",
+    "shanghai": "(\"latitude\" BETWEEN 30 AND 32 AND \"longitude\" BETWEEN 120 AND 123)",
+    "taiwan": "(\"latitude\" BETWEEN 21 AND 26 AND \"longitude\" BETWEEN 119 AND 122)",
+    "japan": "(\"latitude\" BETWEEN 24 AND 46 AND \"longitude\" BETWEEN 122 AND 146)",
+    "tokyo": "(\"latitude\" BETWEEN 34 AND 36 AND \"longitude\" BETWEEN 139 AND 141)",
+    "osaka": "(\"latitude\" BETWEEN 34 AND 35 AND \"longitude\" BETWEEN 135 AND 136)",
+    "korea": "(\"latitude\" BETWEEN 33 AND 43 AND \"longitude\" BETWEEN 124 AND 132)",
+    "busan": "(\"latitude\" BETWEEN 34 AND 36 AND \"longitude\" BETWEEN 128 AND 130)",
+    
+    # ==========================================
+    # MIDDLE EAST
+    # ==========================================
+    "uae": "(\"latitude\" BETWEEN 22 AND 27 AND \"longitude\" BETWEEN 51 AND 57)",
+    "dubai": "(\"latitude\" BETWEEN 24 AND 26 AND \"longitude\" BETWEEN 54 AND 56)",
+    "abu dhabi": "(\"latitude\" BETWEEN 23 AND 25 AND \"longitude\" BETWEEN 53 AND 55)",
+    "oman": "(\"latitude\" BETWEEN 16 AND 26 AND \"longitude\" BETWEEN 52 AND 60)",
+    "muscat": "(\"latitude\" BETWEEN 23 AND 24.5 AND \"longitude\" BETWEEN 58 AND 60)",
+    "yemen": "(\"latitude\" BETWEEN 12 AND 19 AND \"longitude\" BETWEEN 42 AND 54)",
+    "aden": "(\"latitude\" BETWEEN 12 AND 13.5 AND \"longitude\" BETWEEN 44 AND 46)",
+    "saudi arabia": "(\"latitude\" BETWEEN 16 AND 32 AND \"longitude\" BETWEEN 34 AND 56)",
+    "jeddah": "(\"latitude\" BETWEEN 20 AND 22 AND \"longitude\" BETWEEN 38 AND 40)",
+    "qatar": "(\"latitude\" BETWEEN 24 AND 27 AND \"longitude\" BETWEEN 50 AND 52)",
+    "doha": "(\"latitude\" BETWEEN 25 AND 26 AND \"longitude\" BETWEEN 51 AND 52)",
+    "bahrain": "(\"latitude\" BETWEEN 25 AND 27 AND \"longitude\" BETWEEN 50 AND 51)",
+    "kuwait": "(\"latitude\" BETWEEN 28 AND 30 AND \"longitude\" BETWEEN 47 AND 49)",
+    
+    # ==========================================
+    # AFRICA
+    # ==========================================
+    "egypt": "(\"latitude\" BETWEEN 22 AND 32 AND \"longitude\" BETWEEN 24 AND 37)",
+    "alexandria": "(\"latitude\" BETWEEN 31 AND 32 AND \"longitude\" BETWEEN 29 AND 30.5)",
+    "djibouti": "(\"latitude\" BETWEEN 10 AND 13 AND \"longitude\" BETWEEN 41 AND 44)",
+    "somalia": "(\"latitude\" BETWEEN -2 AND 12 AND \"longitude\" BETWEEN 40 AND 52)",
+    "kenya": "(\"latitude\" BETWEEN -5 AND 5 AND \"longitude\" BETWEEN 33 AND 42)",
+    "mombasa": "(\"latitude\" BETWEEN -5 AND -3 AND \"longitude\" BETWEEN 39 AND 41)",
+    "tanzania": "(\"latitude\" BETWEEN -12 AND -1 AND \"longitude\" BETWEEN 29 AND 41)",
+    "dar es salaam": "(\"latitude\" BETWEEN -7 AND -6 AND \"longitude\" BETWEEN 38 AND 40)",
+    "zanzibar": "(\"latitude\" BETWEEN -7 AND -5 AND \"longitude\" BETWEEN 39 AND 40)",
+    "mozambique": "(\"latitude\" BETWEEN -27 AND -10 AND \"longitude\" BETWEEN 30 AND 41)",
+    "madagascar": "(\"latitude\" BETWEEN -26 AND -12 AND \"longitude\" BETWEEN 43 AND 51)",
+    "mauritius": "(\"latitude\" BETWEEN -21 AND -19 AND \"longitude\" BETWEEN 56 AND 58)",
+    "seychelles": "(\"latitude\" BETWEEN -5 AND -4 AND \"longitude\" BETWEEN 55 AND 56)",
+    "south africa": "(\"latitude\" BETWEEN -35 AND -22 AND \"longitude\" BETWEEN 16 AND 33)",
+    "cape town": "(\"latitude\" BETWEEN -35 AND -33 AND \"longitude\" BETWEEN 17 AND 19)",
+    "durban": "(\"latitude\" BETWEEN -30 AND -29 AND \"longitude\" BETWEEN 30 AND 32)",
+    
+    # ==========================================
+    # EUROPE
+    # ==========================================
+    "uk": "(\"latitude\" BETWEEN 49 AND 61 AND \"longitude\" BETWEEN -11 AND 2)",
+    "london": "(\"latitude\" BETWEEN 51 AND 52 AND \"longitude\" BETWEEN -1 AND 1)",
+    "france": "(\"latitude\" BETWEEN 41 AND 51 AND \"longitude\" BETWEEN -5 AND 10)",
+    "marseille": "(\"latitude\" BETWEEN 43 AND 44 AND \"longitude\" BETWEEN 5 AND 6)",
+    "spain": "(\"latitude\" BETWEEN 36 AND 44 AND \"longitude\" BETWEEN -10 AND 4)",
+    "barcelona": "(\"latitude\" BETWEEN 41 AND 42 AND \"longitude\" BETWEEN 1 AND 3)",
+    "portugal": "(\"latitude\" BETWEEN 36 AND 42 AND \"longitude\" BETWEEN -10 AND -6)",
+    "lisbon": "(\"latitude\" BETWEEN 38 AND 39 AND \"longitude\" BETWEEN -10 AND -8)",
+    "italy": "(\"latitude\" BETWEEN 36 AND 47 AND \"longitude\" BETWEEN 6 AND 19)",
+    "naples": "(\"latitude\" BETWEEN 40 AND 41 AND \"longitude\" BETWEEN 14 AND 15)",
+    "venice": "(\"latitude\" BETWEEN 45 AND 46 AND \"longitude\" BETWEEN 12 AND 13)",
+    "greece": "(\"latitude\" BETWEEN 34 AND 42 AND \"longitude\" BETWEEN 19 AND 30)",
+    "athens": "(\"latitude\" BETWEEN 37 AND 38 AND \"longitude\" BETWEEN 23 AND 24)",
+    "turkey": "(\"latitude\" BETWEEN 35 AND 42 AND \"longitude\" BETWEEN 26 AND 45)",
+    "istanbul": "(\"latitude\" BETWEEN 40 AND 42 AND \"longitude\" BETWEEN 28 AND 30)",
+    "germany": "(\"latitude\" BETWEEN 47 AND 55 AND \"longitude\" BETWEEN 5 AND 15)",
+    "netherlands": "(\"latitude\" BETWEEN 50 AND 54 AND \"longitude\" BETWEEN 3 AND 8)",
+    "rotterdam": "(\"latitude\" BETWEEN 51 AND 52 AND \"longitude\" BETWEEN 4 AND 5)",
+    "norway": "(\"latitude\" BETWEEN 57 AND 71 AND \"longitude\" BETWEEN 4 AND 31)",
+    "sweden": "(\"latitude\" BETWEEN 55 AND 69 AND \"longitude\" BETWEEN 10 AND 25)",
+    "denmark": "(\"latitude\" BETWEEN 54 AND 58 AND \"longitude\" BETWEEN 8 AND 16)",
+    
+    # ==========================================
+    # AMERICAS
+    # ==========================================
+    "usa": "(\"latitude\" BETWEEN 24 AND 49 AND \"longitude\" BETWEEN -125 AND -66)",
+    "new york": "(\"latitude\" BETWEEN 40 AND 41.5 AND \"longitude\" BETWEEN -75 AND -73)",
+    "miami": "(\"latitude\" BETWEEN 25 AND 27 AND \"longitude\" BETWEEN -81 AND -79)",
+    "los angeles": "(\"latitude\" BETWEEN 33 AND 35 AND \"longitude\" BETWEEN -119 AND -117)",
+    "san francisco": "(\"latitude\" BETWEEN 37 AND 38.5 AND \"longitude\" BETWEEN -123 AND -121)",
+    "houston": "(\"latitude\" BETWEEN 29 AND 30.5 AND \"longitude\" BETWEEN -96 AND -94)",
+    "hawaii": "(\"latitude\" BETWEEN 18 AND 23 AND \"longitude\" BETWEEN -161 AND -154)",
+    "canada": "(\"latitude\" BETWEEN 41 AND 84 AND \"longitude\" BETWEEN -141 AND -52)",
+    "vancouver": "(\"latitude\" BETWEEN 49 AND 50 AND \"longitude\" BETWEEN -124 AND -122)",
+    "mexico": "(\"latitude\" BETWEEN 14 AND 33 AND \"longitude\" BETWEEN -118 AND -86)",
+    "cancun": "(\"latitude\" BETWEEN 21 AND 22 AND \"longitude\" BETWEEN -87 AND -86)",
+    "brazil": "(\"latitude\" BETWEEN -34 AND 5 AND \"longitude\" BETWEEN -74 AND -34)",
+    "rio de janeiro": "(\"latitude\" BETWEEN -23.5 AND -22 AND \"longitude\" BETWEEN -44 AND -42)",
+    "argentina": "(\"latitude\" BETWEEN -55 AND -21 AND \"longitude\" BETWEEN -74 AND -53)",
+    "buenos aires": "(\"latitude\" BETWEEN -35 AND -34 AND \"longitude\" BETWEEN -59 AND -57)",
+    "chile": "(\"latitude\" BETWEEN -56 AND -17 AND \"longitude\" BETWEEN -76 AND -66)",
+    "peru": "(\"latitude\" BETWEEN -19 AND 0 AND \"longitude\" BETWEEN -82 AND -68)",
+    "colombia": "(\"latitude\" BETWEEN -5 AND 14 AND \"longitude\" BETWEEN -80 AND -66)",
+    "panama": "(\"latitude\" BETWEEN 7 AND 10 AND \"longitude\" BETWEEN -83 AND -77)",
+    "cuba": "(\"latitude\" BETWEEN 19 AND 24 AND \"longitude\" BETWEEN -85 AND -74)",
+    "bahamas": "(\"latitude\" BETWEEN 20 AND 27 AND \"longitude\" BETWEEN -80 AND -72)",
+    
+    # ==========================================
+    # OCEANIA
+    # ==========================================
+    "australia": "(\"latitude\" BETWEEN -44 AND -10 AND \"longitude\" BETWEEN 113 AND 154)",
+    "sydney": "(\"latitude\" BETWEEN -35 AND -33 AND \"longitude\" BETWEEN 150 AND 152)",
+    "melbourne": "(\"latitude\" BETWEEN -38.5 AND -37 AND \"longitude\" BETWEEN 144 AND 146)",
+    "brisbane": "(\"latitude\" BETWEEN -28 AND -27 AND \"longitude\" BETWEEN 152 AND 154)",
+    "perth": "(\"latitude\" BETWEEN -33 AND -31 AND \"longitude\" BETWEEN 115 AND 117)",
+    "darwin": "(\"latitude\" BETWEEN -13 AND -11 AND \"longitude\" BETWEEN 130 AND 132)",
+    "great barrier reef": "(\"latitude\" BETWEEN -25 AND -10 AND \"longitude\" BETWEEN 142 AND 155)",
+    "new zealand": "(\"latitude\" BETWEEN -47 AND -34 AND \"longitude\" BETWEEN 166 AND 179)",
+    "auckland": "(\"latitude\" BETWEEN -37.5 AND -36 AND \"longitude\" BETWEEN 174 AND 175.5)",
+    "fiji": "(\"latitude\" BETWEEN -21 AND -16 AND \"longitude\" BETWEEN 177 AND -179)",
+    "papua new guinea": "(\"latitude\" BETWEEN -12 AND -1 AND \"longitude\" BETWEEN 140 AND 156)",
+    
+    # ==========================================
+    # SPECIAL REGIONS
+    # ==========================================
     "equator": "(\"latitude\" BETWEEN -2 AND 2)",
     "tropics": "(\"latitude\" BETWEEN -23.5 AND 23.5)",
-    "southern ocean": "(\"latitude\" BETWEEN -65 AND -40)"
+    "arctic": "(\"latitude\" BETWEEN 66 AND 90)",
+    "antarctic": "(\"latitude\" BETWEEN -90 AND -66)",
+    "southern ocean": "(\"latitude\" BETWEEN -65 AND -40)",
+    "north pole": "(\"latitude\" BETWEEN 85 AND 90)",
+    "south pole": "(\"latitude\" BETWEEN -90 AND -85)"
 }
 
 def get_database_context(engine):
@@ -496,49 +726,43 @@ Return a single JSON object with the extracted fields. Omit fields that don't ap
 
 JSON:"""
 
-SUMMARIZATION_PROMPT = """You are a senior oceanographic data scientist providing expert analysis for researchers and marine professionals.
+SUMMARIZATION_PROMPT = """You are an expert oceanographic analyst. Provide clear, data-driven responses.
 
-## ANALYSIS REQUEST
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 **Query:** {question}
-📊 **Analysis Type:** {query_type}
-📈 **Data Statistics:** {results_summary}
-📦 **Sample Records:** {sample_data}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## DATA PROVIDED
+Query: {question}
+Type: {query_type}
+Stats: {results_summary}
+Sample: {sample_data}
 
-## RESPONSE REQUIREMENTS
+## RESPONSE RULES
+1. Be DIRECT and CONCISE - 2-3 sentences max
+2. Lead with the KEY FINDING (number, location, or measurement)
+3. Use EXACT values from stats - never estimate
+4. Include units: °C, PSU, dbar, km
+5. NO filler words, NO greetings, NO "I found that..."
+6. If no data: state clearly what's missing and suggest alternatives
 
-**Style:** Professional, precise, and scientifically accurate
-**Length:** 2-4 sentences maximum, rich with specific data points
+## RESPONSE TEMPLATES
 
-## DATA INTEGRITY RULES
-✓ Use EXACT values from statistics - no rounding or estimation
-✓ Include proper scientific units: °C (temperature), PSU (salinity), dbar (pressure), km (distance)
-✓ Cite specific float IDs, coordinates, and measurement counts when available
-✓ Reference date ranges when temporal context is relevant
-✗ Never fabricate, interpolate, or assume data not present in the statistics
+For PROXIMITY queries:
+"[N] ARGO floats detected within [distance] km of [location]. Nearest: Float #[ID] at [X.X] km ([lat]°N, [lon]°E) recording [temp]°C, [sal] PSU."
 
-## PROFESSIONAL RESPONSE FORMAT BY QUERY TYPE
+For STATISTICS queries:
+"[Metric] in [location]: [value] [unit] (based on [N] measurements, [date_range])."
 
-**🌊 Proximity/Spatial Analysis:**
-"Analysis identified [N] ARGO floats within the specified region of [location]. The nearest profiling float is **#[ID]**, positioned [X.XX] km from the target coordinates at [lat]°N, [lon]°E, with most recent observations of [T]°C (temperature) and [S] PSU (salinity)."
+For TRAJECTORY queries:
+"Float #[ID] tracked [N] positions from [start] to [end], spanning [lat1]°N to [lat2]°N, [lon1]°E to [lon2]°E."
 
-**📊 Statistical Summary:**
-"Statistical analysis of [N] measurements from [location/timeframe] yields a **[aggregation] [metric] of [value] [unit]**. The dataset spans [date_start] to [date_end], providing robust coverage for this assessment."
+For TIME-SERIES queries:
+"[Metric] in [location] ([period]): Range [min]-[max] [unit], mean [avg] [unit] (n=[count])."
 
-**🛤️ Float Trajectory:**
-"Float **#[ID]** has recorded [N] profile positions between [start_date] and [end_date]. The trajectory spans from [lat1]°N, [lon1]°E to [lat2]°N, [lon2]°E, covering approximately [distance] km."
+For PROFILE queries:
+"Vertical profile shows [metric] from [surface_val] [unit] at surface to [deep_val] [unit] at [depth] dbar."
 
-**📉 Depth Profile:**
-"Vertical profiling reveals [metric] gradients from **[value1] [unit]** at the surface to **[value2] [unit]** at [depth] dbar depth, characteristic of [brief scientific context if applicable]."
+For NO DATA:
+"No data found for [query]. Database covers [date_range]. Try: [specific suggestion]."
 
-**📈 Time-Series Trend:**
-"Temporal analysis of [metric] in [location] over [time_period] shows values ranging from **[min] to [max] [unit]**, with a mean of [avg] [unit] (n=[count] observations)."
-
-**⚠️ No Data Response:**
-"No ARGO float observations match the specified criteria [brief description]. The database currently covers [date_range] and [geographic scope]. Consider adjusting: [specific suggestions - e.g., broader date range, adjacent region, different float ID]."
-
-## GENERATE PROFESSIONAL RESPONSE:"""
+## YOUR RESPONSE (direct, professional, data-first):"""
 
 
 # ------------------------------------------------------------------
@@ -575,7 +799,7 @@ def handle_conversational_query(question: str):
     if any(greet in question_clean for greet in greetings) and len(question_clean.split()) <= 5:
         return {
             "query_type": "Conversation",
-            "summary": "👋 Hello! I'm FloatChart, your ocean data assistant. I can help you explore ARGO float data from around the world.\n\n**Try asking me:**\n• \"Show floats near Chennai\"\n• \"Average temperature in Bay of Bengal\"\n• \"Trajectory of float 2902115\"\n• \"Salinity trends in 2024\"\n\nWhat would you like to know about the ocean? 🌊",
+            "summary": "Welcome to FloatChart! I analyze ARGO oceanographic data worldwide.\n\n**Quick queries you can try:**\n• `floats near Chennai` - Find nearby ARGO floats\n• `temperature in Bay of Bengal` - Get statistics\n• `trajectory of float 2902115` - Track float movement\n• `salinity near Kannur 2024` - Regional data\n\nSupported locations: All Indian coastal cities, major ports worldwide, ocean basins.",
             "data": [],
             "chart_type": None
         }
@@ -584,32 +808,26 @@ def handle_conversational_query(question: str):
     if any(help_word in question_clean for help_word in help_patterns):
         return {
             "query_type": "Conversation",
-            "summary": """🔍 **How to use FloatChart:**
+            "summary": """**FloatChart Commands:**
 
-**📍 Find floats by location:**
-• "Floats near Mumbai"
-• "Nearest 5 floats to Chennai"
-• "Data from Arabian Sea"
+**📍 Location Search:**
+• `floats near [city]` - Chennai, Kannur, Mumbai, Kochi, etc.
+• `data from [region]` - Bay of Bengal, Arabian Sea, etc.
 
-**📊 Get statistics:**
-• "Average temperature in Bay of Bengal"
-• "Maximum salinity in Indian Ocean 2024"
-• "How many floats in Pacific?"
+**📊 Statistics:**
+• `average temperature in [location]`
+• `max salinity in [region] [year]`
+• `count floats in Pacific Ocean`
 
-**🛤️ Track float movements:**
-• "Trajectory of float 2902115"
-• "Path of float 2903847"
+**🛤️ Tracking:**
+• `trajectory of float [ID]`
+• `profile of float [ID]`
 
-**📈 Analyze trends:**
-• "Temperature trends in 2024"
-• "Salinity vs temperature in Mediterranean"
+**📈 Analysis:**
+• `temperature trends in 2024`
+• `temperature vs salinity in [region]`
 
-**💡 Tips:**
-• Be specific about regions and time periods
-• Use float IDs for trajectory tracking
-• Ask about temperature, salinity, pressure, depth
-
-What would you like to explore? 🌊""",
+**Supported Indian Cities:** Chennai, Mumbai, Kochi, Kannur, Kozhikode, Mangalore, Goa, Visakhapatnam, Kolkata, Trivandrum, Pondicherry, and 50+ more.""",
             "data": [],
             "chart_type": None
         }
@@ -618,7 +836,7 @@ What would you like to explore? 🌊""",
     if any(about in question_clean for about in about_patterns):
         return {
             "query_type": "Conversation",
-            "summary": "🌊 I'm **FloatChart**, an AI assistant for exploring oceanographic data from the global ARGO float network.\n\n**What I can do:**\n• Query 1.5M+ ocean measurements\n• Find floats by location\n• Show float trajectories\n• Analyze temperature & salinity patterns\n• Create visualizations\n\nThe data comes from ARGO floats - autonomous instruments measuring the world's oceans. Ask me anything about ocean data! 🔬",
+            "summary": "**FloatChart** - Ocean Data Intelligence Platform\n\nI query 46M+ ARGO float measurements covering global oceans. Capabilities: proximity search, statistics, trajectory tracking, depth profiles, time-series analysis.\n\nData source: Global ARGO network (autonomous profiling floats measuring temperature, salinity, and other ocean parameters).",
             "data": [],
             "chart_type": None
         }
