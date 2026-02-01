@@ -1407,17 +1407,19 @@
             updateDateRangeInfo();
         }
         
-        // Load full trajectory data for selected float
+        // Load full trajectory data for selected float - filtered by date range
         async function loadFullTrajectory() {
             if (!selectedFloatId) {
                 alert('Please select a float first');
                 return;
             }
             
-            // First try using existing data
+            // Filter existing data by date range first
             const existingData = floatGroups[selectedFloatId];
-            if (existingData && existingData.length >= 2) {
-                showTrajectory(existingData);
+            const filteredExisting = filterDataByDateRange(existingData);
+            
+            if (filteredExisting && filteredExisting.length >= 2) {
+                showTrajectory(filteredExisting);
                 return;
             }
             
@@ -1426,32 +1428,38 @@
                 el.viewTrajectoryBtn.disabled = true;
                 el.viewTrajectoryBtn.innerHTML = '<div class="spinner" style="width:14px;height:14px;"></div> Loading...';
                 
-                // Fetch full trajectory from API - simpler query
+                // Fetch trajectory from API with date filter
+                const startDate = `${startDateFilter}-01`;
+                const endDate = `${endDateFilter}-28`;
                 const response = await fetch(`${API_BASE}/api/query`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        query: `all data for float ${selectedFloatId}` 
+                        query: `all data for float ${selectedFloatId} between ${startDate} and ${endDate}` 
                     })
                 });
                 
                 const result = await response.json();
                 
                 if (result.data && result.data.length > 0) {
+                    // Filter again to ensure date range compliance
+                    const filteredData = filterDataByDateRange(result.data);
                     floatGroups[selectedFloatId] = result.data;
-                    showTrajectory(result.data);
-                } else if (existingData && existingData.length >= 2) {
-                    showTrajectory(existingData);
+                    showTrajectory(filteredData);
+                } else if (filteredExisting && filteredExisting.length >= 2) {
+                    showTrajectory(filteredExisting);
                 } else {
-                    showTrajectory(existingData || []);
+                    const startMonth = new Date(startDateFilter + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                    const endMonth = new Date(endDateFilter + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                    alert(`No trajectory data for float ${selectedFloatId} between ${startMonth} and ${endMonth}`);
                 }
             } catch (error) {
                 console.error('Error loading trajectory:', error);
-                // Fallback to existing data
-                if (existingData && existingData.length >= 2) {
-                    showTrajectory(existingData);
+                // Fallback to filtered existing data
+                if (filteredExisting && filteredExisting.length >= 2) {
+                    showTrajectory(filteredExisting);
                 } else {
-                    alert('Unable to load trajectory data. The float may only have 1 data point.');
+                    alert('Unable to load trajectory data for the selected time period.');
                 }
             } finally {
                 el.viewTrajectoryBtn.disabled = false;
@@ -1463,17 +1471,34 @@
             }
         }
         
-        // Load full profile data for selected float
+        // Filter data array by the selected date range
+        function filterDataByDateRange(data) {
+            if (!data || data.length === 0) return [];
+            
+            const startDate = new Date(startDateFilter + '-01');
+            const endDate = new Date(endDateFilter + '-28');
+            endDate.setMonth(endDate.getMonth() + 1); // Include full end month
+            
+            return data.filter(d => {
+                if (!d.timestamp) return false;
+                const ts = new Date(d.timestamp);
+                return ts >= startDate && ts <= endDate;
+            });
+        }
+        
+        // Load full profile data for selected float - filtered by date range
         async function loadFullProfile() {
             if (!selectedFloatId) {
                 alert('Please select a float first');
                 return;
             }
             
-            // First try using existing data
+            // Filter existing data by date range first
             const existingData = floatGroups[selectedFloatId];
-            if (existingData && existingData.length > 0) {
-                showProfile(existingData);
+            const filteredExisting = filterDataByDateRange(existingData);
+            
+            if (filteredExisting && filteredExisting.length > 0) {
+                showProfile(filteredExisting);
                 return;
             }
             
@@ -1481,30 +1506,36 @@
                 el.viewProfileBtn.disabled = true;
                 el.viewProfileBtn.innerHTML = '<div class="spinner" style="width:14px;height:14px;"></div> Loading...';
                 
+                // Fetch profile data with date filter
+                const startDate = `${startDateFilter}-01`;
+                const endDate = `${endDateFilter}-28`;
                 const response = await fetch(`${API_BASE}/api/query`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        query: `all data for float ${selectedFloatId}` 
+                        query: `all data for float ${selectedFloatId} between ${startDate} and ${endDate}` 
                     })
                 });
                 
                 const result = await response.json();
                 
                 if (result.data && result.data.length > 0) {
+                    const filteredData = filterDataByDateRange(result.data);
                     floatGroups[selectedFloatId] = result.data;
-                    showProfile(result.data);
-                } else if (existingData && existingData.length > 0) {
-                    showProfile(existingData);
+                    showProfile(filteredData.length > 0 ? filteredData : result.data);
+                } else if (filteredExisting && filteredExisting.length > 0) {
+                    showProfile(filteredExisting);
                 } else {
-                    showProfile(existingData || []);
+                    const startMonth = new Date(startDateFilter + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                    const endMonth = new Date(endDateFilter + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                    alert(`No profile data for float ${selectedFloatId} between ${startMonth} and ${endMonth}`);
                 }
             } catch (error) {
                 console.error('Error loading profile:', error);
-                if (existingData && existingData.length > 0) {
-                    showProfile(existingData);
+                if (filteredExisting && filteredExisting.length > 0) {
+                    showProfile(filteredExisting);
                 } else {
-                    alert('Unable to load profile data');
+                    alert('Unable to load profile data for the selected time period.');
                 }
             } finally {
                 el.viewProfileBtn.disabled = false;
@@ -1965,9 +1996,17 @@
             const endDate = new Date(sorted[sorted.length-1].timestamp);
             const daysDiff = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
             
-            // Show trajectory stats
+            // Format dates for display
+            const startDateStr = startDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            const endDateStr = endDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            
+            // Show trajectory stats with date range
             el.trajectorySection.classList.remove('hidden');
             el.trajectoryStats.innerHTML = `
+                <div class="traj-stat" style="grid-column: span 2;">
+                    <div class="traj-stat-value" style="font-size: 14px; color: var(--accent);">📅 ${startDateStr} → ${endDateStr}</div>
+                    <div class="traj-stat-label">trajectory period</div>
+                </div>
                 <div class="traj-stat">
                     <div class="traj-stat-value">${totalDistance.toFixed(0)}</div>
                     <div class="traj-stat-label">km traveled</div>
