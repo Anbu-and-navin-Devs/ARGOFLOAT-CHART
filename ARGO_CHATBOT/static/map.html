@@ -9,6 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
     <style>
         /* Interactive Map Page Styles */
         .map-page {
@@ -1121,6 +1125,171 @@
                 padding: 12px;
             }
         }
+        
+        /* Enhanced Float Markers */
+        .float-marker {
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+        
+        .float-marker.active {
+            filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.6)) !important;
+        }
+        
+        @keyframes markerPulse {
+            0% {
+                r: 0;
+                stroke-width: 2;
+                opacity: 0.8;
+            }
+            100% {
+                r: 20;
+                stroke-width: 0;
+                opacity: 0;
+            }
+        }
+        
+        .float-marker-pulse {
+            animation: markerPulse 2s ease-out infinite;
+        }
+        
+        /* Layer Control Panel */
+        .map-layer-control {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--bg-panel);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            width: 280px;
+            max-height: 70vh;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .layer-control-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .layer-control-section {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .layer-control-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .layer-section-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .layer-control-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        
+        .layer-control-item:hover {
+            opacity: 0.8;
+        }
+        
+        .layer-control-checkbox,
+        .layer-control-radio {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .layer-control-label {
+            font-size: 13px;
+            color: var(--text-primary);
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .layer-control-slider {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        
+        .layer-control-slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .layer-control-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+        
+        /* Heatmap Layer */
+        .heatmap-legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-panel);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            z-index: 500;
+            pointer-events: none;
+        }
+        
+        .heatmap-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px 0;
+        }
+        
+        .heatmap-legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+        }
+        
+        /* Marker Clustering Overrides for Dark Theme */
+        .leaflet-cluster-anim .leaflet-marker-icon,
+        .leaflet-cluster-anim .leaflet-marker-shadow {
+            animation: none;
+        }
+        
+        /* Custom Popup Styling */
+        .leaflet-popup-content {
+            color: var(--text-primary) !important;
+            font-size: 12px !important;
+            line-height: 1.5 !important;
+        }
     </style>
 </head>
 <body>
@@ -1160,6 +1329,84 @@
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                     </svg>
                 </button>
+            </div>
+            
+            <!-- Layer Control Panel -->
+            <div class="map-layer-control" id="layerControl">
+                <div class="layer-control-title">Map Layers</div>
+                
+                <!-- Toggle Layers -->
+                <div class="layer-control-section">
+                    <label class="layer-section-label">Visibility</label>
+                    <div class="layer-control-item">
+                        <input type="checkbox" id="layerFloatMarkers" class="layer-control-checkbox" checked>
+                        <label for="layerFloatMarkers" class="layer-control-label">Float Markers</label>
+                    </div>
+                    <div class="layer-control-item">
+                        <input type="checkbox" id="layerTrajectories" class="layer-control-checkbox" checked>
+                        <label for="layerTrajectories" class="layer-control-label">Trajectories</label>
+                    </div>
+                    <div class="layer-control-item">
+                        <input type="checkbox" id="layerTempHeatmap" class="layer-control-checkbox">
+                        <label for="layerTempHeatmap" class="layer-control-label">Temperature Heatmap</label>
+                    </div>
+                    <div class="layer-control-item">
+                        <input type="checkbox" id="layerSalinityHeatmap" class="layer-control-checkbox">
+                        <label for="layerSalinityHeatmap" class="layer-control-label">Salinity Heatmap</label>
+                    </div>
+                </div>
+                
+                <!-- Color By -->
+                <div class="layer-control-section">
+                    <label class="layer-section-label">Color By</label>
+                    <div class="layer-control-item">
+                        <input type="radio" id="colorTemp" name="colorBy" class="layer-control-radio" value="temperature" checked>
+                        <label for="colorTemp" class="layer-control-label">Temperature</label>
+                    </div>
+                    <div class="layer-control-item">
+                        <input type="radio" id="colorSalinity" name="colorBy" class="layer-control-radio" value="salinity">
+                        <label for="colorSalinity" class="layer-control-label">Salinity</label>
+                    </div>
+                    <div class="layer-control-item">
+                        <input type="radio" id="colorDepth" name="colorBy" class="layer-control-radio" value="depth">
+                        <label for="colorDepth" class="layer-control-label">Depth</label>
+                    </div>
+                </div>
+                
+                <!-- Size By -->
+                <div class="layer-control-section">
+                    <label class="layer-section-label">Size By</label>
+                    <div class="layer-control-item">
+                        <input type="radio" id="sizeDepth" name="sizeBy" class="layer-control-radio" value="depth" checked>
+                        <label for="sizeDepth" class="layer-control-label">Depth</label>
+                    </div>
+                    <div class="layer-control-item">
+                        <input type="radio" id="sizeAge" name="sizeBy" class="layer-control-radio" value="age">
+                        <label for="sizeAge" class="layer-control-label">Age</label>
+                    </div>
+                    <div class="layer-control-item">
+                        <input type="radio" id="sizeUniform" name="sizeBy" class="layer-control-radio" value="uniform">
+                        <label for="sizeUniform" class="layer-control-label">Uniform</label>
+                    </div>
+                </div>
+                
+                <!-- Heatmap Opacity -->
+                <div class="layer-control-section">
+                    <div class="layer-control-slider-label">
+                        <span>Heatmap Opacity</span>
+                        <span class="layer-control-value"><span id="heatmapOpacityValue">50</span>%</span>
+                    </div>
+                    <input type="range" id="heatmapOpacity" class="layer-control-slider" min="0" max="100" value="50">
+                </div>
+                
+                <!-- Marker Opacity -->
+                <div class="layer-control-section">
+                    <div class="layer-control-slider-label">
+                        <span>Marker Opacity</span>
+                        <span class="layer-control-value"><span id="markerOpacityValue">90</span>%</span>
+                    </div>
+                    <input type="range" id="markerOpacity" class="layer-control-slider" min="0" max="100" value="90">
+                </div>
             </div>
             
             <!-- Status -->
@@ -1358,6 +1605,21 @@
         let startDateFilter = '2025-01';
         let endDateFilter = '2026-01';
         
+        // Enhanced Map Features
+        let heatmapLayer = null;
+        let heatmapData = [];
+        let markerClusterGroup = null;
+        let mapSettings = {
+            showFloatMarkers: true,
+            showTrajectories: true,
+            showTempHeatmap: false,
+            showSalinityHeatmap: false,
+            colorBy: 'temperature',
+            sizeBy: 'depth',
+            heatmapOpacity: 0.5,
+            markerOpacity: 0.9
+        };
+        
         // Ocean detection based on coordinates
         function detectOcean(lat, lon) {
             if (lat >= -35 && lat <= 30 && lon >= 30 && lon <= 120) return "Indian Ocean Region";
@@ -1423,11 +1685,199 @@
         // Theme toggle button listener
         document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
         
+        /* ============ ENHANCED MAP FEATURES FUNCTIONS ============ */
+        
+        // Get color for value based on color scheme
+        function getColorForValue(value, type = 'temperature', minVal = null, maxVal = null) {
+            let colors = [];
+            if (type === 'temperature') {
+                colors = ['#0369a1', '#0ea5e9', '#06b6d4', '#10b981', '#fbbf24', '#f97316', '#ea580c'];
+                if (minVal === null) minVal = 0;
+                if (maxVal === null) maxVal = 30;
+            } else if (type === 'salinity') {
+                colors = ['#1e40af', '#3b82f6', '#06b6d4', '#14b8a6', '#22c55e'];
+                if (minVal === null) minVal = 33;
+                if (maxVal === null) maxVal = 36;
+            } else if (type === 'depth') {
+                colors = ['#86efac', '#bfdbfe', '#60a5fa', '#0284c7', '#1e40af'];
+                if (minVal === null) minVal = 0;
+                if (maxVal === null) maxVal = 5000;
+            }
+            
+            if (value < minVal) value = minVal;
+            if (value > maxVal) value = maxVal;
+            
+            const normalized = (value - minVal) / (maxVal - minVal);
+            const colorIndex = Math.floor(normalized * (colors.length - 1));
+            return colors[colorIndex];
+        }
+        
+        // Get marker size based on depth
+        function getMarkerSize(depth, sizeBy = 'depth') {
+            if (sizeBy === 'depth') {
+                if (depth < 500) return 4;
+                if (depth < 1000) return 6;
+                if (depth < 2000) return 8;
+                return 10;
+            } else if (sizeBy === 'age') {
+                return 6 + Math.random() * 4;
+            }
+            return 6;
+        }
+        
+        // Create enhanced marker with temperature coloring
+        function createEnhancedMarker(lat, lng, data, floatId) {
+            const size = getMarkerSize(data.depth || 1000, mapSettings.sizeBy);
+            const color = getColorForValue(data.temperature || 15, mapSettings.colorBy);
+            
+            const marker = L.circleMarker([lat, lng], {
+                radius: size,
+                fillColor: color,
+                fillOpacity: mapSettings.markerOpacity,
+                color: 'white',
+                weight: 2,
+                className: 'float-marker'
+            });
+            
+            // Enhanced popup content
+            marker.bindPopup(`
+                <div class="popup-title">Float ${floatId}</div>
+                <div class="popup-info">
+                    <strong>Position:</strong><br>
+                    Lat: ${lat.toFixed(4)}°<br>
+                    Lon: ${lng.toFixed(4)}°<br>
+                    <strong>Data:</strong><br>
+                    Temp: ${data.temperature?.toFixed(2) || 'N/A'}°C<br>
+                    Sal: ${data.salinity?.toFixed(2) || 'N/A'} PSU<br>
+                    Depth: ${data.depth?.toFixed(0) || 'N/A'} m<br>
+                    <strong>Time:</strong><br>
+                    ${new Date(data.timestamp).toLocaleString()}
+                </div>
+            `);
+            
+            return marker;
+        }
+        
+        // Build heatmap data from floats
+        function buildHeatmapData(data, type = 'temperature') {
+            const heatData = [];
+            data.forEach(d => {
+                if (d.latitude && d.longitude) {
+                    const value = type === 'temperature' ? (d.temperature || 15) : (d.salinity || 35);
+                    heatData.push([d.latitude, d.longitude, value]);
+                }
+            });
+            return heatData;
+        }
+        
+        // Update heatmap layer
+        function updateHeatmapLayer(data, type = 'temperature') {
+            if (heatmapLayer) {
+                map.removeLayer(heatmapLayer);
+            }
+            
+            if (!mapSettings.showTempHeatmap && !mapSettings.showSalinityHeatmap) {
+                return;
+            }
+            
+            const heatData = buildHeatmapData(data, type);
+            if (heatData.length > 0) {
+                heatmapLayer = L.heatLayer(heatData, {
+                    radius: 25,
+                    blur: 15,
+                    maxZoom: 17,
+                    max: type === 'temperature' ? 30 : 36,
+                    min: type === 'temperature' ? 0 : 33,
+                    gradient: {
+                        0.0: '#0369a1',
+                        0.2: '#0ea5e9',
+                        0.4: '#10b981',
+                        0.6: '#fbbf24',
+                        0.8: '#f97316',
+                        1.0: '#ea580c'
+                    }
+                });
+                heatmapLayer.setOpacity(mapSettings.heatmapOpacity);
+                heatmapLayer.addTo(map);
+            }
+        }
+        
+        // Initialize layer control listeners
+        function initLayerControls() {
+            const controls = [
+                'layerFloatMarkers', 'layerTrajectories', 'layerTempHeatmap', 'layerSalinityHeatmap',
+                'colorTemp', 'colorSalinity', 'colorDepth',
+                'sizeDepth', 'sizeAge', 'sizeUniform',
+                'heatmapOpacity', 'markerOpacity'
+            ];
+            
+            controls.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                
+                if (el.type === 'checkbox') {
+                    el.addEventListener('change', (e) => handleLayerToggle(e.target.id));
+                } else if (el.type === 'radio') {
+                    el.addEventListener('change', (e) => handleLayerChange(e.target.name, e.target.value));
+                } else if (el.type === 'range') {
+                    el.addEventListener('input', (e) => handleSliderChange(e.target.id, e.target.value));
+                }
+            });
+        }
+        
+        // Handle layer toggle
+        function handleLayerToggle(id) {
+            const element = document.getElementById(id);
+            if (!element) return;
+            
+            if (id === 'layerFloatMarkers') mapSettings.showFloatMarkers = element.checked;
+            else if (id === 'layerTrajectories') mapSettings.showTrajectories = element.checked;
+            else if (id === 'layerTempHeatmap') mapSettings.showTempHeatmap = element.checked;
+            else if (id === 'layerSalinityHeatmap') mapSettings.showSalinityHeatmap = element.checked;
+            
+            // Refresh markers/heatmaps
+            clearMarkers();
+            if (currentFloatData.length > 0) {
+                plotFloatMarkers(currentFloatData);
+                updateHeatmapLayer(currentFloatData, mapSettings.showTempHeatmap ? 'temperature' : 'salinity');
+            }
+        }
+        
+        // Handle layer change (color/size by)
+        function handleLayerChange(name, value) {
+            if (name === 'colorBy') mapSettings.colorBy = value;
+            else if (name === 'sizeBy') mapSettings.sizeBy = value;
+            
+            // Refresh markers
+            clearMarkers();
+            if (currentFloatData.length > 0) {
+                plotFloatMarkers(currentFloatData);
+            }
+        }
+        
+        // Handle slider change
+        function handleSliderChange(id, value) {
+            const numValue = parseInt(value) / 100;
+            if (id === 'heatmapOpacity') {
+                mapSettings.heatmapOpacity = numValue;
+                document.getElementById('heatmapOpacityValue').textContent = value;
+                if (heatmapLayer) heatmapLayer.setOpacity(numValue);
+            } else if (id === 'markerOpacity') {
+                mapSettings.markerOpacity = numValue;
+                document.getElementById('markerOpacityValue').textContent = value;
+                clearMarkers();
+                if (currentFloatData.length > 0) {
+                    plotFloatMarkers(currentFloatData);
+                }
+            }
+        }
+        
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
             checkStatus();
             initEventListeners();
+            initLayerControls();
             initResizeHandle();
         });
         
@@ -1988,6 +2438,8 @@
         }
         
         function plotFloatMarkers(data) {
+            if (!mapSettings.showFloatMarkers) return;
+            
             const floatGroups = {};
             data.forEach(d => {
                 if (d.latitude && d.longitude) {
@@ -1999,27 +2451,25 @@
             
             Object.entries(floatGroups).forEach(([id, points]) => {
                 const latest = points[points.length - 1];
-                const marker = L.circleMarker([latest.latitude, latest.longitude], {
-                    radius: 8,
-                    fillColor: '#3b82f6',
-                    fillOpacity: 0.9,
-                    color: 'white',
-                    weight: 2
-                }).addTo(map);
                 
-                marker.bindPopup(`
-                    <div class="popup-title">Float ${id}</div>
-                    <div class="popup-info">
-                        Lat: ${latest.latitude?.toFixed(4)}<br>
-                        Lon: ${latest.longitude?.toFixed(4)}<br>
-                        ${latest.temperature ? `Temp: ${latest.temperature.toFixed(2)}°C<br>` : ''}
-                        ${latest.salinity ? `Sal: ${latest.salinity.toFixed(2)} PSU` : ''}
-                    </div>
-                `);
+                // Use enhanced marker creation
+                const marker = createEnhancedMarker(
+                    latest.latitude, 
+                    latest.longitude, 
+                    latest, 
+                    id
+                );
                 
+                marker.addTo(map);
                 marker.on('click', () => selectFloat(id, points));
                 markers.push(marker);
             });
+            
+            // Update heatmap if enabled
+            if (mapSettings.showTempHeatmap || mapSettings.showSalinityHeatmap) {
+                const heatType = mapSettings.showTempHeatmap ? 'temperature' : 'salinity';
+                updateHeatmapLayer(data, heatType);
+            }
         }
         
         function selectFloat(floatId, points) {
