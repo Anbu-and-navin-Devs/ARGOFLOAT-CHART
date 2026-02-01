@@ -1,182 +1,263 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0077B6,50:00B4D8,100:90E0EF&height=220&section=header&text=🌊%20ARGO%20FloatChart&fontSize=60&fontColor=ffffff&animation=fadeIn&fontAlignY=32&desc=AI-Powered%20Ocean%20Data%20Intelligence%20Platform&descSize=22&descAlignY=52" width="100%"/>
+<!-- Animated Header -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0A2647,25:144272,50:205295,75:2C74B3,100:0A2647&height=250&section=header&text=🌊%20FloatChart&fontSize=80&fontColor=ffffff&animation=twinkling&fontAlignY=35&desc=AI-Powered%20Ocean%20Intelligence%20Platform&descSize=25&descAlignY=55&descAlign=50" width="100%"/>
+
+<!-- Typing Animation -->
+<a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=28&duration=3000&pause=1000&color=2C74B3&center=true&vCenter=true&multiline=true&repeat=false&width=800&height=80&lines=Transform+Ocean+Data+into+Actionable+Insights;Ask+Questions+in+Plain+English+%E2%80%94+Get+Instant+Answers" alt="Typing SVG" /></a>
 
 <br/>
 
-<h3>🚀 Transform <strong>46 Million+ </strong> Ocean Observations into Instant Insights</h3>
+<!-- Quick Stats -->
+<p>
+<img src="https://img.shields.io/badge/🌊_Ocean_Records-46M+-0A2647?style=for-the-badge&labelColor=144272" alt="Records"/>
+<img src="https://img.shields.io/badge/🔵_ARGO_Floats-4000+-205295?style=for-the-badge&labelColor=2C74B3" alt="Floats"/>
+<img src="https://img.shields.io/badge/🌍_Coverage-Global-0A2647?style=for-the-badge&labelColor=144272" alt="Coverage"/>
+<img src="https://img.shields.io/badge/⚡_Response-<1s-22c55e?style=for-the-badge&labelColor=16a34a" alt="Speed"/>
+</p>
 
-<p><i>Query the world's largest ocean monitoring network using natural language — no SQL or coding required!</i></p>
+<!-- Tech Badges -->
+<p>
+<img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"/>
+<img src="https://img.shields.io/badge/Flask-2.0+-000000?style=flat-square&logo=flask&logoColor=white" alt="Flask"/>
+<img src="https://img.shields.io/badge/PostgreSQL-15+-316192?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL"/>
+<img src="https://img.shields.io/badge/Groq_AI-Llama_3.3_70B-F55036?style=flat-square&logo=groq&logoColor=white" alt="Groq"/>
+<img src="https://img.shields.io/badge/License-MIT-22c55e?style=flat-square" alt="License"/>
+</p>
 
 <br/>
 
-<a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"/></a>
-<a href="https://flask.palletsprojects.com"><img src="https://img.shields.io/badge/Flask-2.0+-000000?style=for-the-badge&logo=flask&logoColor=white" alt="Flask"/></a>
-<a href="https://postgresql.org"><img src="https://img.shields.io/badge/PostgreSQL-15+-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL"/></a>
-<a href="https://groq.com"><img src="https://img.shields.io/badge/Groq-Llama_3.3_70B-F55036?style=for-the-badge&logo=groq&logoColor=white" alt="Groq"/></a>
-<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge" alt="License"/></a>
-
-<br/><br/>
-
-[<img src="https://img.shields.io/badge/🚀%20LIVE%20DEMO-TRY%20NOW-00B4D8?style=for-the-badge&labelColor=0077B6" alt="Live Demo"/>](https://web-production-a98d8.up.railway.app)
+<!-- CTA Buttons -->
+<a href="https://web-production-a98d8.up.railway.app">
+  <img src="https://img.shields.io/badge/🚀_LIVE_DEMO-TRY_NOW-00B4D8?style=for-the-badge&labelColor=0077B6&logoColor=white" alt="Live Demo"/>
+</a>
 &nbsp;&nbsp;
-[<img src="https://img.shields.io/badge/⚡%20QUICK%20START-SETUP%20GUIDE-22c55e?style=for-the-badge&labelColor=16a34a" alt="Quick Start"/>](#-quick-start)
+<a href="#-quick-start">
+  <img src="https://img.shields.io/badge/⚡_GET_STARTED-5_MIN_SETUP-22c55e?style=for-the-badge&labelColor=16a34a" alt="Quick Start"/>
+</a>
 &nbsp;&nbsp;
-[<img src="https://img.shields.io/badge/🐛%20REPORT%20BUG-ISSUES-ef4444?style=for-the-badge&labelColor=dc2626" alt="Report Bug"/>](https://github.com/Anbu-Navin-Devs/ARGOFLOAT-CHART/issues)
+<a href="https://github.com/Anbu-Navin-Devs/ARGOFLOAT-CHART/issues">
+  <img src="https://img.shields.io/badge/🐛_ISSUES-REPORT-ef4444?style=for-the-badge&labelColor=dc2626" alt="Report Bug"/>
+</a>
 
 </div>
 
 <br/>
 
----
+<!-- Divider -->
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+</p>
 
-<br/>
+## 🎯 What is FloatChart?
 
-## 📸 Live Application Preview
-
-> **Click any image below to try the live demo!**
+**FloatChart** transforms the world's largest ocean observation network into an intelligent, queryable platform. Simply ask questions in plain English and receive instant insights, visualizations, and data exports.
 
 <div align="center">
 
-### 💬 AI-Powered Chat Interface
-*Ask questions in plain English and get instant ocean data insights*
+```
+    🛰️ 4,000+ ARGO Floats          ➜          🧠 AI Processing          ➜          📊 Your Insights
+    
+    Collecting data 24/7                    Groq Llama 3.3 70B                   Charts, Maps, Export
+    Temperature • Salinity                  Natural Language → SQL                Sub-second responses
+    0-2000m depth profiles                  Smart recommendations                 No coding required!
+```
 
-[![Chat Interface](https://img.shields.io/badge/🌊%20OCEAN%20INTELLIGENCE-Interactive%20Chat%20with%20AI%20Powered%20Responses-0077B6?style=for-the-badge&labelColor=1e3a5f)](https://web-production-a98d8.up.railway.app)
+</div>
 
-**[➡️ Try the Chat Interface](https://web-production-a98d8.up.railway.app)**
+<br/>
 
----
+## ✨ Platform Features
 
-### 🗺️ Interactive Ocean Map  
-*Explore 4,000+ ARGO floats worldwide with real-time visualization*
+<table>
+<tr>
+<td width="50%" valign="top">
 
-[![Interactive Map](https://img.shields.io/badge/🗺️%20GLOBAL%20COVERAGE-Click%20Anywhere%20to%20Find%20Nearby%20Floats-00B4D8?style=for-the-badge&labelColor=0077B6)](https://web-production-a98d8.up.railway.app/map)
+### 💬 AI Chat Interface
+> *Ask anything about ocean data*
 
-**[➡️ Explore the Map](https://web-production-a98d8.up.railway.app/map)**
+- Natural language queries
+- Instant SQL generation
+- Smart data insights
+- Export to CSV
+- Query suggestions
 
----
+**Try:** *"Show temperature trends in Bay of Bengal for 2025"*
+
+</td>
+<td width="50%" valign="top">
+
+### 🗺️ Interactive Map
+> *Explore floats worldwide*
+
+- Click anywhere to find nearby floats
+- Real-time trajectory visualization
+- Date range filtering
+- Float details on hover
+- Depth profile charts
+
+**Try:** *Click any ocean point!*
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
 
 ### 📊 Analytics Dashboard
-*Real-time oceanographic data visualization with Chart.js*
+> *Visualize oceanographic patterns*
 
-[![Dashboard](https://img.shields.io/badge/📊%20ANALYTICS-Temperature%20•%20Salinity%20•%20Depth%20Profiles-90E0EF?style=for-the-badge&labelColor=00B4D8)](https://web-production-a98d8.up.railway.app/dashboard)
+- Temperature time series
+- Salinity distributions
+- Depth profiles
+- Statistical summaries
+- Comparative analysis
 
-**[➡️ View Dashboard](https://web-production-a98d8.up.railway.app/dashboard)**
+</td>
+<td width="50%" valign="top">
 
----
+### 📥 Data Manager
+> *Build your own dataset (Local Only)*
 
-### 📥 Data Manager *(Local Setup Only)*
-*Download ARGO data directly from ERDDAP servers to your local database*
+- Download from ERDDAP servers
+- Select regions & time ranges
+- Progress tracking
+- Database statistics
+- Bulk fetch support
 
-[![Data Manager](https://img.shields.io/badge/📥%20DATA%20MANAGER-Available%20in%20Local%20Setup%20Only-6b7280?style=for-the-badge&labelColor=374151)](https://web-production-a98d8.up.railway.app)
-
-> ⚠️ **Note:** The Data Manager is only available when running locally. It allows you to download the full 46M+ ARGO dataset to your own PostgreSQL database.
-
-</div>
-
-<br/>
-
----
-
-<br/>
-
-## 🌍 What is ARGO FloatChart?
-
-**ARGO FloatChart** is an intelligent ocean data platform that makes the world's largest oceanographic dataset accessible to everyone — researchers, students, and ocean enthusiasts alike.
+</td>
+</tr>
+</table>
 
 <br/>
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+</p>
+
+## 🚀 Live Demo
 
 <div align="center">
 
-```
-         🛰️ SATELLITE                    🌐 FLOATCHART                    👤 YOU
-              │                               │                              │
-              │  Receives data                │  AI Processing               │  Ask questions
-              ▼                               ▼                              ▼
-    ┌─────────────────┐           ┌─────────────────────┐          ┌─────────────────┐
-    │   🔵 4,000+     │           │  🗄️ 46M+ Records    │          │  "What's the    │
-    │  ARGO Floats   │──────────▶│  PostgreSQL DB     │◀─────────│   temp near     │
-    │   Worldwide     │           │  + Groq AI Engine  │          │   Chennai?"     │
-    └─────────────────┘           └─────────────────────┘          └─────────────────┘
-              │                               │                              │
-              │  Profile ocean                │  Natural language            │  Get instant
-              │  0-2000m depth                │  to SQL + insights           │  answers!
-              ▼                               ▼                              ▼
-    ┌─────────────────┐           ┌─────────────────────┐          ┌─────────────────┐
-    │  🌊 Temperature │           │  📊 Charts & Maps   │          │  📈 Insights    │
-    │  🧂 Salinity    │           │  🤖 AI Analysis     │          │  🗺️ Visualize   │
-    │  📏 Depth Data  │           │  💡 Recommendations │          │  📥 Export      │
-    └─────────────────┘           └─────────────────────┘          └─────────────────┘
-```
+| Page | Description | Link |
+|:----:|:------------|:----:|
+| 💬 **Chat** | AI-powered Q&A interface | [**Open Chat →**](https://web-production-a98d8.up.railway.app) |
+| 🗺️ **Map** | Interactive float explorer | [**Open Map →**](https://web-production-a98d8.up.railway.app/map) |
+| 📊 **Dashboard** | Data visualization hub | [**Open Dashboard →**](https://web-production-a98d8.up.railway.app/dashboard) |
+
+<br/>
+
+> **📍 Demo Coverage:** India Ocean Region (0°-28°N, 55°-100°E) • **2.6M Records** • Jan 2025 - Jan 2026
+>
+> *For global coverage with 46M+ records, run locally!*
 
 </div>
 
 <br/>
 
-### 🎯 The ARGO Program
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+</p>
 
-The [ARGO Program](https://argo.ucsd.edu) is a global array of **4,000+ autonomous profiling floats** that measure:
-- 🌡️ **Temperature** — Ocean heat content
-- 🧂 **Salinity** — Salt concentration  
-- 📏 **Depth** — Profiles from surface to 2000m
+## ⚡ Quick Start
 
-These floats drift at depth and surface every **10 days** to transmit data via satellite.
+### Prerequisites
 
-<br/>
+| Requirement | Version | Get It |
+|:------------|:-------:|:-------|
+| Python | 3.9+ | [python.org](https://python.org/downloads) |
+| PostgreSQL | 12+ | [postgresql.org](https://postgresql.org/download) |
+| Groq API Key | Free | [console.groq.com](https://console.groq.com/keys) |
 
----
+### Installation
 
-<br/>
+```bash
+# 1️⃣ Clone the repository
+git clone https://github.com/Anbu-Navin-Devs/ARGOFLOAT-CHART.git
+cd ARGOFLOAT-CHART
 
-## 💡 Why Use FloatChart?
+# 2️⃣ Run the setup wizard
+python local_setup.py
 
-<div align="center">
-
-| Without FloatChart | With FloatChart |
-|:------------------:|:---------------:|
-| 📁 Complex scattered data files | 🗄️ **Unified database** with 46M+ records |
-| 💻 Need SQL/Python expertise | 💬 **Natural language** — just ask! |
-| ⏰ Hours of data processing | ⚡ **Instant** AI-powered answers |
-| 📉 Static, hard-to-read outputs | 📊 **Interactive** charts & maps |
-| 🎓 Steep learning curve | 🎯 **Ask and get answers** — that simple! |
-
-</div>
-
-<br/>
-
----
-
-<br/>
-
-## ✨ Key Features
-
-<div align="center">
-
-| Feature | Description | Access |
-|:-------:|:------------|:------:|
-| 💬 **AI Chat** | Ask questions in plain English, get data + insights + visualizations | [Live Demo](https://web-production-a98d8.up.railway.app) |
-| 🗺️ **Interactive Map** | Click anywhere to find nearby floats, view trajectories, explore regions | [Live Demo](https://web-production-a98d8.up.railway.app/map) |
-| 📊 **Dashboard** | Temperature trends, salinity patterns, depth profiles, statistical analysis | [Live Demo](https://web-production-a98d8.up.railway.app/dashboard) |
-| 📥 **Data Manager** | Download ARGO data from ERDDAP servers, bulk fetch by year, database stats | 🏠 *Local Only* |
-
-</div>
-
-<br/>
-
-### 💬 Example Queries You Can Ask
-
-```
-📍 "Show floats near Mumbai"
-📊 "What's the average temperature in Bay of Bengal?"
-📅 "Data from January 2024"  
-🔄 "Compare Arabian Sea vs Indian Ocean salinity"
-🛤️ "Track float 2900757"
-🌡️ "Coldest recorded temperature in Bay of Bengal"
+# 3️⃣ Follow the prompts — done! 🎉
 ```
 
+<details>
+<summary>📋 <b>What the setup wizard does</b></summary>
 <br/>
 
----
+| Step | Action |
+|:----:|:-------|
+| 1 | ✅ Verifies Python & pip installation |
+| 2 | ✅ Installs all dependencies |
+| 3 | ✅ Creates your `.env` configuration |
+| 4 | ✅ Removes deployment-only files |
+| 5 | ✅ Launches the application |
+| 6 | ✅ Opens browser automatically |
+
+</details>
+
+<br/>
+
+### Configuration
+
+Create a `.env` file in the project root:
+
+```env
+# Database (PostgreSQL)
+DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/floatchart
+
+# AI Engine (Groq - FREE!)
+GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+<details>
+<summary>🔑 <b>How to get a FREE Groq API key</b></summary>
+<br/>
+
+| Step | Action |
+|:----:|:-------|
+| 1 | Go to [console.groq.com/keys](https://console.groq.com/keys) |
+| 2 | Sign up with Google or GitHub |
+| 3 | Click **"Create API Key"** |
+| 4 | Copy and paste into your `.env` |
+
+**Why Groq?**
+- ✅ **100% FREE** — No credit card required
+- ✅ **Super Fast** — 500+ tokens/second
+- ✅ **Powerful** — Llama 3.3 70B model
+- ✅ **Generous** — 14,400 requests/day
+
+</details>
+
+<br/>
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+</p>
+
+## 🏗️ Architecture
+
+```
+🌊 FloatChart/
+│
+├── 🤖 ARGO_CHATBOT/              # Main Application
+│   ├── app.py                    # Flask server & routes
+│   ├── brain.py                  # AI logic & insights
+│   ├── sql_builder.py            # Dynamic SQL generation
+│   └── static/
+│       ├── index.html            # 💬 Chat UI
+│       ├── map.html              # 🗺️ Map UI
+│       └── dashboard.html        # 📊 Dashboard UI
+│
+├── 📥 DATA_GENERATOR/            # Data Manager (Local)
+│   ├── app.py                    # Manager web UI
+│   ├── data_manager.py           # ERDDAP fetcher
+│   └── database_utils.py         # DB operations
+│
+├── 🚀 local_setup.py             # One-click setup
+├── 📋 requirements.txt           # Dependencies
+└── 📄 .env.example               # Config template
+```
 
 <br/>
 
@@ -187,179 +268,42 @@ These floats drift at depth and surface every **10 days** to transmit data via s
 | Layer | Technologies |
 |:-----:|:-------------|
 | **Backend** | ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) ![Flask](https://img.shields.io/badge/Flask-000000?style=flat-square&logo=flask&logoColor=white) ![Gunicorn](https://img.shields.io/badge/Gunicorn-499848?style=flat-square&logo=gunicorn&logoColor=white) |
-| **AI Engine** | ![Groq](https://img.shields.io/badge/Groq-F55036?style=flat-square&logo=groq&logoColor=white) Llama 3.3 70B — *FREE & Lightning Fast!* |
-| **Database** | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat-square&logo=postgresql&logoColor=white) — 46M+ ocean observations |
+| **AI** | ![Groq](https://img.shields.io/badge/Groq-F55036?style=flat-square&logo=groq&logoColor=white) Llama 3.3 70B Versatile |
+| **Database** | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat-square&logo=postgresql&logoColor=white) ![Neon](https://img.shields.io/badge/Neon-00E5CC?style=flat-square&logo=neon&logoColor=black) |
 | **Frontend** | ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black) |
 | **Visualization** | ![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=flat-square&logo=chartdotjs&logoColor=white) ![Leaflet](https://img.shields.io/badge/Leaflet-199900?style=flat-square&logo=leaflet&logoColor=white) |
-| **Data Source** | ![ERDDAP](https://img.shields.io/badge/ERDDAP-0077B6?style=flat-square) ARGO Global Data Assembly |
+| **Deployment** | ![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=flat-square&logo=railway&logoColor=white) |
 
 </div>
 
 <br/>
 
----
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+</p>
 
-<br/>
-
-## 📁 Project Structure
-
-```
-🌊 ARGOFLOAT-CHART/
-│
-├── 🤖 ARGO_CHATBOT/                    ← Main AI Chat Application
-│   ├── app.py                          Flask server & API routes
-│   ├── brain.py                        AI logic, insights & recommendations  
-│   ├── sql_builder.py                  Dynamic SQL generation & optimization
-│   └── 📂 static/
-│       ├── index.html                  💬 Chat interface
-│       ├── map.html                    🗺️ Interactive map
-│       ├── dashboard.html              📊 Analytics dashboard
-│       ├── css/styles.css              Styling
-│       └── js/app.js                   Frontend logic
-│
-├── 📥 DATA_GENERATOR/                  ← Data Management Tool (Local Only)
-│   ├── app.py                          Web interface at :5001
-│   ├── data_manager.py                 ERDDAP data fetcher
-│   ├── database_utils.py               Database CRUD operations
-│   └── bulk_fetch.py                   CLI bulk data fetcher
-│
-├── 🚀 local_setup.py                   One-click setup wizard
-├── 📋 requirements.txt                 Python dependencies
-├── 📄 LICENSE                          MIT License
-└── 📖 README.md                        You are here!
-```
-
-<br/>
-
----
-
-<br/>
-
-## 🌐 Live Demo vs Local Setup
+## 🌐 Live vs Local
 
 <div align="center">
 
-| | 🌐 **Live Demo** | 💻 **Local Setup** |
-|:-|:----------------:|:------------------:|
-| **URL** | [web-production-a98d8.up.railway.app](https://web-production-a98d8.up.railway.app) | http://localhost:5000 |
-| **Data Records** | ~2.6 Million (India region, 2025-2026) | **Unlimited** (full global dataset) |
-| **Coverage** | India waters only (0°-28°N, 55°-100°E) | **Global** (all oceans) |
-| **Query Speed** | Fast (~0.1-0.5s) | ⚡ **Instant** (local DB) |
-| **Storage** | 500 MB (Neon free tier) | **Unlimited** |
-| **Data Manager** | ❌ Not available | ✅ **Full access** |
-| **Setup Required** | None — just click! | PostgreSQL + 5 min setup |
-| **Best For** | Quick preview & demo | Research & full analysis |
-
-</div>
-
-> ⚠️ **Note:** The live demo shows a popup explaining the limited data coverage. For the complete 46M+ record dataset, run locally!
-
-<br/>
-
-<div align="center">
-
-### 👉 [Try the Live Demo Now!](https://web-production-a98d8.up.railway.app) 👈
-
-*No setup required — just click and explore!*
+| Feature | 🌐 Live Demo | 💻 Local Setup |
+|:--------|:------------:|:--------------:|
+| **Access** | [Click to open](https://web-production-a98d8.up.railway.app) | `localhost:5000` |
+| **Records** | 2.6 Million | **46+ Million** |
+| **Coverage** | India Region | **Global** |
+| **Data Manager** | ❌ | ✅ |
+| **Setup Time** | Instant | ~5 minutes |
+| **Best For** | Quick demo | Research & analysis |
 
 </div>
 
 <br/>
 
----
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+</p>
 
-<br/>
-
-## ⚡ Quick Start
-
-### What You Need
-
-| Requirement | Get It Here | Notes |
-|:------------|:------------|:------|
-| ✅ **Python 3.9+** | [python.org/downloads](https://python.org/downloads) | Check: `python --version` |
-| ✅ **PostgreSQL** | [postgresql.org/download](https://postgresql.org/download) | Local database |
-| ✅ **Groq API Key** | [console.groq.com/keys](https://console.groq.com/keys) | **100% FREE!** |
-
-<br/>
-
-### 🎯 Setup in 3 Steps
-
-```bash
-# Step 1: Clone the repository
-git clone https://github.com/Anbu-Navin-Devs/ARGOFLOAT-CHART.git
-cd ARGOFLOAT-CHART
-
-# Step 2: Run the magic setup wizard ✨
-python local_setup.py
-
-# Step 3: Follow the prompts — that's it!
-```
-
-<br/>
-
-> 💡 **The setup wizard automatically:**
-> - ✅ Checks Python & pip
-> - ✅ Installs all dependencies  
-> - ✅ Creates configuration files
-> - ✅ Launches the application
-> - ✅ Opens your browser
-
-<br/>
-
----
-
-<br/>
-
-## ⚙️ Configuration
-
-### 🔑 Get Your FREE Groq API Key
-
-| Step | Action |
-|:----:|:-------|
-| **1** | Go to [console.groq.com/keys](https://console.groq.com/keys) |
-| **2** | Sign up with Google or GitHub *(30 seconds)* |
-| **3** | Click **"Create API Key"** and copy it |
-
-<br/>
-
-### 🗄️ PostgreSQL Database
-
-```sql
--- In pgAdmin or psql terminal:
-CREATE DATABASE floatchart;
-```
-
-<br/>
-
-### 📝 Configure Your `.env` File
-
-```env
-DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/floatchart
-GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxx
-```
-
-<br/>
-
-<div align="center">
-
-### Why Groq?
-
-| Benefit | Details |
-|:-------:|:--------|
-| 💰 **100% FREE** | No credit card required, no hidden costs |
-| ⚡ **Super Fast** | ~500 tokens/second inference speed |
-| 🧠 **Powerful** | Llama 3.3 70B — state-of-the-art model |
-| 📊 **Generous** | 14,400 requests/day on free tier |
-
-</div>
-
-<br/>
-
----
-
-<br/>
-
-## 👥 Meet The Team
+## 👥 Team
 
 <div align="center">
 
@@ -368,45 +312,29 @@ GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxx
 <td align="center" width="50%">
 
 <a href="https://github.com/Anbu-2006">
-<img src="https://github.com/Anbu-2006.png" width="130" style="border-radius:50%;" alt="Anbuselvan T"/>
+<img src="https://github.com/Anbu-2006.png" width="120" style="border-radius:50%;" alt="Anbuselvan T"/>
 </a>
 
 ### Anbuselvan T
-**🧠 AI & Data Engineer**
+**AI & Backend Engineer**
 
-[![GitHub](https://img.shields.io/badge/GitHub-@Anbu--2006-181717?style=for-the-badge&logo=github)](https://github.com/Anbu-2006)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Anbu-2006)
 
----
-
-**Contributions:**
-- AI/LLM Integration (Groq)
-- Database Architecture Design
-- Data Pipeline (ERDDAP → DB)
-- Backend & API Development
-- SQL Query Optimization
-- Professional AI Output System
+`AI/LLM` `Database` `API` `SQL`
 
 </td>
 <td align="center" width="50%">
 
 <a href="https://github.com/navin18-cmd">
-<img src="https://github.com/navin18-cmd.png" width="130" style="border-radius:50%;" alt="Navin"/>
+<img src="https://github.com/navin18-cmd.png" width="120" style="border-radius:50%;" alt="Navin"/>
 </a>
 
 ### Navin
-**🎨 Frontend Developer**
+**Frontend Developer**
 
-[![GitHub](https://img.shields.io/badge/GitHub-@navin18--cmd-181717?style=for-the-badge&logo=github)](https://github.com/navin18-cmd)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/navin18-cmd)
 
----
-
-**Contributions:**
-- Chat Interface UI/UX Design
-- Interactive Map (Leaflet.js)
-- Dashboard Visualizations (Chart.js)
-- CSS & Responsive Design
-- User Experience Optimization
-- Data Manager UI
+`UI/UX` `Maps` `Charts` `CSS`
 
 </td>
 </tr>
@@ -416,28 +344,23 @@ GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxx
 
 <br/>
 
----
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+</p>
 
-<br/>
-
-## 📚 Resources & References
+## 📚 Resources
 
 <div align="center">
 
-| Resource | Description |
-|:--------:|:------------|
-| [🌊 ARGO Program](https://argo.ucsd.edu) | Official ARGO float observation network |
-| [📡 ERDDAP Server](https://erddap.ifremer.fr) | ARGO data distribution service |
-| [🧠 Groq Console](https://console.groq.com) | Free AI/LLM API provider |
-| [🐘 PostgreSQL](https://postgresql.org) | Open-source database |
-| [📊 Chart.js](https://chartjs.org) | JavaScript charting library |
-| [🗺️ Leaflet.js](https://leafletjs.com) | Interactive mapping library |
+| Resource | Link |
+|:--------:|:-----|
+| 🌊 **ARGO Program** | [argo.ucsd.edu](https://argo.ucsd.edu) |
+| 📡 **ERDDAP Server** | [erddap.ifremer.fr](https://erddap.ifremer.fr) |
+| 🧠 **Groq Console** | [console.groq.com](https://console.groq.com) |
+| 📊 **Chart.js** | [chartjs.org](https://chartjs.org) |
+| 🗺️ **Leaflet.js** | [leafletjs.com](https://leafletjs.com) |
 
 </div>
-
-<br/>
-
----
 
 <br/>
 
@@ -445,31 +368,31 @@ GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxx
 
 <div align="center">
 
-**MIT License** — Free to use, modify, and distribute with attribution.
+**MIT License** — Free to use, modify, and distribute.
 
-See [LICENSE](LICENSE) for full details.
+See [LICENSE](LICENSE) for details.
 
 </div>
 
 <br/>
 
----
-
-<br/>
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+</p>
 
 <div align="center">
 
-## ⭐ Found This Useful?
+## ⭐ Support the Project
 
-**Give us a star to show your support!**
+**If FloatChart helped you, consider giving it a star!**
 
 <br/>
 
-[![GitHub Stars](https://img.shields.io/github/stars/Anbu-Navin-Devs/ARGOFLOAT-CHART?style=for-the-badge&logo=github&label=Stars&color=yellow)](https://github.com/Anbu-Navin-Devs/ARGOFLOAT-CHART/stargazers)
+[![Stargazers](https://img.shields.io/github/stars/Anbu-Navin-Devs/ARGOFLOAT-CHART?style=for-the-badge&logo=github&label=Stars&color=f59e0b)](https://github.com/Anbu-Navin-Devs/ARGOFLOAT-CHART/stargazers)
 &nbsp;
-[![GitHub Forks](https://img.shields.io/github/forks/Anbu-Navin-Devs/ARGOFLOAT-CHART?style=for-the-badge&logo=github&label=Forks&color=blue)](https://github.com/Anbu-Navin-Devs/ARGOFLOAT-CHART/network/members)
+[![Forks](https://img.shields.io/github/forks/Anbu-Navin-Devs/ARGOFLOAT-CHART?style=for-the-badge&logo=github&label=Forks&color=3b82f6)](https://github.com/Anbu-Navin-Devs/ARGOFLOAT-CHART/network/members)
 &nbsp;
-[![GitHub Issues](https://img.shields.io/github/issues/Anbu-Navin-Devs/ARGOFLOAT-CHART?style=for-the-badge&logo=github&label=Issues&color=red)](https://github.com/Anbu-Navin-Devs/ARGOFLOAT-CHART/issues)
+[![Issues](https://img.shields.io/github/issues/Anbu-Navin-Devs/ARGOFLOAT-CHART?style=for-the-badge&logo=github&label=Issues&color=ef4444)](https://github.com/Anbu-Navin-Devs/ARGOFLOAT-CHART/issues)
 
 <br/>
 
@@ -477,12 +400,12 @@ See [LICENSE](LICENSE) for full details.
 
 <br/>
 
-**Built with 🌊 by [Anbuselvan T](https://github.com/Anbu-2006) & [Navin](https://github.com/navin18-cmd)**
+**Built with 💙 by [Anbuselvan T](https://github.com/Anbu-2006) & [Navin](https://github.com/navin18-cmd)**
 
-*Exploring the ocean, one query at a time.*
+*Exploring the ocean, one query at a time* 🌊
 
 <br/>
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0077B6,50:00B4D8,100:90E0EF&height=120&section=footer" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0A2647,25:144272,50:205295,75:2C74B3,100:0A2647&height=120&section=footer" width="100%"/>
 
 </div>
