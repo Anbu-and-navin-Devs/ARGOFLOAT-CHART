@@ -52,12 +52,13 @@ def print_error(message):
 def clean_deployment_files(project_root):
     """
     Remove deployment-specific files after local setup.
-    These files are only needed for cloud deployment (Render).
+    These files are only needed for cloud deployment (Railway/Render).
     Local users don't need these - keeps their workspace clean.
     """
     deployment_files = [
         project_root / "Procfile",
         project_root / "ARGO_CHATBOT" / ".env",  # Remove deployed .env for local setup
+        project_root / "ARGO_CHATBOT" / "gunicorn.conf.py",  # Not needed locally
     ]
     
     for file_path in deployment_files:
@@ -73,7 +74,7 @@ def clean_deployment_files(project_root):
 {Colors.CYAN}{'─'*60}{Colors.END}
 {Colors.BOLD}📋 Local Setup Notes:{Colors.END}
 
-  • Deployment files removed (not needed locally)
+  • Deployment files removed (Procfile, gunicorn.conf.py, .env)
   • Create YOUR OWN .env at project root with YOUR credentials
   • The deployed demo has limited data (India region, 2025-2026)
   • Local setup gives you UNLIMITED data access!

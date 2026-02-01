@@ -18,7 +18,7 @@
 
 <br/><br/>
 
-[<img src="https://img.shields.io/badge/🚀%20LIVE%20DEMO-TRY%20NOW-00B4D8?style=for-the-badge&labelColor=0077B6" alt="Live Demo"/>](https://argofloat-chart-hank.onrender.com)
+[<img src="https://img.shields.io/badge/🚀%20LIVE%20DEMO-TRY%20NOW-00B4D8?style=for-the-badge&labelColor=0077B6" alt="Live Demo"/>](https://web-production-a98d8.up.railway.app)
 &nbsp;&nbsp;
 [<img src="https://img.shields.io/badge/⚡%20QUICK%20START-SETUP%20GUIDE-22c55e?style=for-the-badge&labelColor=16a34a" alt="Quick Start"/>](#-quick-start)
 &nbsp;&nbsp;
@@ -41,34 +41,34 @@
 ### 💬 AI-Powered Chat Interface
 *Ask questions in plain English and get instant ocean data insights*
 
-[![Chat Interface](https://img.shields.io/badge/🌊%20OCEAN%20INTELLIGENCE-Interactive%20Chat%20with%20AI%20Powered%20Responses-0077B6?style=for-the-badge&labelColor=1e3a5f)](https://argofloat-chart-hank.onrender.com)
+[![Chat Interface](https://img.shields.io/badge/🌊%20OCEAN%20INTELLIGENCE-Interactive%20Chat%20with%20AI%20Powered%20Responses-0077B6?style=for-the-badge&labelColor=1e3a5f)](https://web-production-a98d8.up.railway.app)
 
-**[➡️ Try the Chat Interface](https://argofloat-chart-hank.onrender.com)**
+**[➡️ Try the Chat Interface](https://web-production-a98d8.up.railway.app)**
 
 ---
 
 ### 🗺️ Interactive Ocean Map  
 *Explore 4,000+ ARGO floats worldwide with real-time visualization*
 
-[![Interactive Map](https://img.shields.io/badge/🗺️%20GLOBAL%20COVERAGE-Click%20Anywhere%20to%20Find%20Nearby%20Floats-00B4D8?style=for-the-badge&labelColor=0077B6)](https://argofloat-chart-hank.onrender.com/map)
+[![Interactive Map](https://img.shields.io/badge/🗺️%20GLOBAL%20COVERAGE-Click%20Anywhere%20to%20Find%20Nearby%20Floats-00B4D8?style=for-the-badge&labelColor=0077B6)](https://web-production-a98d8.up.railway.app/map)
 
-**[➡️ Explore the Map](https://argofloat-chart-hank.onrender.com/map)**
+**[➡️ Explore the Map](https://web-production-a98d8.up.railway.app/map)**
 
 ---
 
 ### 📊 Analytics Dashboard
 *Real-time oceanographic data visualization with Chart.js*
 
-[![Dashboard](https://img.shields.io/badge/📊%20ANALYTICS-Temperature%20•%20Salinity%20•%20Depth%20Profiles-90E0EF?style=for-the-badge&labelColor=00B4D8)](https://argofloat-chart-hank.onrender.com/dashboard)
+[![Dashboard](https://img.shields.io/badge/📊%20ANALYTICS-Temperature%20•%20Salinity%20•%20Depth%20Profiles-90E0EF?style=for-the-badge&labelColor=00B4D8)](https://web-production-a98d8.up.railway.app/dashboard)
 
-**[➡️ View Dashboard](https://argofloat-chart-hank.onrender.com/dashboard)**
+**[➡️ View Dashboard](https://web-production-a98d8.up.railway.app/dashboard)**
 
 ---
 
 ### 📥 Data Manager *(Local Setup Only)*
 *Download ARGO data directly from ERDDAP servers to your local database*
 
-[![Data Manager](https://img.shields.io/badge/📥%20DATA%20MANAGER-Available%20in%20Local%20Setup%20Only-6b7280?style=for-the-badge&labelColor=374151)](https://argofloat-chart-hank.onrender.com)
+[![Data Manager](https://img.shields.io/badge/📥%20DATA%20MANAGER-Available%20in%20Local%20Setup%20Only-6b7280?style=for-the-badge&labelColor=374151)](https://web-production-a98d8.up.railway.app)
 
 > ⚠️ **Note:** The Data Manager is only available when running locally. It allows you to download the full 46M+ ARGO dataset to your own PostgreSQL database.
 
@@ -154,9 +154,9 @@ These floats drift at depth and surface every **10 days** to transmit data via s
 
 | Feature | Description | Access |
 |:-------:|:------------|:------:|
-| 💬 **AI Chat** | Ask questions in plain English, get data + insights + visualizations | [Live Demo](https://argofloat-chart-hank.onrender.com) |
-| 🗺️ **Interactive Map** | Click anywhere to find nearby floats, view trajectories, explore regions | [Live Demo](https://argofloat-chart-hank.onrender.com/map) |
-| 📊 **Dashboard** | Temperature trends, salinity patterns, depth profiles, statistical analysis | [Live Demo](https://argofloat-chart-hank.onrender.com/dashboard) |
+| 💬 **AI Chat** | Ask questions in plain English, get data + insights + visualizations | [Live Demo](https://web-production-a98d8.up.railway.app) |
+| 🗺️ **Interactive Map** | Click anywhere to find nearby floats, view trajectories, explore regions | [Live Demo](https://web-production-a98d8.up.railway.app/map) |
+| 📊 **Dashboard** | Temperature trends, salinity patterns, depth profiles, statistical analysis | [Live Demo](https://web-production-a98d8.up.railway.app/dashboard) |
 | 📥 **Data Manager** | Download ARGO data from ERDDAP servers, bulk fetch by year, database stats | 🏠 *Local Only* |
 
 </div>
@@ -241,7 +241,7 @@ These floats drift at depth and surface every **10 days** to transmit data via s
 
 | | 🌐 **Live Demo** | 💻 **Local Setup** |
 |:-|:----------------:|:------------------:|
-| **URL** | [argofloat-chart-hank.onrender.com](https://argofloat-chart-hank.onrender.com) | http://localhost:5000 |
+| **URL** | [web-production-a98d8.up.railway.app](https://web-production-a98d8.up.railway.app) | http://localhost:5000 |
 | **Data Records** | ~2.6 Million (India region, 2025-2026) | **Unlimited** (full global dataset) |
 | **Coverage** | India waters only (0°-28°N, 55°-100°E) | **Global** (all oceans) |
 | **Query Speed** | Fast (~0.1-0.5s) | ⚡ **Instant** (local DB) |
@@ -258,7 +258,7 @@ These floats drift at depth and surface every **10 days** to transmit data via s
 
 <div align="center">
 
-### 👉 [Try the Live Demo Now!](https://argofloat-chart-hank.onrender.com) 👈
+### 👉 [Try the Live Demo Now!](https://web-production-a98d8.up.railway.app) 👈
 
 *No setup required — just click and explore!*
 

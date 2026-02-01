@@ -10,7 +10,7 @@
 // ========================================
 
 /**
- * Check if running on deployed site (Render) vs localhost
+ * Check if running on deployed site (Railway/Render) vs localhost
  */
 function isDeployedSite() {
     const hostname = window.location.hostname;
@@ -28,7 +28,7 @@ function isDeployedSite() {
 }
 
 /**
- * Show demo notice popup - ONLY on deployed Render site
+ * Show demo notice popup - ONLY on deployed site (Railway/Render)
  */
 function showDemoNoticePopup() {
     // Only show on deployed site, NOT on localhost
