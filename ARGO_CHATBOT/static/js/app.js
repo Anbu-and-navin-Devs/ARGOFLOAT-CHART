@@ -6,6 +6,205 @@
 'use strict';
 
 // ========================================
+// DEMO NOTICE POPUP - Only on deployed Render site
+// ========================================
+
+/**
+ * Check if running on deployed site (Render) vs localhost
+ */
+function isDeployedSite() {
+    const hostname = window.location.hostname;
+    
+    // Local indicators - popup should NOT show for these
+    const localIndicators = ['localhost', '127.0.0.1', '0.0.0.0', '192.168.', '10.0.', '172.'];
+    
+    for (const indicator of localIndicators) {
+        if (hostname.includes(indicator) || hostname === '') {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+/**
+ * Show demo notice popup - ONLY on deployed Render site
+ */
+function showDemoNoticePopup() {
+    // Only show on deployed site, NOT on localhost
+    if (!isDeployedSite()) {
+        console.log('📍 Running locally - skipping demo notice popup');
+        return;
+    }
+    
+    // Check if user clicked "Got it!" before (never show again)
+    if (localStorage.getItem('demo_notice_dismissed') === 'permanent') {
+        return;
+    }
+    
+    // Create popup HTML
+    const popupHTML = `
+        <div id="demo-notice-overlay" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.3s ease-out;
+        ">
+            <style>
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes slideUp {
+                    from { opacity: 0; transform: translateY(30px) scale(0.95); }
+                    to { opacity: 1; transform: translateY(0) scale(1); }
+                }
+            </style>
+            
+            <div style="
+                background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+                border: 1px solid rgba(14, 165, 233, 0.3);
+                border-radius: 20px;
+                padding: 36px;
+                max-width: 480px;
+                width: 90%;
+                box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(14, 165, 233, 0.1);
+                animation: slideUp 0.4s ease-out;
+            ">
+                <!-- Header -->
+                <div style="text-align: center; margin-bottom: 28px;">
+                    <div style="
+                        font-size: 56px; 
+                        margin-bottom: 16px;
+                        filter: drop-shadow(0 4px 8px rgba(14, 165, 233, 0.3));
+                    ">🌊</div>
+                    <h2 style="
+                        color: #f1f5f9; 
+                        margin: 0 0 8px 0; 
+                        font-size: 26px;
+                        font-weight: 700;
+                        letter-spacing: -0.5px;
+                    ">
+                        Welcome to FloatChart Demo
+                    </h2>
+                    <p style="color: #94a3b8; margin: 0; font-size: 15px;">
+                        You're exploring a sample version of the platform
+                    </p>
+                </div>
+                
+                <!-- Info Box -->
+                <div style="
+                    background: rgba(14, 165, 233, 0.08);
+                    border: 1px solid rgba(14, 165, 233, 0.2);
+                    border-radius: 12px;
+                    padding: 20px;
+                    margin-bottom: 28px;
+                ">
+                    <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px;">
+                        <span style="font-size: 20px;">ℹ️</span>
+                        <div>
+                            <p style="color: #e2e8f0; margin: 0 0 4px 0; font-size: 15px; font-weight: 600;">
+                                This demo includes:
+                            </p>
+                            <p style="color: #94a3b8; margin: 0; font-size: 14px;">
+                                Last <strong style="color: #0ea5e9;">12 months</strong> of ARGO float ocean data
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div style="
+                        height: 1px; 
+                        background: rgba(14, 165, 233, 0.2); 
+                        margin: 16px 0;
+                    "></div>
+                    
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <span style="font-size: 20px;">🚀</span>
+                        <div>
+                            <p style="color: #e2e8f0; margin: 0 0 4px 0; font-size: 15px; font-weight: 600;">
+                                Want the full experience?
+                            </p>
+                            <p style="color: #94a3b8; margin: 0; font-size: 14px; line-height: 1.6;">
+                                Download & run locally to connect <strong style="color: #0ea5e9;">your own database</strong> with the complete dataset
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Buttons -->
+                <div style="
+                    display: flex;
+                    gap: 12px;
+                    justify-content: center;
+                    flex-wrap: wrap;
+                ">
+                    <button onclick="dismissDemoPopup(false)" style="
+                        background: transparent;
+                        border: 1px solid #475569;
+                        color: #94a3b8;
+                        padding: 14px 28px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        font-weight: 500;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.borderColor='#0ea5e9'; this.style.color='#e2e8f0'; this.style.background='rgba(14,165,233,0.1)';"
+                       onmouseout="this.style.borderColor='#475569'; this.style.color='#94a3b8'; this.style.background='transparent';">
+                        Remind me later
+                    </button>
+                    <button onclick="dismissDemoPopup(true)" style="
+                        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+                        border: none;
+                        color: white;
+                        padding: 14px 32px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        font-weight: 600;
+                        box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.boxShadow='0 6px 20px rgba(14, 165, 233, 0.4)'; this.style.transform='translateY(-2px)';"
+                       onmouseout="this.style.boxShadow='0 4px 15px rgba(14, 165, 233, 0.3)'; this.style.transform='translateY(0)';">
+                        Got it! 👍
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', popupHTML);
+}
+
+/**
+ * Dismiss the demo notice popup
+ */
+function dismissDemoPopup(permanent) {
+    const overlay = document.getElementById('demo-notice-overlay');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        overlay.style.transition = 'opacity 0.25s ease-out';
+        setTimeout(() => overlay.remove(), 250);
+    }
+    
+    if (permanent) {
+        localStorage.setItem('demo_notice_dismissed', 'permanent');
+    }
+}
+
+// Show popup when page loads (only on deployed site)
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(showDemoNoticePopup, 800);
+});
+
+// ========================================
 // Configuration
 // ========================================
 const CONFIG = {
