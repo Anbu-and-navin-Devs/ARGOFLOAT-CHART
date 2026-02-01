@@ -411,6 +411,7 @@ body {
     left: 0;
     right: 0;
     max-height: 50%;
+    height: auto;
     background: var(--bg-panel);
     backdrop-filter: var(--glass-blur-heavy);
     border-top: 1px solid var(--border);
@@ -420,10 +421,50 @@ body {
     z-index: 1001;
     transition: transform var(--transition-slow) var(--bounce);
     box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
 }
 
 .results-panel.hidden {
     transform: translateY(100%);
+}
+
+/* Resize Handle */
+.results-resize-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    cursor: ns-resize;
+    z-index: 10;
+    background: transparent;
+    transition: background 0.2s ease;
+}
+
+.results-resize-handle:hover,
+.results-resize-handle.dragging {
+    background: linear-gradient(to bottom, rgba(59, 130, 246, 0.2), transparent);
+}
+
+.results-resize-handle::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 4px;
+    background: var(--border-hover);
+    border-radius: 2px;
+    transition: all 0.2s ease;
+}
+
+.results-resize-handle:hover::after,
+.results-resize-handle.dragging::after {
+    background: var(--accent-primary);
+    height: 6px;
+    top: 3px;
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
 }
 
 /* Pull Handle */
@@ -437,6 +478,7 @@ body {
     height: 4px;
     background: var(--border-hover);
     border-radius: 2px;
+    pointer-events: none;
 }
 
 .results-header {

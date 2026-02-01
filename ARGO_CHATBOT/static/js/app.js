@@ -2850,6 +2850,56 @@ function initResizable() {
             localStorage.setItem(CONFIG.SETTINGS_KEY, JSON.stringify({ panelWidth: state.panelWidth }));
         }
     });
+    
+    // Results panel vertical resizing
+    initResultsPanelResize();
+}
+
+function initResultsPanelResize() {
+    const resultsPanel = el.resultsPanel;
+    if (!resultsPanel) return;
+    
+    let isResizing = false;
+    let startY, startHeight;
+    
+    // Create a resize handle at the top of results panel if it doesn't exist
+    let resizeHandle = resultsPanel.querySelector('.results-resize-handle');
+    if (!resizeHandle) {
+        resizeHandle = document.createElement('div');
+        resizeHandle.className = 'results-resize-handle';
+        resultsPanel.insertBefore(resizeHandle, resultsPanel.firstChild);
+    }
+    
+    resizeHandle.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        isResizing = true;
+        startY = e.clientY;
+        startHeight = resultsPanel.offsetHeight;
+        resizeHandle.classList.add('dragging');
+        document.body.style.cursor = 'ns-resize';
+        document.body.style.userSelect = 'none';
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (!isResizing) return;
+        const diff = startY - e.clientY;
+        const newHeight = Math.min(Math.max(startHeight + diff, 150), window.innerHeight - 100);
+        resultsPanel.style.height = newHeight + 'px';
+        state.resultsPanelHeight = newHeight;
+    });
+    
+    document.addEventListener('mouseup', () => {
+        if (isResizing) {
+            isResizing = false;
+            resizeHandle.classList.remove('dragging');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            localStorage.setItem(CONFIG.SETTINGS_KEY, JSON.stringify({ 
+                panelWidth: state.panelWidth,
+                resultsPanelHeight: state.resultsPanelHeight 
+            }));
+        }
+    });
 }
 
 function handleResize() {
