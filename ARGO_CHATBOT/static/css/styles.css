@@ -410,8 +410,8 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    max-height: 50%;
     height: auto;
+    max-height: none;
     background: var(--bg-panel);
     backdrop-filter: var(--glass-blur-heavy);
     border-top: 1px solid var(--border);
@@ -421,7 +421,8 @@ body {
     z-index: 1001;
     transition: transform var(--transition-slow) var(--bounce);
     box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.4);
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .results-panel.hidden {

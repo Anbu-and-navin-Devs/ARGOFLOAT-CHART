@@ -2876,6 +2876,7 @@ function initResultsPanelResize() {
         startY = e.clientY;
         startHeight = resultsPanel.offsetHeight;
         resizeHandle.classList.add('dragging');
+        resultsPanel.style.transition = 'none'; // Remove transition while dragging
         document.body.style.cursor = 'ns-resize';
         document.body.style.userSelect = 'none';
     });
@@ -2883,7 +2884,9 @@ function initResultsPanelResize() {
     document.addEventListener('mousemove', (e) => {
         if (!isResizing) return;
         const diff = startY - e.clientY;
-        const newHeight = Math.min(Math.max(startHeight + diff, 150), window.innerHeight - 100);
+        // Drag up (mouse Y decreases) = positive diff = increases height
+        // Drag down (mouse Y increases) = negative diff = decreases height
+        const newHeight = Math.min(Math.max(startHeight + diff, 100), window.innerHeight - 100);
         resultsPanel.style.height = newHeight + 'px';
         state.resultsPanelHeight = newHeight;
     });
@@ -2892,6 +2895,7 @@ function initResultsPanelResize() {
         if (isResizing) {
             isResizing = false;
             resizeHandle.classList.remove('dragging');
+            resultsPanel.style.transition = 'transform var(--transition-slow) var(--bounce)'; // Restore transition
             document.body.style.cursor = '';
             document.body.style.userSelect = '';
             localStorage.setItem(CONFIG.SETTINGS_KEY, JSON.stringify({ 
