@@ -1774,6 +1774,7 @@
         function updateHeatmapLayer(data, type = 'temperature') {
             if (heatmapLayer) {
                 map.removeLayer(heatmapLayer);
+                heatmapLayer = null;
             }
             
             if (!mapSettings.showTempHeatmap && !mapSettings.showSalinityHeatmap) {
@@ -1797,8 +1798,10 @@
                         1.0: '#ea580c'
                     }
                 });
-                heatmapLayer.setOpacity(mapSettings.heatmapOpacity);
                 heatmapLayer.addTo(map);
+                if (heatmapLayer._canvas) {
+                    heatmapLayer._canvas.style.opacity = mapSettings.heatmapOpacity;
+                }
             }
         }
         
@@ -1861,12 +1864,14 @@
             if (id === 'heatmapOpacity') {
                 mapSettings.heatmapOpacity = numValue;
                 document.getElementById('heatmapOpacityValue').textContent = value;
-                if (heatmapLayer) heatmapLayer.setOpacity(numValue);
+                if (heatmapLayer && heatmapLayer._canvas) {
+                    heatmapLayer._canvas.style.opacity = numValue;
+                }
             } else if (id === 'markerOpacity') {
                 mapSettings.markerOpacity = numValue;
                 document.getElementById('markerOpacityValue').textContent = value;
                 clearMarkers();
-                if (currentFloatData.length > 0) {
+                if (currentFloatData && currentFloatData.length > 0) {
                     plotFloatMarkers(currentFloatData);
                 }
             }
