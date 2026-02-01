@@ -4,7 +4,7 @@
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0A2647,25:144272,50:205295,75:2C74B3,100:0A2647&height=250&section=header&text=🌊%20FloatChart&fontSize=80&fontColor=ffffff&animation=twinkling&fontAlignY=35&desc=AI-Powered%20Ocean%20Intelligence%20Platform&descSize=25&descAlignY=55&descAlign=50" width="100%"/>
 
 <!-- Typing Animation -->
-<a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=28&duration=3000&pause=1000&color=2C74B3&center=true&vCenter=true&multiline=true&repeat=false&width=800&height=80&lines=Transform+Ocean+Data+into+Actionable+Insights;Ask+Questions+in+Plain+English+%E2%80%94+Get+Instant+Answers" alt="Typing SVG" /></a>
+<a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=26&duration=3000&pause=1000&color=2C74B3&center=true&vCenter=true&multiline=true&repeat=false&width=800&height=80&lines=Transform+Ocean+Data+into+Actionable+Insights;Ask+Questions+in+Plain+English+%E2%80%94+Get+Instant+Answers" alt="Typing SVG" /></a>
 
 <br/>
 
