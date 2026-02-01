@@ -2587,6 +2587,13 @@ function addMessage(text, type, suggestions = null) {
         msg.style.transform = 'translateY(0)';
     });
     
+    // Add reactions for AI messages
+    if (type === 'assistant') {
+        setTimeout(() => {
+            addMessageReactions(msg, msg.dataset.messageId);
+        }, 400);
+    }
+    
     el.chatMessages.scrollTop = el.chatMessages.scrollHeight;
 }
 
@@ -2693,6 +2700,130 @@ function removeTypingIndicator(id) {
         element.style.transition = 'opacity 0.3s ease';
         setTimeout(() => element.remove(), 300);
     }
+}
+
+// ========================================
+// Message Reactions System
+// ========================================
+
+const REACTIONS_KEY = 'floatchart_message_reactions';
+
+function addMessageReactions(messageElement, messageId) {
+    // Check if reactions already exist
+    if (messageElement.querySelector('.message-reactions')) {
+        return;
+    }
+    
+    const reactionsHTML = `
+        <div class="message-reactions">
+            <span class="reactions-label">Was this helpful?</span>
+            <button class="reaction-btn helpful" 
+                    onclick="handleReaction('${messageId}', 'helpful')" 
+                    data-reaction="helpful"
+                    title="Helpful response">
+                <span class="reaction-emoji">👍</span>
+                <span>Helpful</span>
+            </button>
+            <button class="reaction-btn not-helpful" 
+                    onclick="handleReaction('${messageId}', 'not-helpful')" 
+                    data-reaction="not-helpful"
+                    title="Not helpful">
+                <span class="reaction-emoji">👎</span>
+                <span>Not helpful</span>
+            </button>
+            <button class="reaction-btn excellent" 
+                    onclick="handleReaction('${messageId}', 'excellent')" 
+                    data-reaction="excellent"
+                    title="Excellent answer">
+                <span class="reaction-emoji">⭐</span>
+                <span>Excellent</span>
+            </button>
+        </div>
+    `;
+    
+    messageElement.insertAdjacentHTML('beforeend', reactionsHTML);
+    
+    // Restore previous reaction if exists
+    const savedReactions = getSavedReactions();
+    if (savedReactions[messageId]) {
+        const reactionType = savedReactions[messageId];
+        const btn = messageElement.querySelector(`[data-reaction="${reactionType}"]`);
+        if (btn) {
+            btn.classList.add('active');
+        }
+    }
+}
+
+function handleReaction(messageId, reactionType) {
+    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (!messageElement) return;
+    
+    const allButtons = messageElement.querySelectorAll('.reaction-btn');
+    const clickedButton = messageElement.querySelector(`[data-reaction="${reactionType}"]`);
+    
+    // Check if already active (toggle off)
+    const wasActive = clickedButton.classList.contains('active');
+    
+    // Remove active from all buttons
+    allButtons.forEach(btn => btn.classList.remove('active'));
+    
+    if (!wasActive) {
+        // Activate clicked button
+        clickedButton.classList.add('active');
+        
+        // Save reaction
+        saveReaction(messageId, reactionType);
+        
+        // Show feedback
+        showReactionFeedback(reactionType);
+    } else {
+        // Remove reaction
+        removeReaction(messageId);
+    }
+}
+
+function saveReaction(messageId, reactionType) {
+    const reactions = getSavedReactions();
+    reactions[messageId] = reactionType;
+    localStorage.setItem(REACTIONS_KEY, JSON.stringify(reactions));
+}
+
+function removeReaction(messageId) {
+    const reactions = getSavedReactions();
+    delete reactions[messageId];
+    localStorage.setItem(REACTIONS_KEY, JSON.stringify(reactions));
+}
+
+function getSavedReactions() {
+    try {
+        return JSON.parse(localStorage.getItem(REACTIONS_KEY) || '{}');
+    } catch {
+        return {};
+    }
+}
+
+function showReactionFeedback(reactionType) {
+    const messages = {
+        'helpful': 'Thank you for your feedback! 👍',
+        'not-helpful': 'We\'ll improve our responses 💪',
+        'excellent': 'Glad we could help! ⭐'
+    };
+    
+    const message = messages[reactionType] || 'Feedback received!';
+    
+    // Create toast notification
+    const toast = document.createElement('div');
+    toast.className = 'reaction-toast';
+    toast.textContent = message;
+    toast.style.animation = 'toastSlideIn 0.3s ease-out';
+    
+    document.body.appendChild(toast);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.animation = 'toastSlideOut 0.3s ease-out';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
 // ========================================
