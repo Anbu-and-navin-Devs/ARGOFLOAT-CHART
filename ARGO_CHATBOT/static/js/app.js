@@ -115,7 +115,8 @@ function showDemoNoticePopup() {
                                 This demo includes:
                             </p>
                             <p style="color: #94a3b8; margin: 0; font-size: 14px;">
-                                Last <strong style="color: #0ea5e9;">12 months</strong> of ARGO float ocean data
+                                <strong style="color: #0ea5e9;">India Ocean Region</strong> (Jan 2025 - Jan 2026)<br/>
+                                <span style="font-size: 12px;">2.6M records • 161 floats • 0°-28°N, 55°-100°E</span>
                             </p>
                         </div>
                     </div>

@@ -53,9 +53,11 @@ def clean_deployment_files(project_root):
     """
     Remove deployment-specific files after local setup.
     These files are only needed for cloud deployment (Render).
+    Local users don't need these - keeps their workspace clean.
     """
     deployment_files = [
         project_root / "Procfile",
+        project_root / "ARGO_CHATBOT" / ".env",  # Remove deployed .env for local setup
     ]
     
     for file_path in deployment_files:
@@ -65,6 +67,20 @@ def clean_deployment_files(project_root):
                 print_success(f"Cleaned deployment file: {file_path.name}")
             except Exception:
                 pass  # Ignore errors
+    
+    # Show cleanup notice
+    print(f"""
+{Colors.CYAN}{'─'*60}{Colors.END}
+{Colors.BOLD}📋 Local Setup Notes:{Colors.END}
+
+  • Deployment files removed (not needed locally)
+  • Create YOUR OWN .env at project root with YOUR credentials
+  • The deployed demo has limited data (India region, 2025-2026)
+  • Local setup gives you UNLIMITED data access!
+
+{Colors.GREEN}Tip:{Colors.END} Use Data Manager to download full ARGO dataset
+{Colors.CYAN}{'─'*60}{Colors.END}
+""")
 
 def check_python_version():
     """Check if Python version is compatible."""

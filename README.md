@@ -242,14 +242,17 @@ These floats drift at depth and surface every **10 days** to transmit data via s
 | | 🌐 **Live Demo** | 💻 **Local Setup** |
 |:-|:----------------:|:------------------:|
 | **URL** | [argofloat-chart-hank.onrender.com](https://argofloat-chart-hank.onrender.com) | http://localhost:5000 |
-| **Data Records** | ~45 Million | **unlimited** (full dataset) |
-| **Query Speed** | Network dependent | ⚡ **Instant** (local DB) |
-| **Storage** | Limited (free tier) | **Unlimited** |
+| **Data Records** | ~2.6 Million (India region, 2025-2026) | **Unlimited** (full global dataset) |
+| **Coverage** | India waters only (0°-28°N, 55°-100°E) | **Global** (all oceans) |
+| **Query Speed** | Fast (~0.1-0.5s) | ⚡ **Instant** (local DB) |
+| **Storage** | 500 MB (Neon free tier) | **Unlimited** |
 | **Data Manager** | ❌ Not available | ✅ **Full access** |
 | **Setup Required** | None — just click! | PostgreSQL + 5 min setup |
-| **Best For** | Quick preview & testing | Serious research & analysis |
+| **Best For** | Quick preview & demo | Research & full analysis |
 
 </div>
+
+> ⚠️ **Note:** The live demo shows a popup explaining the limited data coverage. For the complete 46M+ record dataset, run locally!
 
 <br/>
 
