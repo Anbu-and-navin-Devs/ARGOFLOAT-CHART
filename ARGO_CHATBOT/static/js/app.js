@@ -2963,7 +2963,8 @@ function handleShareOption(type) {
 // ========================================
 function setLoading(loading) {
     state.isLoading = loading;
-    el.loadingOverlay?.classList.toggle('hidden', !loading);
+    // Removed loading overlay - just use typing indicator in chat
+    // el.loadingOverlay?.classList.toggle('hidden', !loading);
     if (el.sendBtn) el.sendBtn.disabled = loading;
 }
 
