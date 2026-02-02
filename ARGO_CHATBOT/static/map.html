@@ -2353,14 +2353,21 @@
             if (!markerElement) return;
             
             if (highlight) {
-                // Add highlight effect - stays in place
-                markerElement.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                // Store original transform if not already stored
+                if (!markerElement.dataset.originalTransform) {
+                    markerElement.dataset.originalTransform = markerElement.style.transform || '';
+                }
+                
+                // Get original transform and add scale
+                const originalTransform = markerElement.dataset.originalTransform;
+                markerElement.style.transform = originalTransform + ' scale(1.5)';
                 markerElement.style.zIndex = '10000';
                 markerElement.style.filter = 'drop-shadow(0 0 12px rgba(59, 130, 246, 0.8))';
                 markerElement.style.transition = 'all 0.3s ease';
             } else {
-                // Remove highlight effect
-                markerElement.style.transform = 'translate(-50%, -50%)';
+                // Restore original transform
+                const originalTransform = markerElement.dataset.originalTransform || '';
+                markerElement.style.transform = originalTransform;
                 markerElement.style.zIndex = '';
                 markerElement.style.filter = '';
             }
