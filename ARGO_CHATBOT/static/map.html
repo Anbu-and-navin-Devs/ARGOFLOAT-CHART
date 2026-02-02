@@ -540,12 +540,23 @@
             border-radius: var(--radius-sm);
             margin-bottom: 8px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 1;
         }
         
         .float-item:hover {
             border-color: var(--accent);
             background: var(--bg-hover);
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+            z-index: 10;
+        }
+        
+        .float-item.selected {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
         }
         
         .float-item-header {
@@ -2494,6 +2505,10 @@
                 }
             });
             
+            // Hide sections above float list
+            el.clickedLocation.classList.add('hidden');
+            document.querySelector('.summary-stats')?.classList.add('hidden');
+            
             // Update UI - keep nearby floats visible but add float info
             el.floatBadge.textContent = `Float ${floatId}`;
             el.floatBadge.classList.remove('hidden');
@@ -2563,6 +2578,10 @@
                 el.profileSection.classList.add('hidden');
                 el.trajectorySection.classList.add('hidden');
                 el.panelTitle.textContent = Object.keys(floatGroups).length + ' Floats Found';
+                
+                // Show sections above float list again
+                el.clickedLocation.classList.remove('hidden');
+                document.querySelector('.summary-stats')?.classList.remove('hidden');
                 
                 // Remove selected state from list items
                 el.floatList.querySelectorAll('.float-item').forEach(item => {
