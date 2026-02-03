@@ -1927,6 +1927,29 @@
             });
         }
         
+        function addTemperatureLegendToMap() {
+            if (!map) return;
+            
+            const legend = L.control({ position: 'bottomleft' });
+            
+            legend.onAdd = function() {
+                const div = L.DomUtil.create('div', 'temperature-legend');
+                div.innerHTML = `
+                    <div class="legend-title">🌡️ Temperature</div>
+                    <div class="legend-gradient"></div>
+                    <div class="legend-labels">
+                        <span>Cold<br><15°C</span>
+                        <span>Cool<br>15-20°C</span>
+                        <span>Warm<br>20-25°C</span>
+                        <span>Hot<br>>25°C</span>
+                    </div>
+                `;
+                return div;
+            };
+            
+            legend.addTo(map);
+        }
+        
         function initMap() {
             map = L.map(el.map, {
                 center: [10, 75],
@@ -1938,6 +1961,9 @@
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 maxZoom: 19
             }).addTo(map);
+            
+            // Add temperature legend
+            addTemperatureLegendToMap();
             
             // Map click handler
             map.on('click', onMapClick);
